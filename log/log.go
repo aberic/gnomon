@@ -17,7 +17,7 @@
 package log
 
 import (
-	"github.com/aberic/common/env"
+	"github.com/aberic/gnomon/env"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -76,7 +76,7 @@ func GetLogInstance() *Logger {
 				Compress:   true,
 			},
 		}
-		Common = instance.New(strings.Join([]string{logPath, "common.log"}, "/"), "common")
+		Common = instance.New(strings.Join([]string{logPath, "gnomon.log"}, "/"), "gnomon")
 		Discovery = instance.New(strings.Join([]string{logPath, "discovery.log"}, "/"), "discovery")
 		Examples = instance.New(strings.Join([]string{logPath, "examples.log"}, "/"), "examples")
 		Rivet = instance.New(strings.Join([]string{logPath, "rivet.log"}, "/"), "rivet")
@@ -100,7 +100,7 @@ func (log *Logger) Init(logPath, serviceName string, config *Config, dev bool) {
 	initialize.Do(func() {
 		instance = &Logger{config}
 		if dev {
-			Common = instance.New(strings.Join([]string{logPath, "common.log"}, "/"), "common")
+			Common = instance.New(strings.Join([]string{logPath, "gnomon.log"}, "/"), "gnomon")
 			Discovery = instance.New(strings.Join([]string{logPath, "discovery.log"}, "/"), "discovery")
 			Examples = instance.New(strings.Join([]string{logPath, "examples.log"}, "/"), "examples")
 			Rivet = instance.New(strings.Join([]string{logPath, "rivet.log"}, "/"), "rivet")

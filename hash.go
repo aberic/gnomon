@@ -13,7 +13,7 @@
  *
  */
 
-package common
+package gnomon
 
 import (
 	"crypto"
@@ -24,44 +24,44 @@ import (
 	"encoding/hex"
 )
 
-type hashCommon struct {}
+type hashCommon struct{}
 
-func (h *hashCommon)MD5(text string) string {
+func (h *hashCommon) MD5(text string) string {
 	hash := md5.New()
 	hash.Write([]byte(text))
 	return hex.EncodeToString(hash.Sum(nil))
 }
 
-func (h *hashCommon)MD516(text string) string {
+func (h *hashCommon) MD516(text string) string {
 	md516 := string([]rune(h.MD5(text))[8:24])
 	return md516
 }
 
-func (h *hashCommon)Sha1(text string) string {
+func (h *hashCommon) Sha1(text string) string {
 	hash := sha1.New()
 	hash.Write([]byte(text))
 	return hex.EncodeToString(hash.Sum(nil))
 }
 
-func (h *hashCommon)Sha224(text string) string {
+func (h *hashCommon) Sha224(text string) string {
 	hash := crypto.SHA224.New()
 	hash.Write([]byte(text))
 	return hex.EncodeToString(hash.Sum(nil))
 }
 
-func (h *hashCommon)Sha256(text string) string {
+func (h *hashCommon) Sha256(text string) string {
 	hash := sha256.New()
 	hash.Write([]byte(text))
 	return hex.EncodeToString(hash.Sum(nil))
 }
 
-func (h *hashCommon)Sha384(text string) string {
+func (h *hashCommon) Sha384(text string) string {
 	hash := sha512.New384()
 	hash.Write([]byte(text))
 	return hex.EncodeToString(hash.Sum(nil))
 }
 
-func (h *hashCommon)Sha512(text string) string {
+func (h *hashCommon) Sha512(text string) string {
 	hash := sha512.New()
 	hash.Write([]byte(text))
 	return hex.EncodeToString(hash.Sum(nil))

@@ -14,63 +14,26 @@
  */
 
 // Package env 环境变量工具
-package common
+package gnomon
 
 import (
 	"os"
 	"strings"
 )
 
-type envCommon struct {}
-
-const (
-	// LogPath 日志文件输出路径
-	LogPath = "LOG_PATH"
-	// ServiceName 当前启动服务名
-	ServiceName = "SERVICE_NAME"
-	// Port 当前服务启动端口号
-	Port = "PORT"
-	// HealthCheck 是否开启健康检查
-	HealthCheck = "HEALTH_CHECK"
-	// ServerManager 是否启用服务管理功能
-	ServerManager = "SERVER_MANAGER"
-	// LoadBalance 是否启用负载均衡
-	LoadBalance = "LOAD_BALANCE"
-	// OpenTLS 是否开启 TLS
-	OpenTLS = "OPEN_TLS"
-	// ConfigPath Bow配置文件路径
-	ConfigPath = "CONFIG_PATH"
-	// DiscoveryInit 是否启用发现服务
-	DiscoveryInit = "DISCOVERY_INIT"
-	// DiscoveryComponent 所启用发现服务组件名
-	DiscoveryComponent = "DISCOVERY_COMPONENT"
-	// DiscoveryURL 当前服务注册的发现服务地址
-	DiscoveryURL = "DISCOVERY_URL"
-	// DiscoveryReceiveHost 发现服务收到当前注册服务的地址
-	DiscoveryReceiveHost = "DISCOVERY_RECEIVE_HOST"
-	// GOPath Go工作路径
-	GOPath = "GOPATH"
-	// DBUrl 数据库 URL
-	DBUrl = "DB_URL"
-	// DBName 数据库名称
-	DBName = "DB_NAME"
-	// DBUser 数据库用户名
-	DBUser = "DB_USER"
-	// DBPass 数据库用户密码
-	DBPass = "DB_PASS"
-)
+type envCommon struct{}
 
 // GetEnv 获取环境变量 envName 的值
 //
 // envName 环境变量名称
-func (e *envCommon)GetEnv(envName string) string {
+func (e *envCommon) GetEnv(envName string) string {
 	return os.Getenv(envName)
 }
 
 // GetEnvBool 获取环境变量 envName 的 bool 值
 //
 // envName 环境变量名称
-func (e *envCommon)GetEnvBool(envName string) bool {
+func (e *envCommon) GetEnvBool(envName string) bool {
 	return strings.EqualFold(os.Getenv(envName), "true")
 }
 
@@ -79,7 +42,7 @@ func (e *envCommon)GetEnvBool(envName string) bool {
 // envName 环境变量名称
 //
 // defaultValue 环境变量为空时的默认值
-func (e *envCommon)GetEnvDefault(envName string, defaultValue string) string {
+func (e *envCommon) GetEnvDefault(envName string, defaultValue string) string {
 	env := e.GetEnv(envName)
 	if String().IsEmpty(env) {
 		return defaultValue
@@ -92,7 +55,7 @@ func (e *envCommon)GetEnvDefault(envName string, defaultValue string) string {
 // envName 环境变量名称
 //
 // defaultValue 环境变量为空时的默认值
-func (e *envCommon)GetEnvBoolDefault(envName string, defaultValue bool) bool {
+func (e *envCommon) GetEnvBoolDefault(envName string, defaultValue bool) bool {
 	env := e.GetEnv(envName)
 	if String().IsEmpty(env) {
 		return defaultValue

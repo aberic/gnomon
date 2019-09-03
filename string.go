@@ -14,7 +14,7 @@
  */
 
 // Package str 字符串类型工具类
-package common
+package gnomon
 
 import (
 	"bytes"

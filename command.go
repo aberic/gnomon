@@ -12,20 +12,20 @@
  * limitations under the License.
  */
 
-package common
+package gnomon
 
 import (
 	"bufio"
 	"errors"
 	"fmt"
-	"github.com/aberic/common/log"
+	"github.com/aberic/gnomon/log"
 	"io"
 	"io/ioutil"
 	"os/exec"
 	"strings"
 )
 
-type commandCommon struct {}
+type commandCommon struct{}
 
 // ExecCommand 执行cmd命令
 //
@@ -38,7 +38,7 @@ type commandCommon struct {}
 // int 执行命令后输出总行数
 //
 // []string 执行命令后输出内容按行放入字符串数组
-func (c *commandCommon)ExecCommand(commandName string, params ...string) (int, []string, error) {
+func (c *commandCommon) ExecCommand(commandName string, params ...string) (int, []string, error) {
 	var (
 		err          error
 		stdout       io.ReadCloser
@@ -97,7 +97,7 @@ ERR:
 }
 
 // ExecCommandTail 实时打印执行脚本过程中的命令
-func (c *commandCommon)ExecCommandTail(commandName string, params ...string) (int, []string, error) {
+func (c *commandCommon) ExecCommandTail(commandName string, params ...string) (int, []string, error) {
 	var (
 		err          error
 		stdout       io.ReadCloser

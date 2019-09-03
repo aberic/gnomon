@@ -13,23 +13,23 @@
  */
 
 // Package jwt jwt操作工具
-package common
+package gnomon
 
 import (
-	"github.com/aberic/common/log"
+	"github.com/aberic/gnomon/log"
 	"github.com/dgrijalva/jwt-go"
 	"go.uber.org/zap"
 )
 
-type jwtCommon struct {}
+type jwtCommon struct{}
 
 const (
-	// SigningMethodHS256 HS256
-	SigningMethodHS256 = iota
-	// SigningMethodHS384 HS384
-	SigningMethodHS384
-	// SigningMethodHS512 HS512
-	SigningMethodHS512
+	// signingMethodHS256 HS256
+	signingMethodHS256 = iota
+	// signingMethodHS384 HS384
+	signingMethodHS384
+	// signingMethodHS512 HS512
+	signingMethodHS512
 )
 
 // Build 创建一个 jwt token
@@ -39,14 +39,14 @@ const (
 // "exp": 1454516119, token什么时候过期
 // "nbf": 1451888119, token在此时间之前不能被接收处理
 // "jti": "37c107e4609ddbcc9c096ea5ee76c667" token提供唯一标识
-func (j *jwtCommon)Build(method int, key interface{}, sub, iss, jti string, iat, nbf, exp int64) (string, error) {
+func (j *jwtCommon) Build(method int, key interface{}, sub, iss, jti string, iat, nbf, exp int64) (string, error) {
 	var jwtMethod jwt.SigningMethod
 	switch method {
-	case SigningMethodHS256:
+	case signingMethodHS256:
 		jwtMethod = jwt.SigningMethodHS256
-	case SigningMethodHS384:
+	case signingMethodHS384:
 		jwtMethod = jwt.SigningMethodHS384
-	case SigningMethodHS512:
+	case signingMethodHS512:
 		jwtMethod = jwt.SigningMethodHS512
 	default:
 		jwtMethod = jwt.SigningMethodHS256

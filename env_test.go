@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package common
+package gnomon
 
 import (
 	"fmt"

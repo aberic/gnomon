@@ -192,7 +192,7 @@ func Object(key string, val zapcore.ObjectMarshaler) zapcore.Field {
 	return zapcore.Field{Key: key, Type: zapcore.ObjectMarshalerType, Interface: val}
 }
 
-// Error is shorthand for the common idiom NamedError("error", err).
+// Error is shorthand for the gnomon idiom NamedError("error", err).
 func Error(err error) zapcore.Field {
 	return NamedError("error", err)
 }
@@ -202,7 +202,7 @@ func Error(err error) zapcore.Field {
 // by github.com/pkg/errors) will also have their verbose representation stored
 // under key+"Verbose". If passed a nil error, the field is a no-op.
 //
-// For the common case in which the key is simply "error", the Error function
+// For the gnomon case in which the key is simply "error", the Error function
 // is shorter and less repetitive.
 func NamedError(key string, err error) zapcore.Field {
 	if err == nil {

@@ -13,10 +13,10 @@
  */
 
 // Package sql SQL操作工具
-package common
+package gnomon
 
 import (
-	"github.com/aberic/common/log"
+	"github.com/aberic/gnomon/log"
 	"github.com/ennoo/rivet/utils/env"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
@@ -24,6 +24,17 @@ import (
 	"strings"
 	"sync"
 	"time"
+)
+
+const (
+	// dbUrlEnv 数据库 URL
+	dbUrlEnv = "DB_URL"
+	// dbNameEnv 数据库名称
+	dbNameEnv = "DB_NAME"
+	// dbUserEnv 数据库用户名
+	dbUserEnv = "DB_USER"
+	// dbPassEnv 数据库用户密码
+	dbPassEnv = "DB_PASS"
 )
 
 var (
@@ -63,10 +74,10 @@ func GetSQLInstance() *SQL {
 // logModeEnable set log mode, `true` for detailed logs, `false` for no log, default, will only print error logs
 func (s *SQL) Connect(dbURL, dbUser, dbPass, dbName string, logModeEnable bool) error {
 	if nil == s.DB {
-		s.DBUrl = Env().GetEnvDefault(env.DBUrl, dbURL)
-		s.DBUser = env.GetEnvDefault(env.DBUser, dbUser)
-		s.DBPass = env.GetEnvDefault(env.DBPass, dbPass)
-		s.DBName = env.GetEnvDefault(env.DBName, dbName)
+		s.DBUrl = Env().GetEnvDefault(dbUrlEnv, dbURL)
+		s.DBUser = env.GetEnvDefault(dbUserEnv, dbUser)
+		s.DBPass = env.GetEnvDefault(dbPassEnv, dbPass)
+		s.DBName = env.GetEnvDefault(dbNameEnv, dbName)
 		s.LogModeEnable = logModeEnable
 		log.Common.Info("init DB Manager")
 		dbValue := strings.Join([]string{s.DBUser, ":", s.DBPass, "@tcp(", s.DBUrl, ")/", s.DBName,

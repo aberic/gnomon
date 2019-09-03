@@ -14,17 +14,17 @@
  */
 
 // Package ip ip工具
-package common
+package gnomon
 
 import (
 	"net"
 	"net/http"
 )
 
-type ipCommon struct {}
+type ipCommon struct{}
 
 // Get 返回客户端 IP
-func (i *ipCommon)Get(req *http.Request) string {
+func (i *ipCommon) Get(req *http.Request) string {
 	remoteAddr := req.RemoteAddr
 	if ip := req.Header.Get("X-Real-IP"); ip != "" {
 		remoteAddr = ip

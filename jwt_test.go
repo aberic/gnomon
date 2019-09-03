@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package common
+package gnomon
 
 import (
 	"fmt"
@@ -22,9 +22,9 @@ import (
 
 func TestBuild(t *testing.T) {
 	key := []byte("Hello World！This is secret!")
-	tokenString1, err1 := Jwt().Build(SigningMethodHS256, key, "1", "rivet", "userMD5", time.Now().Unix(), time.Now().Unix(), time.Now().Unix()+1000)
-	tokenString2, err2 := Jwt().Build(SigningMethodHS384, key, "1", "rivet", "userMD5", time.Now().Unix(), time.Now().Unix(), time.Now().Unix()+1000)
-	tokenString3, err3 := Jwt().Build(SigningMethodHS512, key, "1", "rivet", "userMD5", time.Now().Unix(), time.Now().Unix(), time.Now().Unix()+1000)
+	tokenString1, err1 := Jwt().Build(signingMethodHS256, key, "1", "rivet", "userMD5", time.Now().Unix(), time.Now().Unix(), time.Now().Unix()+1000)
+	tokenString2, err2 := Jwt().Build(signingMethodHS384, key, "1", "rivet", "userMD5", time.Now().Unix(), time.Now().Unix(), time.Now().Unix()+1000)
+	tokenString3, err3 := Jwt().Build(signingMethodHS512, key, "1", "rivet", "userMD5", time.Now().Unix(), time.Now().Unix(), time.Now().Unix()+1000)
 	if nil == err1 && nil == err2 && nil == err3 {
 		fmt.Println("tokenString1 = ", tokenString1)
 		fmt.Println("tokenString2 = ", tokenString2)

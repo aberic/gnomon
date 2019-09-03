@@ -14,12 +14,12 @@
  */
 
 // Package file 文件操作工具
-package common
+package gnomon
 
 import (
 	"bufio"
 	"errors"
-	"github.com/aberic/common/log"
+	"github.com/aberic/gnomon/log"
 	"io"
 	"os"
 	"strings"

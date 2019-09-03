@@ -13,7 +13,7 @@
  *
  */
 
-package common
+package gnomon
 
 import (
 	"github.com/ennoo/rivet/utils/env"
