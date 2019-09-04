@@ -20,6 +20,7 @@ import (
 	"bufio"
 	"errors"
 	"io"
+	"io/ioutil"
 	"os"
 	"strings"
 )
@@ -96,4 +97,27 @@ func (f *fileCommon) CreateAndWrite(filePath string, data []byte, force bool) er
 			return nil
 		}
 	}
+}
+
+// LoopFile 遍历文件夹及子文件夹下的所有文件
+func (f *fileCommon) LoopFile(pathname string, s []string) ([]string, error) {
+	rd, err := ioutil.ReadDir(pathname)
+	if err != nil {
+		Log().Debug("read dir fail", LogErr(err))
+		return s, err
+	}
+	for _, fi := range rd {
+		if fi.IsDir() {
+			fullDir := pathname + "/" + fi.Name()
+			s, err = f.LoopFile(fullDir, s)
+			if err != nil {
+				Log().Debug("read dir fail", LogErr(err))
+				return s, err
+			}
+		} else {
+			fullName := pathname + "/" + fi.Name()
+			s = append(s, fullName)
+		}
+	}
+	return s, nil
 }

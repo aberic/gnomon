@@ -108,3 +108,12 @@ func TestCreateAndWrite(t *testing.T) {
 		t.Log("success")
 	}
 }
+
+func TestGetAllFile(t *testing.T) {
+	var s []string
+	if arr, err := File().LoopFile("./log", s); nil != err {
+		t.Skip(err)
+	} else {
+		t.Log(arr)
+	}
+}
