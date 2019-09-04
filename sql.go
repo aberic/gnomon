@@ -16,8 +16,6 @@
 package gnomon
 
 import (
-	"github.com/aberic/gnomon/log"
-	"github.com/ennoo/rivet/utils/env"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/robfig/cron"
@@ -75,18 +73,18 @@ func GetSQLInstance() *SQL {
 func (s *SQL) Connect(dbURL, dbUser, dbPass, dbName string, logModeEnable bool) error {
 	if nil == s.DB {
 		s.DBUrl = Env().GetEnvDefault(dbUrlEnv, dbURL)
-		s.DBUser = env.GetEnvDefault(dbUserEnv, dbUser)
-		s.DBPass = env.GetEnvDefault(dbPassEnv, dbPass)
-		s.DBName = env.GetEnvDefault(dbNameEnv, dbName)
+		s.DBUser = Env().GetEnvDefault(dbUserEnv, dbUser)
+		s.DBPass = Env().GetEnvDefault(dbPassEnv, dbPass)
+		s.DBName = Env().GetEnvDefault(dbNameEnv, dbName)
 		s.LogModeEnable = logModeEnable
-		log.Common.Info("init DB Manager")
+		Log().Info("Connect init DB Manager")
 		dbValue := strings.Join([]string{s.DBUser, ":", s.DBPass, "@tcp(", s.DBUrl, ")/", s.DBName,
 			"?charset=utf8&parseTime=True&loc=Local"}, "")
-		log.Common.Debug("dbValue = " + dbValue)
+		Log().Debug("Connect", LogField("dbValue", dbValue))
 		var err error
 		s.DB, err = gorm.Open("mysql", dbValue)
 		if err != nil {
-			log.Common.Error("failed to connect database, err = " + err.Error())
+			Log().Error("failed to connect database", LogErr(err))
 			return err
 		}
 		s.DB.LogMode(logModeEnable)

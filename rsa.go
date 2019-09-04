@@ -10,7 +10,6 @@ import (
 	"encoding/hex"
 	"encoding/pem"
 	"errors"
-	"github.com/aberic/gnomon/log"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -190,7 +189,7 @@ func (r *rsaCommon) RsaSign3(privateKeyPath string, data []byte) (string, error)
 func (r *rsaCommon) RsaSign4(privateKey, data []byte) (string, error) {
 	priv, err := x509.ParsePKCS8PrivateKey(privateKey)
 	if err != nil {
-		log.Self.Error("ParsePKCS8PrivateKey err", log.Error(err))
+		Log().Error("RsaSign4 ParsePKCS8PrivateKey Error", LogErr(err))
 		return "", err
 	}
 	h := sha1.New()
@@ -198,7 +197,7 @@ func (r *rsaCommon) RsaSign4(privateKey, data []byte) (string, error) {
 	hash := h.Sum(nil)
 	signature, err := rsa.SignPKCS1v15(rand.Reader, priv.(*rsa.PrivateKey), crypto.SHA1, hash[:])
 	if err != nil {
-		log.Self.Error("Error from signing", log.Error(err))
+		Log().Error("RsaSign4 Error from signing", LogErr(err))
 		return "", err
 	}
 	out := hex.EncodeToString(signature)

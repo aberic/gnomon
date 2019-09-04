@@ -18,7 +18,6 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"github.com/aberic/gnomon/log"
 	"io"
 	"io/ioutil"
 	"os/exec"
@@ -49,7 +48,7 @@ func (c *commandCommon) ExecCommand(commandName string, params ...string) (int, 
 	)
 	cmd := exec.Command(commandName, params...)
 	//显示运行的命令
-	log.Self.Info("exec: ", log.String("cmd", strings.Join([]string{commandName, strings.Join(cmd.Args[1:], " ")}, " ")))
+	Log().Debug("ExecCommand", LogField("cmd", strings.Join([]string{commandName, strings.Join(cmd.Args[1:], " ")}, " ")))
 	if stdout, err = cmd.StdoutPipe(); err != nil {
 		goto ERR
 	} else {
@@ -92,7 +91,7 @@ func (c *commandCommon) ExecCommand(commandName string, params ...string) (int, 
 		return line, contentArray, nil
 	}
 ERR:
-	log.Self.Error("error", log.Error(err))
+	Log().Error("ExecCommand", LogErr(err))
 	return 0, nil, err
 }
 
@@ -150,7 +149,7 @@ ERR:
 	if strings.Contains(errStr, "error") || strings.Contains(errStr, "Error") ||
 		strings.Contains(errStr, "ERROR") || strings.Contains(errStr, "fail") ||
 		strings.Contains(errStr, "Fail") || strings.Contains(errStr, "FAIL") {
-		log.Self.Error("error", log.Error(err))
+		Log().Error("ExecCommandTail", LogErr(err))
 		return 0, nil, err
 	} else {
 		strArr := strings.Split(errStr, "\n")

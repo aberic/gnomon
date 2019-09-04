@@ -24,8 +24,8 @@ import (
 type byteCommon struct{}
 
 // GetBytes 获取接口字节数组
-func (b *byteCommon) GetBytes(key interface{}) ([]bc, error) {
-	var buf bc.Buffer
+func (b *byteCommon) GetBytes(key interface{}) ([]byte, error) {
+	var buf bytes.Buffer
 	enc := gob.NewEncoder(&buf)
 	err := enc.Encode(key)
 	if err != nil {
@@ -35,10 +35,10 @@ func (b *byteCommon) GetBytes(key interface{}) ([]bc, error) {
 }
 
 // IntToBytes 整形转换成字节
-func (b *byteCommon) IntToBytes(n int) ([]bc, error) {
+func (b *byteCommon) IntToBytes(n int) ([]byte, error) {
 	x := int32(n)
 
-	bytesBuffer := bytes.NewBuffer([]bc{})
+	bytesBuffer := bytes.NewBuffer([]byte{})
 	if err := binary.Write(bytesBuffer, binary.BigEndian, x); nil != err {
 		return nil, err
 	}
@@ -46,8 +46,8 @@ func (b *byteCommon) IntToBytes(n int) ([]bc, error) {
 }
 
 // BytesToInt 字节转换成整形
-func (b *byteCommon) BytesToInt(b []bc) (int, error) {
-	bytesBuffer := bytes.NewBuffer(b)
+func (b *byteCommon) BytesToInt(byte []byte) (int, error) {
+	bytesBuffer := bytes.NewBuffer(byte)
 
 	var x int32
 	if err := binary.Read(bytesBuffer, binary.BigEndian, &x); nil != err {
@@ -58,19 +58,19 @@ func (b *byteCommon) BytesToInt(b []bc) (int, error) {
 }
 
 // Int64ToBytes 整形64转换成字节
-func (b *byteCommon) Int64ToBytes(i int64) []bc {
-	var buf = make([]bc, 8)
+func (b *byteCommon) Int64ToBytes(i int64) []byte {
+	var buf = make([]byte, 8)
 	binary.BigEndian.PutUint64(buf, uint64(i))
 	return buf
 }
 
 // BytesToInt64 字节转换成整形64
-func (b *byteCommon) BytesToInt64(buf []bc) int64 {
+func (b *byteCommon) BytesToInt64(buf []byte) int64 {
 	return int64(binary.BigEndian.Uint64(buf))
 }
 
 // Append 字节数组追加
-func (b *byteCommon) Append(bs2 []bc, bsf []bc) []bc {
+func (b *byteCommon) Append(bs2 []byte, bsf []byte) []byte {
 	for _, b := range bsf {
 		bs2 = append(bs2, b)
 	}

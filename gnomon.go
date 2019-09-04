@@ -17,7 +17,9 @@
 
 package gnomon
 
-import "sync"
+import (
+	"sync"
+)
 
 var (
 	bc          *byteCommon
@@ -29,6 +31,7 @@ var (
 	sc          *stringCommon
 	hc          *hashCommon
 	rc          *rsaCommon
+	lc          *logCommon
 	onceByte    sync.Once
 	onceCommand sync.Once
 	onceEnv     sync.Once
@@ -38,6 +41,7 @@ var (
 	onceString  sync.Once
 	onceHash    sync.Once
 	onceRSA     sync.Once
+	onceLog     sync.Once
 )
 
 func Byte() *byteCommon {
@@ -101,4 +105,19 @@ func CryptoRSA() *rsaCommon {
 		rc = &rsaCommon{}
 	})
 	return rc
+}
+
+func Log() *logCommon {
+	onceLog.Do(func() {
+		lc = &logCommon{}
+	})
+	return lc
+}
+
+func LogField(key string, value interface{}) *field {
+	return &field{key: key, value: value}
+}
+
+func LogErr(err error) *field {
+	return &field{key: "error", value: err.Error()}
 }

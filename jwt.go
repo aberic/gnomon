@@ -16,9 +16,7 @@
 package gnomon
 
 import (
-	"github.com/aberic/gnomon/log"
 	"github.com/dgrijalva/jwt-go"
-	"go.uber.org/zap"
 )
 
 type jwtCommon struct{}
@@ -74,7 +72,7 @@ func (j *jwtCommon) token(jwtMethod jwt.SigningMethod, key interface{}, sub, iss
 	// Sign and get the complete encoded token as a string using the secret
 	tokenString, err = token.SignedString(key)
 
-	log.Common.Info("result", zap.String("token", tokenString), zap.Error(err))
+	Log().Debug("token", LogField("token", tokenString), LogErr(err))
 	return
 }
 
@@ -84,7 +82,7 @@ func (j *jwtCommon) Check(key interface{}, token string) bool {
 		return key, nil
 	})
 	if err != nil {
-		log.Common.Warn("parase with claims failed.", zap.Error(err))
+		Log().Warn("parase with claims failed.", LogErr(err))
 		return false
 	}
 	return true

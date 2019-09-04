@@ -19,7 +19,6 @@ package gnomon
 import (
 	"bufio"
 	"errors"
-	"github.com/aberic/gnomon/log"
 	"io"
 	"os"
 	"strings"
@@ -93,7 +92,7 @@ func (f *fileCommon) CreateAndWrite(filePath string, data []byte, force bool) er
 		if n, err := file.Write(data); nil != err { // 写入byte的slice数据
 			return err
 		} else {
-			log.Rivet.Debug("write", log.Int("byte count", n))
+			Log().Debug("CreateAndWrite", LogField("byte count", n))
 			return nil
 		}
 	}
