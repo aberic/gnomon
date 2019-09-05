@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"os"
 	"testing"
+	"time"
 )
 
 func TestPathExists(t *testing.T) {
@@ -111,9 +112,18 @@ func TestCreateAndWrite(t *testing.T) {
 
 func TestGetAllFile(t *testing.T) {
 	var s []string
-	if arr, err := File().LoopFile("./log", s); nil != err {
+	if arr, err := File().LoopAllFileFromDir("./log", s); nil != err {
 		t.Skip(err)
 	} else {
 		t.Log(arr)
 	}
+}
+
+func TestFileCommon_LoopDirFromDir(t *testing.T) {
+	if arr, err := File().LoopDirFromDir("./log"); nil != err {
+		t.Skip(err)
+	} else {
+		t.Log(arr)
+	}
+	t.Log(time.Now().Local().Format("20060102"))
 }

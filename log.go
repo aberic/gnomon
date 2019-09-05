@@ -3,6 +3,7 @@ package gnomon
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/robfig/cron"
 	"io"
 	"os"
 	"path/filepath"
@@ -55,6 +56,7 @@ type logCommon struct {
 	utc              bool             // CST & UTC 时间
 	date             string           // date 当前日志文件后缀日期
 	mkRootDirSuccess bool             // mkRootDirSuccess 是否成功初始化log对象
+	job              *cron.Cron       // job 日志定时清理任务
 	once             sync.Once        // once log对象只会被初始化一次
 }
 
@@ -100,13 +102,40 @@ func (l *logCommon) Init(logDir string, maxSize, maxAge int, utc bool) {
 		} else {
 			l.date = time.Now().Local().Format("20060102")
 		}
-		l.checkMaxAge()
+		l.job = cron.New()
+		go l.checkMaxAge()
 	})
 }
 
 // checkMaxAge 遍历并检查文件是否达到保存天数，达到则删除
 func (l *logCommon) checkMaxAge() {
-	// todo
+	// 每隔5秒执行一次：*/5 * * * * ?
+	// 每隔1分钟执行一次：0 */1 * * * ?
+	// 每天23点执行一次：0 0 23 * * ?
+	// 每天凌晨1点执行一次：0 0 1 * * ?
+	// 每月1号凌晨1点执行一次：0 0 1 1 * ?
+	// 在26分、29分、33分执行一次：0 26,29,33 * * * ?
+	// 每天的0点、13点、18点、21点都执行一次：0 0 0,13,18,21 * * ?
+	err := l.job.AddFunc(strings.Join([]string{"0 1 0 * * ?"}, ""), func() {
+		var timeDate string
+		if l.utc {
+			timeDate = time.Now().UTC().Format("20060102")
+		} else {
+			timeDate = time.Now().Local().Format("20060102")
+		}
+		logDirs, _ := File().LoopDirFromDir(l.logDir)
+		for _, dirName := range logDirs {
+			if strings.Contains(dirName, timeDate) {
+				_ = os.RemoveAll(dirName)
+			}
+		}
+	})
+	if nil != err {
+		time.Sleep(time.Second)
+		l.checkMaxAge()
+	} else {
+		l.job.Start()
+	}
 }
 
 // Set 设置日志可变属性
@@ -122,36 +151,48 @@ func (l *logCommon) Set(level Level, production bool) {
 func (l *logCommon) Debug(msg string, fields ...*field) {
 	if _, file, line, ok := runtime.Caller(1); ok {
 		l.logStandard(file, logNameDebug, msg, line, ok, DebugLevel, fields...)
+	} else {
+		l.Warn("log recovery fail")
 	}
 }
 
 func (l *logCommon) Info(msg string, fields ...*field) {
 	if _, file, line, ok := runtime.Caller(1); ok {
 		l.logStandard(file, logNameInfo, msg, line, ok, InfoLevel, fields...)
+	} else {
+		l.Warn("log recovery fail")
 	}
 }
 
 func (l *logCommon) Warn(msg string, fields ...*field) {
 	if _, file, line, ok := runtime.Caller(1); ok {
 		l.logStandard(file, logNameWarn, msg, line, ok, WarnLevel, fields...)
+	} else {
+		l.Warn("log recovery fail")
 	}
 }
 
 func (l *logCommon) Error(msg string, fields ...*field) {
 	if _, file, line, ok := runtime.Caller(1); ok {
 		l.logStandard(file, logNameError, msg, line, ok, ErrorLevel, fields...)
+	} else {
+		l.Warn("log recovery fail")
 	}
 }
 
 func (l *logCommon) Panic(msg string, fields ...*field) {
 	if _, file, line, ok := runtime.Caller(1); ok {
 		l.logStandard(file, logNamePanic, msg, line, ok, PanicLevel, fields...)
+	} else {
+		l.Warn("log recovery fail")
 	}
 }
 
 func (l *logCommon) Fatal(msg string, fields ...*field) {
 	if _, file, line, ok := runtime.Caller(1); ok {
 		l.logStandard(file, logNameFatal, msg, line, ok, FatalLevel, fields...)
+	} else {
+		l.Warn("log recovery fail")
 	}
 }
 

@@ -109,7 +109,7 @@ func CryptoRSA() *rsaCommon {
 
 func Log() *logCommon {
 	onceLog.Do(func() {
-		lc = &logCommon{}
+		lc = &logCommon{level: DebugLevel, production: false}
 	})
 	return lc
 }
@@ -119,5 +119,9 @@ func LogField(key string, value interface{}) *field {
 }
 
 func LogErr(err error) *field {
-	return &field{key: "error", value: err.Error()}
+	if nil != err {
+		return &field{key: "error", value: err.Error()}
+	} else {
+		return &field{key: "error", value: nil}
+	}
 }

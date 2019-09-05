@@ -99,8 +99,25 @@ func (f *fileCommon) CreateAndWrite(filePath string, data []byte, force bool) er
 	}
 }
 
-// LoopFile 遍历文件夹及子文件夹下的所有文件
-func (f *fileCommon) LoopFile(pathname string, s []string) ([]string, error) {
+// LoopDirFromDir 遍历文件夹下的所有子文件夹
+func (f *fileCommon) LoopDirFromDir(pathname string) ([]string, error) {
+	var s []string
+	rd, err := ioutil.ReadDir(pathname)
+	if err != nil {
+		Log().Debug("read dir fail", LogErr(err))
+		return s, err
+	}
+	for _, fi := range rd {
+		if fi.IsDir() {
+			fullName := pathname + "/" + fi.Name()
+			s = append(s, fullName)
+		}
+	}
+	return s, nil
+}
+
+// LoopAllFileFromDir 遍历文件夹及子文件夹下的所有文件
+func (f *fileCommon) LoopAllFileFromDir(pathname string, s []string) ([]string, error) {
 	rd, err := ioutil.ReadDir(pathname)
 	if err != nil {
 		Log().Debug("read dir fail", LogErr(err))
@@ -109,7 +126,7 @@ func (f *fileCommon) LoopFile(pathname string, s []string) ([]string, error) {
 	for _, fi := range rd {
 		if fi.IsDir() {
 			fullDir := pathname + "/" + fi.Name()
-			s, err = f.LoopFile(fullDir, s)
+			s, err = f.LoopAllFileFromDir(fullDir, s)
 			if err != nil {
 				Log().Debug("read dir fail", LogErr(err))
 				return s, err
