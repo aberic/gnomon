@@ -122,3 +122,14 @@ func (s *stringCommon) SingleSpace(res string) string {
 	}
 	return res
 }
+
+func (s *stringCommon) PrefixSupplementZero(str string, offset int) string {
+	backZero := offset - len(str)
+	if backZero <= 0 {
+		return str
+	}
+	for i := 0; i < backZero; i++ {
+		str = strings.Join([]string{"0", str}, "")
+	}
+	return str
+}

@@ -32,6 +32,7 @@ var (
 	hc          *hashCommon
 	rc          *rsaCommon
 	lc          *logCommon
+	scc         *scaleCommon
 	onceByte    sync.Once
 	onceCommand sync.Once
 	onceEnv     sync.Once
@@ -42,6 +43,7 @@ var (
 	onceHash    sync.Once
 	onceRSA     sync.Once
 	onceLog     sync.Once
+	onceScale   sync.Once
 )
 
 func Byte() *byteCommon {
@@ -124,4 +126,11 @@ func LogErr(err error) *field {
 	} else {
 		return &field{key: "error", value: nil}
 	}
+}
+
+func Scale() *scaleCommon {
+	onceScale.Do(func() {
+		scc = &scaleCommon{}
+	})
+	return scc
 }
