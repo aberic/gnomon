@@ -24,18 +24,13 @@ type rsaCommon struct{}
 // path 指定公私钥所在生成目录
 func (r *rsaCommon) GenerateRsaKey(bits int, path string) (err error) {
 	var (
-		exist      bool
 		privateKey *rsa.PrivateKey
 		publicKey  *rsa.PublicKey
 		fileIO     *os.File
 		derPkix    []byte
 	)
 	// 创建公私钥生成目录
-	exist, err = File().PathExists(path)
-	if nil != err {
-		return
-	}
-	if !exist {
+	if !File().PathExists(path) {
 		if err = os.MkdirAll(path, os.ModePerm); nil != err {
 			return
 		}

@@ -28,15 +28,15 @@ import (
 type fileCommon struct{}
 
 // PathExists 判断路径是否存在
-func (f *fileCommon) PathExists(path string) (bool, error) {
+func (f *fileCommon) PathExists(path string) bool {
 	_, err := os.Stat(path)
 	if err == nil {
-		return true, nil
+		return true
 	}
 	if os.IsNotExist(err) {
-		return false, nil
+		return false
 	}
-	return false, err
+	return false
 }
 
 // ReadFileFirstLine 从文件中逐行读取并返回字符串数组
@@ -75,7 +75,7 @@ func (f *fileCommon) ReadFileByLine(filePath string) ([]string, error) {
 
 // CreateAndWrite 创建并写入内容到文件中
 func (f *fileCommon) CreateAndWrite(filePath string, data []byte, force bool) error {
-	if exist, _ := f.PathExists(filePath); exist && !force {
+	if exist := f.PathExists(filePath); exist && !force {
 		return errors.New("file exist")
 	}
 	lastIndex := strings.LastIndex(filePath, "/")

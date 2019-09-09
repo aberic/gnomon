@@ -418,11 +418,7 @@ func (l *logCommon) findAvailableFile(level Level, fd *filed, printStringLength 
 // path 日志文件路径
 func (l *logCommon) logFilePath(fd *filed, level Level) string {
 	parentPath := filepath.Join(l.logDir, l.date)
-	if exist, err := File().PathExists(parentPath); !exist {
-		if nil != err {
-			l.Error("path get failed", LogErr(err))
-			return ""
-		}
+	if exist := File().PathExists(parentPath); !exist {
 		if err := os.MkdirAll(parentPath, os.ModePerm); nil != err {
 			l.Error("path mkdirAll error", LogErr(err))
 			return ""

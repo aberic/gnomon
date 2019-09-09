@@ -23,30 +23,18 @@ import (
 
 func TestPathExists(t *testing.T) {
 	path := "/etc/profile"
-	exist, err := File().PathExists(path)
-	if nil != err {
-		fmt.Println(err.Error())
-	} else {
-		fmt.Println(path, "exist =", exist)
-	}
+	exist := File().PathExists(path)
+	fmt.Println(path, "exist =", exist)
 
 	path = "/etc/hello"
-	exist, err = File().PathExists(path)
-	if nil != err {
-		fmt.Println(err.Error())
-	} else {
-		fmt.Println(path, "exist =", exist)
-	}
+	exist = File().PathExists(path)
+	fmt.Println(path, "exist =", exist)
 
 	path = "/ha/oo"
 	err = os.MkdirAll(path, os.ModePerm)
 	if nil == err {
-		exist, err = File().PathExists(path)
-		if nil != err {
-			fmt.Println(err.Error())
-		} else {
-			fmt.Println(path, "exist =", exist)
-		}
+		exist = File().PathExists(path)
+		fmt.Println(path, "exist =", exist)
 		err = os.Remove(path)
 		if nil != err {
 			fmt.Println(err.Error())
