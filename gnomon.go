@@ -111,7 +111,7 @@ func CryptoRSA() *rsaCommon {
 
 func Log() *logCommon {
 	onceLog.Do(func() {
-		lc = &logCommon{level: DebugLevel, production: false}
+		lc = &logCommon{level: debugLevel, production: false}
 	})
 	return lc
 }

@@ -19,21 +19,21 @@ import (
 type Level int8
 
 const (
-	// DebugLevel logs are typically voluminous, and are usually disabled in
+	// debugLevel logs are typically voluminous, and are usually disabled in
 	// production.
-	DebugLevel Level = iota - 1
-	// InfoLevel is the default logging priority.
-	InfoLevel
-	// WarnLevel logs are more important than Info, but don't need individual
+	debugLevel Level = iota - 1
+	// infoLevel is the default logging priority.
+	infoLevel
+	// warnLevel logs are more important than Info, but don't need individual
 	// human review.
-	WarnLevel
+	warnLevel
 	// ErrorLevel logs are high-priority. If an application is running smoothly,
 	// it shouldn't generate any error-level logs.
-	ErrorLevel
-	// PanicLevel logs a message, then panics.
-	PanicLevel
-	// FatalLevel logs a message, then calls os.Exit(1).
-	FatalLevel
+	errorLevel
+	// panicLevel logs a message, then panics.
+	panicLevel
+	// fatalLevel logs a message, then calls os.Exit(1).
+	fatalLevel
 	allLevel
 )
 
@@ -86,15 +86,15 @@ func (l *logCommon) Init(logDir string, maxSize, maxAge int, utc bool) {
 		l.utc = utc
 		l.maxSizeByte = int64(maxSize * 1024 * 1024)
 		l.maxAge = maxAge
-		l.level = DebugLevel
+		l.level = debugLevel
 		l.production = false
 		l.files = map[Level]*filed{
-			DebugLevel: {fileIndex: "0", tasks: make(chan string, 1000)},
-			InfoLevel:  {fileIndex: "0", tasks: make(chan string, 1000)},
-			WarnLevel:  {fileIndex: "0", tasks: make(chan string, 1000)},
-			ErrorLevel: {fileIndex: "0", tasks: make(chan string, 1000)},
-			PanicLevel: {fileIndex: "0", tasks: make(chan string, 1000)},
-			FatalLevel: {fileIndex: "0", tasks: make(chan string, 1000)},
+			debugLevel: {fileIndex: "0", tasks: make(chan string, 1000)},
+			infoLevel:  {fileIndex: "0", tasks: make(chan string, 1000)},
+			warnLevel:  {fileIndex: "0", tasks: make(chan string, 1000)},
+			errorLevel: {fileIndex: "0", tasks: make(chan string, 1000)},
+			panicLevel: {fileIndex: "0", tasks: make(chan string, 1000)},
+			fatalLevel: {fileIndex: "0", tasks: make(chan string, 1000)},
 			allLevel:   {fileIndex: "0", tasks: make(chan string, 1000)},
 		}
 		if utc {
@@ -140,7 +140,7 @@ func (l *logCommon) checkMaxAge() {
 
 // Set 设置日志可变属性
 //
-// level 日志级别(DebugLevel/InfoLevel/WarnLevel/ErrorLevel/PanicLevel/FatalLevel)
+// level 日志级别(debugLevel/infoLevel/warnLevel/ErrorLevel/panicLevel/fatalLevel)
 //
 // production 是否生产环境，在生产环境下控制台不会输出任何日志
 func (l *logCommon) Set(level Level, production bool) {
@@ -148,9 +148,40 @@ func (l *logCommon) Set(level Level, production bool) {
 	l.production = production
 }
 
+// debugLevel logs are typically voluminous, and are usually disabled in production.
+func (l *logCommon) DebugLevel() Level {
+	return debugLevel
+}
+
+// infoLevel is the default logging priority.
+func (l *logCommon) InfoLevel() Level {
+	return infoLevel
+}
+
+// warnLevel logs are more important than Info, but don't need individual human review.
+func (l *logCommon) WarnLevel() Level {
+	return warnLevel
+}
+
+// ErrorLevel logs are high-priority. If an application is running smoothly,
+// it shouldn't generate any error-level logs.
+func (l *logCommon) ErrorLevel() Level {
+	return errorLevel
+}
+
+// panicLevel logs a message, then panics.
+func (l *logCommon) PanicLevel() Level {
+	return panicLevel
+}
+
+// panicLevel logs a message, then panics.
+func (l *logCommon) FatalLevel() Level {
+	return fatalLevel
+}
+
 func (l *logCommon) Debug(msg string, fields ...*field) {
 	if _, file, line, ok := runtime.Caller(1); ok {
-		l.logStandard(file, logNameDebug, msg, line, ok, DebugLevel, fields...)
+		l.logStandard(file, logNameDebug, msg, line, ok, debugLevel, fields...)
 	} else {
 		l.Warn("log recovery fail")
 	}
@@ -158,7 +189,7 @@ func (l *logCommon) Debug(msg string, fields ...*field) {
 
 func (l *logCommon) Info(msg string, fields ...*field) {
 	if _, file, line, ok := runtime.Caller(1); ok {
-		l.logStandard(file, logNameInfo, msg, line, ok, InfoLevel, fields...)
+		l.logStandard(file, logNameInfo, msg, line, ok, infoLevel, fields...)
 	} else {
 		l.Warn("log recovery fail")
 	}
@@ -166,7 +197,7 @@ func (l *logCommon) Info(msg string, fields ...*field) {
 
 func (l *logCommon) Warn(msg string, fields ...*field) {
 	if _, file, line, ok := runtime.Caller(1); ok {
-		l.logStandard(file, logNameWarn, msg, line, ok, WarnLevel, fields...)
+		l.logStandard(file, logNameWarn, msg, line, ok, warnLevel, fields...)
 	} else {
 		l.Warn("log recovery fail")
 	}
@@ -174,7 +205,7 @@ func (l *logCommon) Warn(msg string, fields ...*field) {
 
 func (l *logCommon) Error(msg string, fields ...*field) {
 	if _, file, line, ok := runtime.Caller(1); ok {
-		l.logStandard(file, logNameError, msg, line, ok, ErrorLevel, fields...)
+		l.logStandard(file, logNameError, msg, line, ok, errorLevel, fields...)
 	} else {
 		l.Warn("log recovery fail")
 	}
@@ -182,7 +213,7 @@ func (l *logCommon) Error(msg string, fields ...*field) {
 
 func (l *logCommon) Panic(msg string, fields ...*field) {
 	if _, file, line, ok := runtime.Caller(1); ok {
-		l.logStandard(file, logNamePanic, msg, line, ok, PanicLevel, fields...)
+		l.logStandard(file, logNamePanic, msg, line, ok, panicLevel, fields...)
 	} else {
 		l.Warn("log recovery fail")
 	}
@@ -190,7 +221,7 @@ func (l *logCommon) Panic(msg string, fields ...*field) {
 
 func (l *logCommon) Fatal(msg string, fields ...*field) {
 	if _, file, line, ok := runtime.Caller(1); ok {
-		l.logStandard(file, logNameFatal, msg, line, ok, FatalLevel, fields...)
+		l.logStandard(file, logNameFatal, msg, line, ok, fatalLevel, fields...)
 	} else {
 		l.Warn("log recovery fail")
 	}
@@ -430,17 +461,17 @@ func (l *logCommon) logFilePath(fd *filed, level Level) string {
 // levelFileName 包含日志类型的日志文件名称
 func (l *logCommon) levelFileName(fd *filed, level Level) string {
 	switch level {
-	case DebugLevel:
+	case debugLevel:
 		return l.logFileName("debug_", fd.fileIndex)
-	case InfoLevel:
+	case infoLevel:
 		return l.logFileName("info_", fd.fileIndex)
-	case WarnLevel:
+	case warnLevel:
 		return l.logFileName("warn_", fd.fileIndex)
-	case ErrorLevel:
+	case errorLevel:
 		return l.logFileName("error_", fd.fileIndex)
-	case PanicLevel:
+	case panicLevel:
 		return l.logFileName("panic_", fd.fileIndex)
-	case FatalLevel:
+	case fatalLevel:
 		return l.logFileName("fatal_", fd.fileIndex)
 	}
 	return l.logFileName("log_", fd.fileIndex)

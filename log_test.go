@@ -9,7 +9,7 @@ import (
 var logDir = "./log"
 
 func TestLog(t *testing.T) {
-	Log().Set(DebugLevel, false)
+	Log().Set(debugLevel, false)
 	Log().Debug("test", LogField("1", "2"), LogField("2", 3), LogField("3", true))
 	Log().Debug("test", LogField("1", "2"), LogField("2", 3), LogField("3", true))
 	Log().Debug("test", LogField("1", "2"), LogField("2", 3), LogField("3", true))
@@ -22,21 +22,21 @@ func TestLog(t *testing.T) {
 }
 
 func TestLogError(t *testing.T) {
-	Log().Set(DebugLevel, false)
+	Log().Set(debugLevel, false)
 	err := errors.New("err err")
 	Log().Error("test", LogField("1", "2"), LogField("2", 3), LogField("3", true), LogErr(err))
 	time.Sleep(time.Second)
 }
 
 func TestLogPanic(t *testing.T) {
-	Log().Set(DebugLevel, false)
+	Log().Set(debugLevel, false)
 	err := errors.New("err err")
 	Log().Panic("test", LogField("1", "2"), LogField("2", 3), LogField("3", true), LogErr(err))
 	time.Sleep(time.Second)
 }
 
 func TestLogFatal(t *testing.T) {
-	Log().Set(DebugLevel, false)
+	Log().Set(debugLevel, false)
 	err := errors.New("err err")
 	Log().Fatal("test", LogField("1", "2"), LogField("2", 3), LogField("3", true), LogErr(err))
 	time.Sleep(time.Second)
@@ -44,7 +44,7 @@ func TestLogFatal(t *testing.T) {
 
 func TestLogWithStorage(t *testing.T) {
 	Log().Init(logDir, 1, 1, false)
-	Log().Set(DebugLevel, false)
+	Log().Set(debugLevel, false)
 	for i := 0; i < 10000; i++ {
 		Log().Debug("test", LogField("1", "2"), LogField("2", 3), LogField("3", true))
 	}
