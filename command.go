@@ -48,7 +48,7 @@ func (c *commandCommon) ExecCommand(commandName string, params ...string) (int, 
 	)
 	cmd := exec.Command(commandName, params...)
 	//显示运行的命令
-	Log().Debug("ExecCommand", LogField("cmd", strings.Join([]string{commandName, strings.Join(cmd.Args[1:], " ")}, " ")))
+	Log().Debug("ExecCommand", Log().Field("cmd", strings.Join([]string{commandName, strings.Join(cmd.Args[1:], " ")}, " ")))
 	if stdout, err = cmd.StdoutPipe(); err != nil {
 		goto ERR
 	} else {
@@ -91,7 +91,7 @@ func (c *commandCommon) ExecCommand(commandName string, params ...string) (int, 
 		return line, contentArray, nil
 	}
 ERR:
-	Log().Error("ExecCommand", LogErr(err))
+	Log().Error("ExecCommand", Log().Err(err))
 	return 0, nil, err
 }
 
@@ -149,7 +149,7 @@ ERR:
 	if strings.Contains(errStr, "error") || strings.Contains(errStr, "Error") ||
 		strings.Contains(errStr, "ERROR") || strings.Contains(errStr, "fail") ||
 		strings.Contains(errStr, "Fail") || strings.Contains(errStr, "FAIL") {
-		Log().Error("ExecCommandTail", LogErr(err))
+		Log().Error("ExecCommandTail", Log().Err(err))
 		return 0, nil, err
 	} else {
 		strArr := strings.Split(errStr, "\n")

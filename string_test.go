@@ -48,10 +48,10 @@ func TestTrim(t *testing.T) {
 }
 
 func TestStringCommon_PrefixSupplementZero(t *testing.T) {
-	Log().Debug("ui64", LogField("92873890910928019", String().PrefixSupplementZero("92873890910928019", 10)))
-	Log().Debug("ui64", LogField("92873890910928019", String().PrefixSupplementZero("92873890910928019", 20)))
-	Log().Debug("ui64", LogField("92873890910928019", String().PrefixSupplementZero("92873890910928019", 30)))
-	Log().Debug("ui64", LogField("92873890910928019", String().PrefixSupplementZero("92873890910928019", 40)))
-	Log().Debug("ui64", LogField("92873890910928019", String().PrefixSupplementZero("92873890910928019", 50)))
-	Log().Debug("ui64", LogField("92873890910928019", String().PrefixSupplementZero("92873890910928019", 60)))
+	Log().Debug("ui64", Log().Field("92873890910928019", String().PrefixSupplementZero("92873890910928019", 10)))
+	Log().Debug("ui64", Log().Field("92873890910928019", String().PrefixSupplementZero("92873890910928019", 20)))
+	Log().Debug("ui64", Log().Field("92873890910928019", String().PrefixSupplementZero("92873890910928019", 30)))
+	Log().Debug("ui64", Log().Field("92873890910928019", String().PrefixSupplementZero("92873890910928019", 40)))
+	Log().Debug("ui64", Log().Field("92873890910928019", String().PrefixSupplementZero("92873890910928019", 50)))
+	Log().Debug("ui64", Log().Field("92873890910928019", String().PrefixSupplementZero("92873890910928019", 60)))
 }

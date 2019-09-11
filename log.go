@@ -78,7 +78,7 @@ func (l *logCommon) Init(logDir string, maxSize, maxAge int, utc bool) {
 			logDir = "./log"
 		}
 		if err := os.MkdirAll(logDir, os.ModePerm); nil != err {
-			l.Panic("log service init error", LogErr(err))
+			l.Panic("log service init error", Log().Err(err))
 			return
 		}
 		l.mkRootDirSuccess = true
@@ -180,6 +180,9 @@ func (l *logCommon) FatalLevel() Level {
 }
 
 func (l *logCommon) Debug(msg string, fields ...*field) {
+	if l.level > debugLevel {
+		return
+	}
 	if _, file, line, ok := runtime.Caller(1); ok {
 		l.logStandard(file, logNameDebug, msg, line, ok, debugLevel, fields...)
 	} else {
@@ -188,6 +191,9 @@ func (l *logCommon) Debug(msg string, fields ...*field) {
 }
 
 func (l *logCommon) Info(msg string, fields ...*field) {
+	if l.level > infoLevel {
+		return
+	}
 	if _, file, line, ok := runtime.Caller(1); ok {
 		l.logStandard(file, logNameInfo, msg, line, ok, infoLevel, fields...)
 	} else {
@@ -196,6 +202,9 @@ func (l *logCommon) Info(msg string, fields ...*field) {
 }
 
 func (l *logCommon) Warn(msg string, fields ...*field) {
+	if l.level > warnLevel {
+		return
+	}
 	if _, file, line, ok := runtime.Caller(1); ok {
 		l.logStandard(file, logNameWarn, msg, line, ok, warnLevel, fields...)
 	} else {
@@ -204,6 +213,9 @@ func (l *logCommon) Warn(msg string, fields ...*field) {
 }
 
 func (l *logCommon) Error(msg string, fields ...*field) {
+	if l.level > errorLevel {
+		return
+	}
 	if _, file, line, ok := runtime.Caller(1); ok {
 		l.logStandard(file, logNameError, msg, line, ok, errorLevel, fields...)
 	} else {
@@ -212,6 +224,9 @@ func (l *logCommon) Error(msg string, fields ...*field) {
 }
 
 func (l *logCommon) Panic(msg string, fields ...*field) {
+	if l.level > panicLevel {
+		return
+	}
 	if _, file, line, ok := runtime.Caller(1); ok {
 		l.logStandard(file, logNamePanic, msg, line, ok, panicLevel, fields...)
 	} else {
@@ -220,10 +235,25 @@ func (l *logCommon) Panic(msg string, fields ...*field) {
 }
 
 func (l *logCommon) Fatal(msg string, fields ...*field) {
+	if l.level > fatalLevel {
+		return
+	}
 	if _, file, line, ok := runtime.Caller(1); ok {
 		l.logStandard(file, logNameFatal, msg, line, ok, fatalLevel, fields...)
 	} else {
 		l.Warn("log recovery fail")
+	}
+}
+
+func (l *logCommon) Field(key string, value interface{}) *field {
+	return &field{key: key, value: value}
+}
+
+func (l *logCommon) Err(err error) *field {
+	if nil != err {
+		return &field{key: "error", value: err.Error()}
+	} else {
+		return &field{key: "error", value: nil}
 	}
 }
 
@@ -243,9 +273,6 @@ func (l *logCommon) Fatal(msg string, fields ...*field) {
 //
 // fields 日志输出对象子集
 func (l *logCommon) logStandard(file, levelName, msg string, line int, ok bool, level Level, fields ...*field) {
-	if l.level > level {
-		return
-	}
 	var (
 		fileString  string
 		timeString  string
@@ -261,7 +288,7 @@ func (l *logCommon) logStandard(file, levelName, msg string, line int, ok bool, 
 		zoneName, _ = timeNow.Local().Zone()
 	}
 	timeString = strings.Join([]string{timeString, zoneName}, " ")
-	fileString = strings.Join([]string{file, strconv.Itoa(line)}, ":")
+	fileString = strings.Split(strings.Join([]string{file, strconv.Itoa(line)}, ":"), "/go/src/")[1]
 	if !l.production {
 		var (
 			commandJson []byte
@@ -273,7 +300,7 @@ func (l *logCommon) logStandard(file, levelName, msg string, line int, ok bool, 
 			logCommand[field.key] = field.value
 		}
 		if commandJson, err = json.Marshal(logCommand); nil != err {
-			l.Error("json Marshal error", LogErr(err))
+			l.Error("json Marshal error", Log().Err(err))
 			return
 		}
 		commandString := string(commandJson)
@@ -337,7 +364,7 @@ func (l *logCommon) logFile(timeString, fileString, stackString, levelName, msg 
 		logMap[field.key] = field.value
 	}
 	if mapJson, err = json.Marshal(logMap); nil != err {
-		l.Error("json Marshal error", LogErr(err))
+		l.Error("json Marshal error", Log().Err(err))
 		return
 	}
 	switch levelName {
@@ -451,7 +478,7 @@ func (l *logCommon) logFilePath(fd *filed, level Level) string {
 	parentPath := filepath.Join(l.logDir, l.date)
 	if exist := File().PathExists(parentPath); !exist {
 		if err := os.MkdirAll(parentPath, os.ModePerm); nil != err {
-			l.Error("path mkdirAll error", LogErr(err))
+			l.Error("path mkdirAll error", Log().Err(err))
 			return ""
 		}
 	}

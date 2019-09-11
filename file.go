@@ -93,7 +93,7 @@ func (f *fileCommon) CreateAndWrite(filePath string, data []byte, force bool) er
 		if n, err := file.Write(data); nil != err { // 写入byte的slice数据
 			return err
 		} else {
-			Log().Debug("CreateAndWrite", LogField("byte count", n))
+			Log().Debug("CreateAndWrite", Log().Field("byte count", n))
 			return nil
 		}
 	}
@@ -104,7 +104,7 @@ func (f *fileCommon) LoopDirFromDir(pathname string) ([]string, error) {
 	var s []string
 	rd, err := ioutil.ReadDir(pathname)
 	if err != nil {
-		Log().Debug("read dir fail", LogErr(err))
+		Log().Debug("read dir fail", Log().Err(err))
 		return s, err
 	}
 	for _, fi := range rd {
@@ -120,7 +120,7 @@ func (f *fileCommon) LoopDirFromDir(pathname string) ([]string, error) {
 func (f *fileCommon) LoopAllFileFromDir(pathname string, s []string) ([]string, error) {
 	rd, err := ioutil.ReadDir(pathname)
 	if err != nil {
-		Log().Debug("read dir fail", LogErr(err))
+		Log().Debug("read dir fail", Log().Err(err))
 		return s, err
 	}
 	for _, fi := range rd {
@@ -128,7 +128,7 @@ func (f *fileCommon) LoopAllFileFromDir(pathname string, s []string) ([]string, 
 			fullDir := pathname + "/" + fi.Name()
 			s, err = f.LoopAllFileFromDir(fullDir, s)
 			if err != nil {
-				Log().Debug("read dir fail", LogErr(err))
+				Log().Debug("read dir fail", Log().Err(err))
 				return s, err
 			}
 		} else {

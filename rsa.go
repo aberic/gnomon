@@ -184,7 +184,7 @@ func (r *rsaCommon) RsaSign3(privateKeyPath string, data []byte) (string, error)
 func (r *rsaCommon) RsaSign4(privateKey, data []byte) (string, error) {
 	priv, err := x509.ParsePKCS8PrivateKey(privateKey)
 	if err != nil {
-		Log().Error("RsaSign4 ParsePKCS8PrivateKey Error", LogErr(err))
+		Log().Error("RsaSign4 ParsePKCS8PrivateKey Error", Log().Err(err))
 		return "", err
 	}
 	h := sha1.New()
@@ -192,7 +192,7 @@ func (r *rsaCommon) RsaSign4(privateKey, data []byte) (string, error) {
 	hash := h.Sum(nil)
 	signature, err := rsa.SignPKCS1v15(rand.Reader, priv.(*rsa.PrivateKey), crypto.SHA1, hash[:])
 	if err != nil {
-		Log().Error("RsaSign4 Error from signing", LogErr(err))
+		Log().Error("RsaSign4 Error from signing", Log().Err(err))
 		return "", err
 	}
 	out := hex.EncodeToString(signature)

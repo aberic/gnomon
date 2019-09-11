@@ -72,7 +72,7 @@ func (j *jwtCommon) token(jwtMethod jwt.SigningMethod, key interface{}, sub, iss
 	// Sign and get the complete encoded token as a string using the secret
 	tokenString, err = token.SignedString(key)
 
-	Log().Debug("token", LogField("token", tokenString), LogErr(err))
+	Log().Debug("token", Log().Field("token", tokenString), Log().Err(err))
 	return
 }
 
@@ -82,7 +82,7 @@ func (j *jwtCommon) Check(key interface{}, token string) bool {
 		return key, nil
 	})
 	if err != nil {
-		Log().Warn("parase with claims failed.", LogErr(err))
+		Log().Warn("parase with claims failed.", Log().Err(err))
 		return false
 	}
 	return true

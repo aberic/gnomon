@@ -116,18 +116,6 @@ func Log() *logCommon {
 	return lc
 }
 
-func LogField(key string, value interface{}) *field {
-	return &field{key: key, value: value}
-}
-
-func LogErr(err error) *field {
-	if nil != err {
-		return &field{key: "error", value: err.Error()}
-	} else {
-		return &field{key: "error", value: nil}
-	}
-}
-
 func Scale() *scaleCommon {
 	onceScale.Do(func() {
 		scc = &scaleCommon{}
