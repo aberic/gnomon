@@ -123,7 +123,7 @@ func (l *logCommon) checkMaxAge() {
 		} else {
 			timeDate = time.Now().Local().Format("20060102")
 		}
-		logDirs, _ := File().LoopDirFromDir(l.logDir)
+		logDirs, _ := File().LoopDirs(l.logDir)
 		for _, dirName := range logDirs {
 			if strings.Contains(dirName, timeDate) {
 				_ = os.RemoveAll(dirName)
