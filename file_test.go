@@ -45,21 +45,21 @@ func TestPathExists(t *testing.T) {
 }
 
 func TestReadFileFirstLine(t *testing.T) {
-	txt, err := File().ReadFileFirstLine("../../../a.txt")
+	txt, err := File().ReadFirstLine("../../../a.txt")
 	if nil != err {
 		fmt.Println(err.Error())
 	} else {
 		fmt.Println("txt =", txt)
 	}
 
-	profile, err := File().ReadFileFirstLine("/etc/profile")
+	profile, err := File().ReadFirstLine("/etc/profile")
 	if nil != err {
 		fmt.Println(err.Error())
 	} else {
 		fmt.Println("profile =", profile)
 	}
 
-	hello, err := File().ReadFileFirstLine("/etc/hello")
+	hello, err := File().ReadFirstLine("/etc/hello")
 	if nil != err {
 		fmt.Println(err.Error())
 	} else {
@@ -68,21 +68,21 @@ func TestReadFileFirstLine(t *testing.T) {
 }
 
 func TestReadFileByLine(t *testing.T) {
-	hosts, err := File().ReadFileByLine("/etc/hostname")
+	hosts, err := File().ReadLines("/etc/hostname")
 	if nil != err {
 		fmt.Println(err.Error())
 	} else {
 		fmt.Println("hosts =", hosts)
 	}
 
-	profile, err := File().ReadFileByLine("/etc/profile")
+	profile, err := File().ReadLines("/etc/profile")
 	if nil != err {
 		fmt.Println(err.Error())
 	} else {
 		fmt.Println("profile =", profile)
 	}
 
-	hello, err := File().ReadFileByLine("/etc/hello")
+	hello, err := File().ReadLines("/etc/hello")
 	if nil != err {
 		fmt.Println(err.Error())
 	} else {

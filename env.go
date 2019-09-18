@@ -18,47 +18,111 @@ package gnomon
 
 import (
 	"os"
+	"strconv"
 	"strings"
 )
 
 type envCommon struct{}
 
-// GetEnv 获取环境变量 envName 的值
+// Get 获取环境变量 envName 的值
 //
 // envName 环境变量名称
-func (e *envCommon) GetEnv(envName string) string {
+func (e *envCommon) Get(envName string) string {
 	return os.Getenv(envName)
 }
 
-// GetEnvBool 获取环境变量 envName 的 bool 值
-//
-// envName 环境变量名称
-func (e *envCommon) GetEnvBool(envName string) bool {
-	return strings.EqualFold(os.Getenv(envName), "true")
-}
-
-// GetEnvDefault 获取环境变量 envName 的值
+// GetD 获取环境变量 envName 的值
 //
 // envName 环境变量名称
 //
 // defaultValue 环境变量为空时的默认值
-func (e *envCommon) GetEnvDefault(envName string, defaultValue string) string {
-	env := e.GetEnv(envName)
+func (e *envCommon) GetD(envName string, defaultValue string) string {
+	env := e.Get(envName)
 	if String().IsEmpty(env) {
 		return defaultValue
 	}
 	return env
 }
 
-// GetEnvBoolDefault 获取环境变量 envName 的 bool 值
+// GetInt 获取环境变量 envName 的值
+//
+// envName 环境变量名称
+func (e *envCommon) GetInt(envName string) (int, error) {
+	return strconv.Atoi(os.Getenv(envName))
+}
+
+// GetIntD 获取环境变量 envName 的值
 //
 // envName 环境变量名称
 //
 // defaultValue 环境变量为空时的默认值
-func (e *envCommon) GetEnvBoolDefault(envName string, defaultValue bool) bool {
-	env := e.GetEnv(envName)
-	if String().IsEmpty(env) {
-		return defaultValue
+func (e *envCommon) GetIntD(envName string, defaultValue int) int {
+	if i, err := strconv.Atoi(os.Getenv(envName)); nil == err {
+		return i
 	}
+	return defaultValue
+}
+
+// GetInt64 获取环境变量 envName 的值
+//
+// envName 环境变量名称
+func (e *envCommon) GetInt64(envName string) (int64, error) {
+	return strconv.ParseInt(e.Get(envName), 10, 64)
+}
+
+// GetInt64D 获取环境变量 envName 的值
+//
+// envName 环境变量名称
+//
+// defaultValue 环境变量为空时的默认值
+func (e *envCommon) GetInt64D(envName string, defaultValue int64) int64 {
+	if i, err := strconv.ParseInt(e.Get(envName), 10, 64); nil == err {
+		return i
+	}
+	return defaultValue
+}
+
+// GetUint64 获取环境变量 envName 的值
+//
+// envName 环境变量名称
+func (e *envCommon) GetUint64(envName string) (uint64, error) {
+	return strconv.ParseUint(e.Get(envName), 10, 64)
+}
+
+// GetUint64D 获取环境变量 envName 的值
+//
+// envName 环境变量名称
+//
+// defaultValue 环境变量为空时的默认值
+func (e *envCommon) GetUint64D(envName string, defaultValue uint64) uint64 {
+	if i, err := strconv.ParseUint(e.Get(envName), 10, 64); nil == err {
+		return i
+	}
+	return defaultValue
+}
+
+// GetFloat64 获取环境变量 envName 的值
+//
+// envName 环境变量名称
+func (e *envCommon) GetFloat64(envName string) (float64, error) {
+	return strconv.ParseFloat(e.Get(envName), 64)
+}
+
+// GetFloat64D 获取环境变量 envName 的值
+//
+// envName 环境变量名称
+//
+// defaultValue 环境变量为空时的默认值
+func (e *envCommon) GetFloat64D(envName string, defaultValue float64) float64 {
+	if i, err := strconv.ParseFloat(e.Get(envName), 64); nil == err {
+		return i
+	}
+	return defaultValue
+}
+
+// GetBool 获取环境变量 envName 的 bool 值
+//
+// envName 环境变量名称
+func (e *envCommon) GetBool(envName string) bool {
 	return strings.EqualFold(os.Getenv(envName), "true")
 }

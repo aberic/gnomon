@@ -16,34 +16,24 @@ package gnomon
 
 import "testing"
 
-func TestExecCommand(t *testing.T) {
-	if line, strs, err := Command().ExecCommand("ls", "-l"); err != nil {
+func TestCommandCommon_ExecCommand(t *testing.T) {
+	if line, strArr, err := Command().ExecCommand("ls", "-l"); err != nil {
 		t.Skip(err)
 	} else {
-		t.Log("line = {}, strs = ", line, strs)
+		t.Log("line =", line, ", strArr =", strArr)
 	}
+
+	_, _, err := Command().ExecCommand("lss", "-l")
+	t.Skip(err)
 }
 
-func TestExecCommandFail(t *testing.T) {
-	if line, strs, err := Command().ExecCommand("lss", "-l"); err != nil {
+func TestCommandCommon_ExecCommandTail(t *testing.T) {
+	if line, strArr, err := Command().ExecCommandTail("ls", "-l"); err != nil {
 		t.Skip(err)
 	} else {
-		t.Log("line = {}, strs = ", line, strs)
+		t.Log("line =", line, ", strArr =", strArr)
 	}
-}
 
-func TestExecCommandTail(t *testing.T) {
-	if line, strs, err := Command().ExecCommandTail("ls", "-l"); err != nil {
-		t.Skip(err)
-	} else {
-		t.Log("line = {}, strs = ", line, strs)
-	}
-}
-
-func TestExecCommandTailFail(t *testing.T) {
-	if line, strs, err := Command().ExecCommandTail("lss", "-l"); err != nil {
-		t.Skip(err)
-	} else {
-		t.Log("line = {}, strs = ", line, strs)
-	}
+	_, _, err := Command().ExecCommandTail("lss", "-l")
+	t.Skip(err)
 }

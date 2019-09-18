@@ -15,31 +15,88 @@
 package gnomon
 
 import (
-	"fmt"
 	"os"
 	"testing"
 )
 
-func TestGetEnv(t *testing.T) {
+func TestEnvCommon_Get(t *testing.T) {
 	_ = os.Setenv("HELLO", "hello")
-	fmt.Println("HELLO =", Env().GetEnv("HELLO"))
+	t.Log("HELLO =", Env().Get("HELLO"))
 }
 
-func TestGetEnvDefault(t *testing.T) {
-	_ = os.Setenv("HELLO", "hello")
-	fmt.Println("HELLO =", Env().GetEnvDefault("HELLO", "my"))
-	fmt.Println("WORLD =", Env().GetEnvDefault("WORLD", "god"))
+func TestEnvCommon_GetD(t *testing.T) {
+	t.Log("HELLO =", Env().GetD("HELLO", "WORLD"))
 }
 
-func TestGetEnvBool(t *testing.T) {
+func TestEnvCommon_GetInt(t *testing.T) {
+	_ = os.Setenv("HELLO", "100")
+	i, _ := Env().GetInt("HELLO")
+	t.Log("HELLO =", i)
+	_ = os.Setenv("HELLO", "WORLD")
+	_, err := Env().GetInt("HELLO")
+	t.Skip(err)
+}
+
+func TestEnvCommon_GetIntD(t *testing.T) {
+	_ = os.Setenv("HELLO", "100")
+	t.Log("HELLO =", Env().GetIntD("HELLO", 10))
+	_ = os.Setenv("HELLO", "WORLD")
+	t.Log("HELLO =", Env().GetIntD("HELLO", 10))
+}
+
+func TestEnvCommon_GetInt64(t *testing.T) {
+	_ = os.Setenv("HELLO", "100")
+	i, _ := Env().GetInt64("HELLO")
+	t.Log("HELLO =", i)
+	_ = os.Setenv("HELLO", "WORLD")
+	_, err := Env().GetInt64("HELLO")
+	t.Skip(err)
+}
+
+func TestEnvCommon_GetInt64D(t *testing.T) {
+	_ = os.Setenv("HELLO", "100")
+	t.Log("HELLO =", Env().GetInt64D("HELLO", 10))
+	_ = os.Setenv("HELLO", "WORLD")
+	t.Log("HELLO =", Env().GetInt64D("HELLO", 10))
+}
+
+func TestEnvCommon_GetUint64(t *testing.T) {
+	_ = os.Setenv("HELLO", "100")
+	i, _ := Env().GetUint64("HELLO")
+	t.Log("HELLO =", i)
+	_ = os.Setenv("HELLO", "WORLD")
+	_, err := Env().GetUint64("HELLO")
+	t.Skip(err)
+}
+
+func TestEnvCommon_GetUint64D(t *testing.T) {
+	_ = os.Setenv("HELLO", "100")
+	t.Log("HELLO =", Env().GetUint64D("HELLO", 10))
+	_ = os.Setenv("HELLO", "WORLD")
+	t.Log("HELLO =", Env().GetUint64D("HELLO", 10))
+}
+
+func TestEnvCommon_GetFloat64(t *testing.T) {
+	_ = os.Setenv("HELLO", "100.3254")
+	i, _ := Env().GetFloat64("HELLO")
+	t.Log("HELLO =", i)
+	_ = os.Setenv("HELLO", "WORLD")
+	_, err := Env().GetFloat64("HELLO")
+	t.Skip(err)
+}
+
+func TestEnvCommon_GetFloat64D(t *testing.T) {
+	_ = os.Setenv("HELLO", "100.3254")
+	t.Log("HELLO =", Env().GetFloat64D("HELLO", 100.3254))
+	_ = os.Setenv("HELLO", "WORLD")
+	t.Log("HELLO =", Env().GetFloat64D("HELLO", 100.32541))
+}
+
+func TestEnvCommon_GetBool(t *testing.T) {
 	_ = os.Setenv("HELLO", "true")
-	fmt.Println("HELLO =", Env().GetEnvBool("HELLO"))
+	t.Log("HELLO =", Env().GetBool("HELLO"))
 	_ = os.Setenv("HELLO", "false")
-	fmt.Println("HELLO =", Env().GetEnvBool("HELLO"))
-}
-
-func TestGetEnvBoolDefault(t *testing.T) {
-	fmt.Println("HELLO =", Env().GetEnvBoolDefault("HELLO", true))
-	_ = os.Setenv("HELLO", "false")
-	fmt.Println("HELLO =", Env().GetEnvBoolDefault("HELLO", true))
+	t.Log("HELLO =", Env().GetBool("HELLO"))
+	_ = os.Setenv("HELLO", "WORLD")
+	t.Log("HELLO =", Env().GetBool("HELLO"))
 }

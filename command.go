@@ -107,7 +107,7 @@ func (c *commandCommon) ExecCommandTail(commandName string, params ...string) (i
 	)
 	cmd := exec.Command(commandName, params...)
 	//显示运行的命令
-	fmt.Printf("exec: %s %s\n", commandName, strings.Join(cmd.Args[1:], " "))
+	Log().Debug("ExecCommandTail", Log().Field("cmd", strings.Join([]string{commandName, strings.Join(cmd.Args[1:], " ")}, " ")))
 	if stdout, err = cmd.StdoutPipe(); err != nil {
 		goto ERR
 	} else {
@@ -145,15 +145,6 @@ func (c *commandCommon) ExecCommandTail(commandName string, params ...string) (i
 		return line, contentArray, nil
 	}
 ERR:
-	errStr := err.Error()
-	if strings.Contains(errStr, "error") || strings.Contains(errStr, "Error") ||
-		strings.Contains(errStr, "ERROR") || strings.Contains(errStr, "fail") ||
-		strings.Contains(errStr, "Fail") || strings.Contains(errStr, "FAIL") {
-		Log().Error("ExecCommandTail", Log().Err(err))
-		return 0, nil, err
-	} else {
-		strArr := strings.Split(errStr, "\n")
-		fmt.Println(errStr)
-		return len(strArr), strArr, nil
-	}
+	Log().Error("ExecCommand", Log().Err(err))
+	return 0, nil, err
 }
