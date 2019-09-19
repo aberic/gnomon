@@ -52,8 +52,6 @@ func (j *JWTCommon) Build(method int, key interface{}, sub, iss, jti string, iat
 		jwtMethod = jwt.SigningMethodHS384
 	case signingMethodHS512:
 		jwtMethod = jwt.SigningMethodHS512
-	default:
-		jwtMethod = jwt.SigningMethodHS256
 	}
 	return j.token(jwtMethod, key, sub, iss, jti, iat, nbf, exp)
 }

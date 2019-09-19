@@ -30,13 +30,7 @@ type FileCommon struct{}
 // PathExists 判断路径是否存在
 func (f *FileCommon) PathExists(path string) bool {
 	_, err := os.Stat(path)
-	if err == nil {
-		return true
-	}
-	if os.IsNotExist(err) {
-		return false
-	}
-	return false
+	return err == nil
 }
 
 // ReadFirstLine 从文件中读取第一行并返回字符串数组

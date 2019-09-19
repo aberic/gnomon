@@ -80,7 +80,7 @@ func File() *FileCommon {
 	return fc
 }
 
-// IP ip工具
+// IP IP工具
 func IP() *IPCommon {
 	onceIP.Do(func() {
 		ic = &IPCommon{}
@@ -88,7 +88,7 @@ func IP() *IPCommon {
 	return ic
 }
 
-// JWT jwt工具
+// JWT JWT工具
 func JWT() *JWTCommon {
 	onceJwt.Do(func() {
 		jc = &JWTCommon{}
@@ -104,7 +104,7 @@ func String() *StringCommon {
 	return sc
 }
 
-// CryptoHash hash/散列工具
+// CryptoHash Hash/散列工具
 func CryptoHash() *HashCommon {
 	onceHash.Do(func() {
 		hc = &HashCommon{}
@@ -112,7 +112,7 @@ func CryptoHash() *HashCommon {
 	return hc
 }
 
-// CryptoRSA rsa工具
+// CryptoRSA RSA工具
 func CryptoRSA() *RSACommon {
 	onceRSA.Do(func() {
 		rc = &RSACommon{}

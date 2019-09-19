@@ -41,7 +41,12 @@ func TestScaleHex(t *testing.T) {
 	i64 = 827639847923879
 	ui64 = 92873890910928019
 
-	iStr := Scale().UintToHexString(uint(i))
+	iStr := Scale().IntToHexString(i)
+	Log().Debug("i", Log().Field("2999999", iStr))
+	Log().Debug("i", Log().Field("2999999", Scale().HexStringToUint64(iStr)))
+	Log().Debug("")
+
+	iStr = Scale().UintToHexString(uint(i))
 	Log().Debug("i", Log().Field("2999999", iStr))
 	Log().Debug("i", Log().Field("2999999", Scale().HexStringToUint64(iStr)))
 	Log().Debug("")
@@ -71,7 +76,7 @@ func TestScaleHex(t *testing.T) {
 	Log().Debug("ui16", Log().Field("65535", Scale().HexStringToUint64(ui16Str)))
 	Log().Debug("")
 
-	i32Str := Scale().Uint32ToHexString(uint32(i32))
+	i32Str := Scale().Int32ToHexString(i32)
 	Log().Debug("i32", Log().Field("99922299", i32Str))
 	Log().Debug("i32", Log().Field("99922299", Scale().HexStringToUint64(i32Str)))
 	Log().Debug("")
@@ -81,9 +86,9 @@ func TestScaleHex(t *testing.T) {
 	Log().Debug("ui32", Log().Field("88811188", Scale().HexStringToUint64(ui32Str)))
 	Log().Debug("")
 
-	i64Str := Scale().Uint64ToHexString(uint64(i64))
+	i64Str := Scale().Int64ToHexString(i64)
 	Log().Debug("i64", Log().Field("827639847923879", i64Str))
-	Log().Debug("i64", Log().Field("827639847923879", Scale().HexStringToUint64(i64Str)))
+	Log().Debug("i64", Log().Field("827639847923879", Scale().HexStringToInt64(i64Str)))
 	Log().Debug("")
 
 	ui64Str := Scale().Uint64ToHexString(ui64)
@@ -115,7 +120,12 @@ func TestScaleDuo(t *testing.T) {
 	i64 = 827639847923879
 	ui64 = 92873890910928019
 
-	iStr := Scale().UintToDuoString(uint(i))
+	iStr := Scale().IntToDuoString(i)
+	Log().Debug("i", Log().Field("2999999", iStr))
+	Log().Debug("i", Log().Field("2999999", Scale().DuoStringToUint64(iStr)))
+	Log().Debug("")
+
+	iStr = Scale().UintToDuoString(uint(i))
 	Log().Debug("i", Log().Field("2999999", iStr))
 	Log().Debug("i", Log().Field("2999999", Scale().DuoStringToUint64(iStr)))
 	Log().Debug("")
@@ -145,7 +155,7 @@ func TestScaleDuo(t *testing.T) {
 	Log().Debug("ui16", Log().Field("65535", Scale().DuoStringToUint64(ui16Str)))
 	Log().Debug("")
 
-	i32Str := Scale().Uint32ToDuoString(uint32(i32))
+	i32Str := Scale().Int32ToDuoString(i32)
 	Log().Debug("i32", Log().Field("99922299", i32Str))
 	Log().Debug("i32", Log().Field("99922299", Scale().DuoStringToUint64(i32Str)))
 	Log().Debug("")
@@ -155,9 +165,9 @@ func TestScaleDuo(t *testing.T) {
 	Log().Debug("ui32", Log().Field("88811188", Scale().DuoStringToUint64(ui32Str)))
 	Log().Debug("")
 
-	i64Str := Scale().Uint64ToDuoString(uint64(i64))
+	i64Str := Scale().Int64ToDuoString(i64)
 	Log().Debug("i64", Log().Field("827639847923879", i64Str))
-	Log().Debug("i64", Log().Field("827639847923879", Scale().DuoStringToUint64(i64Str)))
+	Log().Debug("i64", Log().Field("827639847923879", Scale().DuoStringToInt64(i64Str)))
 	Log().Debug("")
 
 	ui64Str := Scale().Uint64ToDuoString(ui64)
@@ -189,7 +199,12 @@ func TestScaleDDuo(t *testing.T) {
 	i64 = 827639847923879
 	ui64 = 92873890910928019
 
-	iStr := Scale().UintToDDuoString(uint(i))
+	iStr := Scale().IntToDDuoString(i)
+	Log().Debug("i", Log().Field("2999999", iStr))
+	Log().Debug("i", Log().Field("2999999", Scale().DDuoStringToUint64(iStr)))
+	Log().Debug("")
+
+	iStr = Scale().UintToDDuoString(uint(i))
 	Log().Debug("i", Log().Field("2999999", iStr))
 	Log().Debug("i", Log().Field("2999999", Scale().DDuoStringToUint64(iStr)))
 	Log().Debug("")
@@ -219,7 +234,7 @@ func TestScaleDDuo(t *testing.T) {
 	Log().Debug("ui16", Log().Field("65535", Scale().DDuoStringToUint64(ui16Str)))
 	Log().Debug("")
 
-	i32Str := Scale().Uint32ToDDuoString(uint32(i32))
+	i32Str := Scale().Int32ToDDuoString(i32)
 	Log().Debug("i32", Log().Field("99922299", i32Str))
 	Log().Debug("i32", Log().Field("99922299", Scale().DDuoStringToUint64(i32Str)))
 	Log().Debug("")
@@ -229,12 +244,66 @@ func TestScaleDDuo(t *testing.T) {
 	Log().Debug("ui32", Log().Field("88811188", Scale().DDuoStringToUint64(ui32Str)))
 	Log().Debug("")
 
-	i64Str := Scale().Uint64ToDDuoString(uint64(i64))
+	i64Str := Scale().Int64ToDDuoString(i64)
 	Log().Debug("i64", Log().Field("827639847923879", i64Str))
-	Log().Debug("i64", Log().Field("827639847923879", Scale().DDuoStringToUint64(i64Str)))
+	Log().Debug("i64", Log().Field("827639847923879", Scale().DDuoStringToInt64(i64Str)))
 	Log().Debug("")
 
 	ui64Str := Scale().Uint64ToDDuoString(ui64)
 	Log().Debug("ui64", Log().Field("92873890910928019", ui64Str))
 	Log().Debug("ui64", Log().Field("92873890910928019", Scale().DDuoStringToUint64(ui64Str)))
+}
+
+func TestScaleLen(t *testing.T) {
+	var (
+		i    int
+		ui   uint
+		i32  int32
+		ui32 uint32
+		i64  int64
+		ui64 uint64
+	)
+	i = 2999999
+	ui = 2888888
+	i32 = 99922299
+	ui32 = 88811188
+	i64 = 827639847923879
+	ui64 = 92873890910928019
+	t.Log(Scale().Uint64Len(ui64))
+	t.Log(Scale().Int64Len(i64))
+	t.Log(Scale().Uint32Len(ui32))
+	t.Log(Scale().Int32Len(i32))
+	t.Log(Scale().UintLen(ui))
+	t.Log(Scale().IntLen(i))
+}
+
+func TestScaleFullState(t *testing.T) {
+	var (
+		ui8  uint8
+		ui32 uint32
+	)
+	ui8 = 25
+	ui32 = 88811188
+	t.Log(Scale().Uint8toFullState(ui8))
+	t.Log(Scale().Uint32toFullState(ui32))
+}
+
+func TestScaleFloat64(t *testing.T) {
+	var (
+		i64 int64
+		f64 float64
+	)
+	i64 = 87372
+	f64 = 92837.87263876498
+	t.Log(Scale().Int64toFloat64(i64, 1))
+	t.Log(Scale().Int64toFloat64(i64, 2))
+	t.Log(Scale().Int64toFloat64(i64, 3))
+	t.Log(Scale().Int64toFloat64(i64, 4))
+	t.Log(Scale().Int64toFloat64(i64, 5))
+	t.Log()
+	t.Log(Scale().Float64toInt64(f64, 1))
+	t.Log(Scale().Float64toInt64(f64, 2))
+	t.Log(Scale().Float64toInt64(f64, 3))
+	t.Log(Scale().Float64toInt64(f64, 4))
+	t.Log(Scale().Float64toInt64(f64, 5))
 }

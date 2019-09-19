@@ -132,7 +132,7 @@ func (l *LogCommon) checkMaxAge() {
 	// 每月1号凌晨1点执行一次：0 0 1 1 * ?
 	// 在26分、29分、33分执行一次：0 26,29,33 * * * ?
 	// 每天的0点、13点、18点、21点都执行一次：0 0 0,13,18,21 * * ?
-	err := l.job.AddFunc(strings.Join([]string{"0 1 0 * * ?"}, ""), func() {
+	err := l.job.AddFunc(strings.Join([]string{"0 0 0 */", strconv.Itoa(l.maxAge), " * ?"}, ""), func() {
 		var timeDate string
 		if l.utc {
 			timeDate = time.Now().UTC().Format("20060102")
@@ -325,6 +325,9 @@ func (l *LogCommon) logStandard(file, levelName, msg string, line int, ok bool, 
 		logCommand := make(map[string]interface{})
 		logCommand["msg"] = msg
 		for _, field := range fields {
+			if nil == field {
+				continue
+			}
 			logCommand[field.key] = field.value
 		}
 		if commandJSON, err = json.Marshal(logCommand); nil != err {
@@ -385,6 +388,9 @@ func (l *LogCommon) logFile(timeString, fileString, stackString, levelName, msg 
 	logMap["file"] = fileString
 	logMap["msg"] = msg
 	for _, field := range fields {
+		if nil == field {
+			continue
+		}
 		logMap[field.key] = field.value
 	}
 	if mapJSON, err = json.Marshal(logMap); nil != err {

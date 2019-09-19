@@ -47,6 +47,15 @@ func TestTrim(t *testing.T) {
 	t.Log(s, "=", String().Trim(s))
 }
 
+func TestStringCommon_ToString(t *testing.T) {
+	t.Log(String().ToString(&BTest{Name: "test", Age: 18, Male: true}))
+	t.Log(String().ToString(nil))
+}
+
+func TestStringCommon_SingleSpace(t *testing.T) {
+	t.Log(String().SingleSpace("ksjdf     lksjdf  lkjlksdf        lkjl   lkjasldj kjnkj     "))
+}
+
 func TestStringCommon_PrefixSupplementZero(t *testing.T) {
 	Log().Debug("ui64", Log().Field("92873890910928019", String().PrefixSupplementZero("92873890910928019", 10)))
 	Log().Debug("ui64", Log().Field("92873890910928019", String().PrefixSupplementZero("92873890910928019", 20)))

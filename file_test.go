@@ -51,13 +51,23 @@ func TestFileCommon_ReadPointLine(t *testing.T) {
 	}
 }
 
+func TestFileCommon_ReadPointLine_KeyPoint(t *testing.T) {
+	_, _ = File().Append("./log/yes/go/point.txt", []byte("haha"), false)
+	profile, err := File().ReadPointLine("./log/yes/go/point.txt", 1)
+	if nil != err {
+		t.Skip(err)
+	} else {
+		t.Log("profile =", profile)
+	}
+}
+
 func TestFileCommon_ReadPointLine_Fail_IndexOut(t *testing.T) {
 	_, err := File().ReadPointLine("/etc/profile", 300)
 	t.Skip(err)
 }
 
 func TestFileCommon_ReadPointLine_Fail_NotExist(t *testing.T) {
-	_, err := File().ReadFirstLine("/etc/hello")
+	_, err := File().ReadPointLine("/etc/hello", 1)
 	t.Skip(err)
 }
 

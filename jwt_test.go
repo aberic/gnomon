@@ -43,4 +43,7 @@ func TestJwtCommon_Check(t *testing.T) {
 	t.Log("tokenString3", tokenString3)
 	bo3 := JWT().Check(key, tokenString3)
 	t.Log("bo3", bo3)
+
+	bo4 := JWT().Check(key, tokenString3+"1")
+	t.Log("bo4", bo4)
 }

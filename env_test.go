@@ -25,7 +25,9 @@ func TestEnvCommon_Get(t *testing.T) {
 }
 
 func TestEnvCommon_GetD(t *testing.T) {
+	_ = os.Setenv("HELLO", "hello")
 	t.Log("HELLO =", Env().GetD("HELLO", "WORLD"))
+	t.Log("WORLD =", Env().GetD("WORLD", "HELLO"))
 }
 
 func TestEnvCommon_GetInt(t *testing.T) {

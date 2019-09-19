@@ -504,35 +504,28 @@ func (s *ScaleCommon) Uint8toFullState(index uint8) string {
 
 // Uint32toFullState 补全不满十位数状态，如1->0000000001、34->0000000034、215->0000000215
 func (s *ScaleCommon) Uint32toFullState(index uint32) string {
+	indexStr := strconv.Itoa(int(index))
+	if s.Uint32Len(index) >= 10 {
+		return indexStr
+	}
 	pos := 0
 	for index > 1 {
 		index /= 10
 		pos++
 	}
 	backZero := 10 - pos
-	backZeroStr := strconv.Itoa(int(index))
 	for i := 0; i < backZero; i++ {
-		backZeroStr = strings.Join([]string{"0", backZeroStr}, "")
+		indexStr = strings.Join([]string{"0", indexStr}, "")
 	}
-	return backZeroStr
+	return indexStr
 }
 
-// Wrap 将float64转成精确的int64
-func (s *ScaleCommon) Wrap(num float64, retain int) int64 {
+// Float64toInt64 将float64转成精确的int64
+func (s *ScaleCommon) Float64toInt64(num float64, retain int) int64 {
 	return int64(num * math.Pow10(retain))
 }
 
-// Unwrap 将int64恢复成正常的float64
-func (s *ScaleCommon) Unwrap(num int64, retain int) float64 {
+// Int64toFloat64 将int64恢复成正常的float64
+func (s *ScaleCommon) Int64toFloat64(num int64, retain int) float64 {
 	return float64(num) / math.Pow10(retain)
-}
-
-// WrapToFloat64 精准float64
-func (s *ScaleCommon) WrapToFloat64(num float64, retain int) float64 {
-	return num * math.Pow10(retain)
-}
-
-// UnwrapToInt64 精准int64
-func (s *ScaleCommon) UnwrapToInt64(num int64, retain int) int64 {
-	return int64(s.Unwrap(num, retain))
 }

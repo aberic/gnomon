@@ -25,13 +25,14 @@ var logDir = "./log"
 
 func logDo() {
 	Log().Debug("test", Log().Field("1", "2"), Log().Field("2", 3), Log().Field("3", true))
+	Log().Debug("test", nil)
 	Log().Info("test", Log().Field("1", "2"), Log().Field("2", 3), Log().Field("3", true))
 	Log().Warn("test", Log().Field("1", "2"), Log().Field("2", 3), Log().Field("3", true))
 	Log().Error("test", Log().Field("1", "2"), Log().Field("2", 3), Log().Field("3", true), Log().Err(errors.New("yes")))
 }
 
 func TestLogCommon_Debug(t *testing.T) {
-	Log().Init(logDir, 1, 1, false)
+	Log().Init("", 1, 1, false)
 	Log().Set(Log().DebugLevel(), false)
 	logDo()
 }
@@ -43,7 +44,7 @@ func TestLogCommon_Info(t *testing.T) {
 }
 
 func TestLogCommon_Warn(t *testing.T) {
-	Log().Init(logDir, 1, 1, false)
+	Log().Init(logDir, 1, 1, true)
 	Log().Set(Log().WarnLevel(), false)
 	logDo()
 }
