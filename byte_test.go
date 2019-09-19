@@ -107,13 +107,3 @@ func TestByteCommon_BytesToUint64(t *testing.T) {
 	data := Byte().Uint64ToBytes(100)
 	t.Log(Byte().BytesToUint64(data))
 }
-
-func TestByteCommon_Append(t *testing.T) {
-	data1 := []byte("test1")
-	data2 := []byte("test2")
-	data := Byte().Append(data1, data2)
-	t.Log(data1)
-	t.Log(data2)
-	t.Log(data)
-	t.Log(string(data))
-}

@@ -22,23 +22,23 @@ import (
 )
 
 var (
-	bc          *byteCommon
-	cc          *commandCommon
-	ec          *envCommon
-	fc          *fileCommon
-	ic          *ipCommon
-	jc          *jwtCommon
-	sc          *stringCommon
-	hc          *hashCommon
-	rc          *rsaCommon
-	lc          *logCommon
-	scc         *scaleCommon
-	tc          *timeCommon
+	bc          *ByteCommon
+	cc          *CommandCommon
+	ec          *EnvCommon
+	fc          *FileCommon
+	ic          *IPCommon
+	jc          *JWTCommon
+	sc          *StringCommon
+	hc          *HashCommon
+	rc          *RSACommon
+	lc          *LogCommon
+	scc         *ScaleCommon
+	tc          *TimeCommon
 	onceByte    sync.Once
 	onceCommand sync.Once
 	onceEnv     sync.Once
 	onceFile    sync.Once
-	onceIp      sync.Once
+	onceIP      sync.Once
 	onceJwt     sync.Once
 	onceString  sync.Once
 	onceHash    sync.Once
@@ -48,86 +48,98 @@ var (
 	onceTime    sync.Once
 )
 
-func Byte() *byteCommon {
+// Byte 字节工具
+func Byte() *ByteCommon {
 	onceByte.Do(func() {
-		bc = &byteCommon{}
+		bc = &ByteCommon{}
 	})
 	return bc
 }
 
-func Command() *commandCommon {
+// Command 命令行工具
+func Command() *CommandCommon {
 	onceCommand.Do(func() {
-		cc = &commandCommon{}
+		cc = &CommandCommon{}
 	})
 	return cc
 }
 
-func Env() *envCommon {
+// Env 环境变量工具
+func Env() *EnvCommon {
 	onceEnv.Do(func() {
-		ec = &envCommon{}
+		ec = &EnvCommon{}
 	})
 	return ec
 }
 
-func File() *fileCommon {
+// File 文件操作工具
+func File() *FileCommon {
 	onceFile.Do(func() {
-		fc = &fileCommon{}
+		fc = &FileCommon{}
 	})
 	return fc
 }
 
-func IP() *ipCommon {
-	onceIp.Do(func() {
-		ic = &ipCommon{}
+// IP ip工具
+func IP() *IPCommon {
+	onceIP.Do(func() {
+		ic = &IPCommon{}
 	})
 	return ic
 }
 
-func Jwt() *jwtCommon {
+// JWT jwt工具
+func JWT() *JWTCommon {
 	onceJwt.Do(func() {
-		jc = &jwtCommon{}
+		jc = &JWTCommon{}
 	})
 	return jc
 }
 
-func String() *stringCommon {
+// String 字符串工具
+func String() *StringCommon {
 	onceString.Do(func() {
-		sc = &stringCommon{}
+		sc = &StringCommon{}
 	})
 	return sc
 }
 
-func CryptoHash() *hashCommon {
+// CryptoHash hash/散列工具
+func CryptoHash() *HashCommon {
 	onceHash.Do(func() {
-		hc = &hashCommon{}
+		hc = &HashCommon{}
 	})
 	return hc
 }
 
-func CryptoRSA() *rsaCommon {
+// CryptoRSA rsa工具
+func CryptoRSA() *RSACommon {
 	onceRSA.Do(func() {
-		rc = &rsaCommon{}
+		rc = &RSACommon{}
 	})
 	return rc
 }
 
-func Log() *logCommon {
+// Log 日志工具
+func Log() *LogCommon {
 	onceLog.Do(func() {
-		lc = &logCommon{level: debugLevel, production: false}
+		lc = &LogCommon{level: debugLevel, production: false}
 	})
 	return lc
 }
 
-func Scale() *scaleCommon {
+// Scale 算数/转换工具
+func Scale() *ScaleCommon {
 	onceScale.Do(func() {
-		scc = &scaleCommon{}
+		scc = &ScaleCommon{}
 	})
 	return scc
 }
 
-func Time() *timeCommon {
+// Time 时间工具
+func Time() *TimeCommon {
 	onceTime.Do(func() {
-		tc = &timeCommon{}
+		tc = &TimeCommon{}
 	})
 	return tc
 }

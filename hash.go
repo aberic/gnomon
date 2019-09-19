@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019. ENNOO - All Rights Reserved.
+ * Copyright (c) 2019. aberic - All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,44 +24,52 @@ import (
 	"encoding/hex"
 )
 
-type hashCommon struct{}
+// HashCommon hash/散列工具
+type HashCommon struct{}
 
-func (h *hashCommon) MD5(text string) string {
+// MD5 MD5
+func (h *HashCommon) MD5(text string) string {
 	hash := md5.New()
 	hash.Write([]byte(text))
 	return hex.EncodeToString(hash.Sum(nil))
 }
 
-func (h *hashCommon) MD516(text string) string {
+// MD516 MD516
+func (h *HashCommon) MD516(text string) string {
 	md516 := string([]rune(h.MD5(text))[8:24])
 	return md516
 }
 
-func (h *hashCommon) Sha1(text string) string {
+// Sha1 Sha1
+func (h *HashCommon) Sha1(text string) string {
 	hash := sha1.New()
 	hash.Write([]byte(text))
 	return hex.EncodeToString(hash.Sum(nil))
 }
 
-func (h *hashCommon) Sha224(text string) string {
+// Sha224 Sha224
+func (h *HashCommon) Sha224(text string) string {
 	hash := crypto.SHA224.New()
 	hash.Write([]byte(text))
 	return hex.EncodeToString(hash.Sum(nil))
 }
 
-func (h *hashCommon) Sha256(text string) string {
+// Sha256 Sha256
+func (h *HashCommon) Sha256(text string) string {
 	hash := sha256.New()
 	hash.Write([]byte(text))
 	return hex.EncodeToString(hash.Sum(nil))
 }
 
-func (h *hashCommon) Sha384(text string) string {
+// Sha384 Sha384
+func (h *HashCommon) Sha384(text string) string {
 	hash := sha512.New384()
 	hash.Write([]byte(text))
 	return hex.EncodeToString(hash.Sum(nil))
 }
 
-func (h *hashCommon) Sha512(text string) string {
+// Sha512 Sha512
+func (h *HashCommon) Sha512(text string) string {
 	hash := sha512.New()
 	hash.Write([]byte(text))
 	return hex.EncodeToString(hash.Sum(nil))

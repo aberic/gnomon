@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019. ENNOO - All Rights Reserved.
+ * Copyright (c) 2019. aberic - All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,26 +15,32 @@
 package gnomon
 
 import (
-	"fmt"
 	"testing"
 	"time"
 )
 
-func TestBuild(t *testing.T) {
+func TestJwtCommon_Build(t *testing.T) {
 	key := []byte("Hello World！This is secret!")
-	tokenString1, err1 := Jwt().Build(signingMethodHS256, key, "1", "rivet", "userMD5", time.Now().Unix(), time.Now().Unix(), time.Now().Unix()+1000)
-	tokenString2, err2 := Jwt().Build(signingMethodHS384, key, "1", "rivet", "userMD5", time.Now().Unix(), time.Now().Unix(), time.Now().Unix()+1000)
-	tokenString3, err3 := Jwt().Build(signingMethodHS512, key, "1", "rivet", "userMD5", time.Now().Unix(), time.Now().Unix(), time.Now().Unix()+1000)
-	if nil == err1 && nil == err2 && nil == err3 {
-		fmt.Println("tokenString1 = ", tokenString1)
-		fmt.Println("tokenString2 = ", tokenString2)
-		fmt.Println("tokenString3 = ", tokenString3)
-		time.Sleep(1 * time.Second)
-		bo1 := Jwt().Check(key, tokenString1)
-		bo2 := Jwt().Check(key, tokenString2)
-		bo3 := Jwt().Check(key, tokenString3)
-		fmt.Println("bo1 = ", bo1)
-		fmt.Println("bo2 = ", bo2)
-		fmt.Println("bo3 = ", bo3)
-	}
+	tokenString1, _ := JWT().Build(signingMethodHS256, key, "1", "rivet", "userMD5", time.Now().Unix(), time.Now().Unix(), time.Now().Unix()+1000)
+	t.Log("tokenString1", tokenString1)
+	tokenString2, _ := JWT().Build(signingMethodHS384, key, "1", "rivet", "userMD5", time.Now().Unix(), time.Now().Unix(), time.Now().Unix()+1000)
+	t.Log("tokenString2", tokenString2)
+	tokenString3, _ := JWT().Build(signingMethodHS512, key, "1", "rivet", "userMD5", time.Now().Unix(), time.Now().Unix(), time.Now().Unix()+1000)
+	t.Log("tokenString3", tokenString3)
+}
+
+func TestJwtCommon_Check(t *testing.T) {
+	key := []byte("Hello World！This is secret!")
+	tokenString1, _ := JWT().Build(signingMethodHS256, key, "1", "rivet", "userMD5", time.Now().Unix(), time.Now().Unix(), time.Now().Unix()+1000)
+	t.Log("tokenString1", tokenString1)
+	bo1 := JWT().Check(key, tokenString1)
+	t.Log("bo1", bo1)
+	tokenString2, _ := JWT().Build(signingMethodHS384, key, "1", "rivet", "userMD5", time.Now().Unix(), time.Now().Unix(), time.Now().Unix()+1000)
+	t.Log("tokenString2", tokenString2)
+	bo2 := JWT().Check(key, tokenString2)
+	t.Log("bo3", bo2)
+	tokenString3, _ := JWT().Build(signingMethodHS512, key, "1", "rivet", "userMD5", time.Now().Unix(), time.Now().Unix(), time.Now().Unix()+1000)
+	t.Log("tokenString3", tokenString3)
+	bo3 := JWT().Check(key, tokenString3)
+	t.Log("bo3", bo3)
 }

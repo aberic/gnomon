@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019. ENNOO - All Rights Reserved.
+ * Copyright (c) 2019. aberic - All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  *
  */
 
-// Package ip ip工具
 package gnomon
 
 import (
@@ -21,10 +20,11 @@ import (
 	"net/http"
 )
 
-type ipCommon struct{}
+// IPCommon ip工具
+type IPCommon struct{}
 
 // Get 返回客户端 IP
-func (i *ipCommon) Get(req *http.Request) string {
+func (i *IPCommon) Get(req *http.Request) string {
 	remoteAddr := req.RemoteAddr
 	if ip := req.Header.Get("X-Real-IP"); ip != "" {
 		remoteAddr = ip

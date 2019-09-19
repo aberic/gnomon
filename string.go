@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019. ENNOO - All Rights Reserved.
+ * Copyright (c) 2019. aberic - All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  *
  */
 
-// Package str 字符串类型工具类
 package gnomon
 
 import (
@@ -25,25 +24,26 @@ import (
 	"time"
 )
 
-type stringCommon struct{}
+// StringCommon 字符串工具
+type StringCommon struct{}
 
 func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
 // IsEmpty 判断字符串是否为空，是则返回true，否则返回false
-func (s *stringCommon) IsEmpty(str string) bool {
+func (s *StringCommon) IsEmpty(str string) bool {
 	return len(str) == 0
 }
 
 // IsNotEmpty 和 IsEmpty 的语义相反
-func (s *stringCommon) IsNotEmpty(str string) bool {
+func (s *StringCommon) IsNotEmpty(str string) bool {
 	return !s.IsEmpty(str)
 }
 
 // Convert 下划线转换，首字母小写变大写，
 // 下划线去掉并将下划线后的首字母大写
-func (s *stringCommon) Convert(oriString string) string {
+func (s *StringCommon) Convert(oriString string) string {
 	cb := []byte(oriString)
 	em := make([]byte, 0, 10)
 	b := false
@@ -70,7 +70,7 @@ func (s *stringCommon) Convert(oriString string) string {
 var letterRunes = []rune("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
 // RandSeq 创建指定长度的随机字符串
-func (s *stringCommon) RandSeq(n int) string {
+func (s *StringCommon) RandSeq(n int) string {
 	b := make([]rune, n)
 	for i := range b {
 		b[i] = letterRunes[rand.Intn(len(letterRunes))]
@@ -79,26 +79,26 @@ func (s *stringCommon) RandSeq(n int) string {
 }
 
 // RandSeq16 创建长度为16的随机字符串
-func (s *stringCommon) RandSeq16() string {
+func (s *StringCommon) RandSeq16() string {
 	return s.RandSeq(16)
 }
 
 // Trim 去除字符串中的空格和换行符
-func (s *stringCommon) Trim(str string) string {
+func (s *StringCommon) Trim(str string) string {
 	// 去除空格
 	str = strings.Replace(str, " ", "", -1)
 	return s.TrimN(str)
 }
 
 // TrimN 去除字符串中的换行符
-func (s *stringCommon) TrimN(str string) string {
+func (s *StringCommon) TrimN(str string) string {
 	// 去除换行符
 	str = strings.Replace(str, "\n", "", -1)
 	return str
 }
 
 // ToString 将对象格式化成字符串
-func (s *stringCommon) ToString(i interface{}) string {
+func (s *StringCommon) ToString(i interface{}) string {
 	b, err := json.Marshal(i)
 	if err != nil {
 		return fmt.Sprintf("%+v", i)
@@ -112,7 +112,7 @@ func (s *stringCommon) ToString(i interface{}) string {
 }
 
 // SingleSpace 将字符串内所有连续空格替换为单个空格
-func (s *stringCommon) SingleSpace(res string) string {
+func (s *StringCommon) SingleSpace(res string) string {
 	for skip := false; !skip; {
 		resNew := strings.Replace(res, "  ", " ", -1)
 		if res == resNew {
@@ -123,7 +123,12 @@ func (s *stringCommon) SingleSpace(res string) string {
 	return res
 }
 
-func (s *stringCommon) PrefixSupplementZero(str string, offset int) string {
+// PrefixSupplementZero 当字符串长度不满足时，将字符串前几位补充0
+//
+// str 字符串内容
+//
+// offset 字符串期望的长度
+func (s *StringCommon) PrefixSupplementZero(str string, offset int) string {
 	backZero := offset - len(str)
 	if backZero <= 0 {
 		return str

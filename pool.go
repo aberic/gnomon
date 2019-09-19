@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019. Aberic - All Rights Reserved.
+ * Copyright (c) 2019. aberic - All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,26 +43,15 @@ func (p *poolCommon) init(size int) {
 	})
 }
 
-// tune 动态变更协程池数量
-func (p *poolCommon) tune(poolSize int) {
-	p.pool.Tune(poolSize)
-}
-
 func (p *poolCommon) submit(task func()) error {
 	return p.pool.Submit(func() {
 		task()
 	})
 }
 
-func (p *poolCommon) submitObj(i interface{}, task func(i interface{})) error {
-	return p.pool.Submit(func() {
-		task(i)
-	})
-}
-
 func (p *poolCommon) submitField(
-	task func(timeString, fileString, stackString, levelName, msg string, level Level, fields ...*field),
-	timeString, fileString, stackString, levelName, msg string, level Level, fields ...*field) error {
+	task func(timeString, fileString, stackString, levelName, msg string, level Level, fields ...*Field),
+	timeString, fileString, stackString, levelName, msg string, level Level, fields ...*Field) error {
 	return p.pool.Submit(func() {
 		task(timeString, fileString, stackString, levelName, msg, level, fields...)
 	})

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019. ENNOO - All Rights Reserved.
+ * Copyright (c) 2019. aberic - All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  *
  */
 
-// Package file 文件操作工具
 package gnomon
 
 import (
@@ -25,10 +24,11 @@ import (
 	"strings"
 )
 
-type fileCommon struct{}
+// FileCommon 文件操作工具
+type FileCommon struct{}
 
 // PathExists 判断路径是否存在
-func (f *fileCommon) PathExists(path string) bool {
+func (f *FileCommon) PathExists(path string) bool {
 	_, err := os.Stat(path)
 	if err == nil {
 		return true
@@ -40,7 +40,7 @@ func (f *fileCommon) PathExists(path string) bool {
 }
 
 // ReadFirstLine 从文件中读取第一行并返回字符串数组
-func (f *fileCommon) ReadFirstLine(filePath string) (string, error) {
+func (f *FileCommon) ReadFirstLine(filePath string) (string, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
 		return "", err
@@ -54,7 +54,7 @@ func (f *fileCommon) ReadFirstLine(filePath string) (string, error) {
 }
 
 // ReadPointLine 从文件中读取指定行并返回字符串数组
-func (f *fileCommon) ReadPointLine(filePath string, line int) (string, error) {
+func (f *FileCommon) ReadPointLine(filePath string, line int) (string, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
 		return "", err
@@ -81,7 +81,7 @@ func (f *fileCommon) ReadPointLine(filePath string, line int) (string, error) {
 }
 
 // ReadLines 从文件中逐行读取并返回字符串数组
-func (f *fileCommon) ReadLines(filePath string) ([]string, error) {
+func (f *FileCommon) ReadLines(filePath string) ([]string, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
 		return nil, err
@@ -105,7 +105,7 @@ func (f *fileCommon) ReadLines(filePath string) ([]string, error) {
 }
 
 // ParentPath 文件父路径
-func (f *fileCommon) ParentPath(filePath string) string {
+func (f *FileCommon) ParentPath(filePath string) string {
 	return filePath[0:strings.LastIndex(filePath, "/")]
 }
 
@@ -118,9 +118,10 @@ func (f *fileCommon) ParentPath(filePath string) string {
 // force 如果文件已存在，会将文件清空
 //
 // It returns the number of bytes written and an error
-func (f *fileCommon) Append(filePath string, data []byte, force bool) (int, error) {
+func (f *FileCommon) Append(filePath string, data []byte, force bool) (int, error) {
 	var (
 		file *os.File
+		n    int
 		err  error
 	)
 	exist := f.PathExists(filePath)
@@ -149,11 +150,10 @@ func (f *fileCommon) Append(filePath string, data []byte, force bool) (int, erro
 	}()
 	// 将数据写入文件中
 	//file.WriteString(string(data)) //写入字符串
-	if n, err := file.Write(data); nil != err { // 写入byte的slice数据
+	if n, err = file.Write(data); nil != err { // 写入byte的slice数据
 		return 0, err
-	} else {
-		return n, nil
 	}
+	return n, nil
 }
 
 // Modify 修改文件中指定位置的内容
@@ -167,9 +167,10 @@ func (f *fileCommon) Append(filePath string, data []byte, force bool) (int, erro
 // force 如果文件已存在，会将文件清空
 //
 // It returns the number of bytes written and an error
-func (f *fileCommon) Modify(filePath string, offset int64, data []byte, force bool) (int, error) {
+func (f *FileCommon) Modify(filePath string, offset int64, data []byte, force bool) (int, error) {
 	var (
 		file *os.File
+		n    int
 		err  error
 	)
 	exist := f.PathExists(filePath)
@@ -202,15 +203,14 @@ func (f *fileCommon) Modify(filePath string, offset int64, data []byte, force bo
 	}
 	// 将数据写入文件中
 	//file.WriteString(string(data)) //写入字符串
-	if n, err := file.Write(data); nil != err { // 写入byte的slice数据
+	if n, err = file.Write(data); nil != err { // 写入byte的slice数据
 		return 0, err
-	} else {
-		return n, nil
 	}
+	return n, nil
 }
 
 // LoopDirs 遍历文件夹下的所有子文件夹
-func (f *fileCommon) LoopDirs(pathname string) ([]string, error) {
+func (f *FileCommon) LoopDirs(pathname string) ([]string, error) {
 	var s []string
 	rd, err := ioutil.ReadDir(pathname)
 	if err != nil {
@@ -227,7 +227,7 @@ func (f *fileCommon) LoopDirs(pathname string) ([]string, error) {
 }
 
 // LoopFiles 遍历文件夹及子文件夹下的所有文件
-func (f *fileCommon) LoopFiles(pathname string, s []string) ([]string, error) {
+func (f *FileCommon) LoopFiles(pathname string, s []string) ([]string, error) {
 	rd, err := ioutil.ReadDir(pathname)
 	if err != nil {
 		Log().Debug("read dir fail", Log().Err(err))

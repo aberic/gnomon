@@ -1,8 +1,24 @@
+/*
+ * Copyright (c) 2019. aberic - All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 package gnomon
 
 import "time"
 
-type timeCommon struct{}
+// TimeCommon 时间工具
+type TimeCommon struct{}
 
 // String2Timestamp 字符串转时间戳
 //
@@ -11,7 +27,7 @@ type timeCommon struct{}
 // format 时间字符串格式化类型 如：2006/01/02 15:04:05
 //
 // zone 时区 如：time.Local / time.UTC
-func (t *timeCommon) String2Timestamp(date, format string, zone *time.Location) (int64, error) {
+func (t *TimeCommon) String2Timestamp(date, format string, zone *time.Location) (int64, error) {
 	var (
 		theTime time.Time
 		err     error
@@ -29,6 +45,6 @@ func (t *timeCommon) String2Timestamp(date, format string, zone *time.Location) 
 // timestampNSec 时间戳纳秒值
 //
 // format 时间字符串格式化类型 如：2006/01/02 15:04:05
-func (t *timeCommon) Timestamp2String(timestampSec, timestampNSec int64, format string) string {
+func (t *TimeCommon) Timestamp2String(timestampSec, timestampNSec int64, format string) string {
 	return time.Unix(timestampSec, timestampNSec).Format(format) //设置时间戳 使用模板格式化为日期字符串
 }

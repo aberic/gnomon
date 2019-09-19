@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019. ENNOO - All Rights Reserved.
+ * Copyright (c) 2019. aberic - All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,8 @@ import (
 	"strings"
 )
 
-type commandCommon struct{}
+// CommandCommon 命令行工具
+type CommandCommon struct{}
 
 // ExecCommand 执行cmd命令
 //
@@ -37,7 +38,7 @@ type commandCommon struct{}
 // int 执行命令后输出总行数
 //
 // []string 执行命令后输出内容按行放入字符串数组
-func (c *commandCommon) ExecCommand(commandName string, params ...string) (int, []string, error) {
+func (c *CommandCommon) ExecCommand(commandName string, params ...string) (int, []string, error) {
 	var (
 		err          error
 		stdout       io.ReadCloser
@@ -96,7 +97,7 @@ ERR:
 }
 
 // ExecCommandTail 实时打印执行脚本过程中的命令
-func (c *commandCommon) ExecCommandTail(commandName string, params ...string) (int, []string, error) {
+func (c *CommandCommon) ExecCommandTail(commandName string, params ...string) (int, []string, error) {
 	var (
 		err          error
 		stdout       io.ReadCloser

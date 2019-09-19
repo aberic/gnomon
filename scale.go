@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2019. aberic - All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 package gnomon
 
 import (
@@ -6,7 +21,8 @@ import (
 	"strings"
 )
 
-type scaleCommon struct{}
+// ScaleCommon 运算/转换工具
+type ScaleCommon struct{}
 
 var (
 	hexIntMap = map[int]string{ // hexIntMap 十六进制对应十进制映射
@@ -80,7 +96,7 @@ var (
 )
 
 // Uint64ToHexString uint64转十六进制字符串
-func (s *scaleCommon) Uint64ToHexString(i uint64) string {
+func (s *ScaleCommon) Uint64ToHexString(i uint64) string {
 	iSt := ""
 	for i > 0 {
 		if i >= 16 {
@@ -95,7 +111,7 @@ func (s *scaleCommon) Uint64ToHexString(i uint64) string {
 }
 
 // Int64ToHexString int64转十六进制字符串
-func (s *scaleCommon) Int64ToHexString(i int64) string {
+func (s *ScaleCommon) Int64ToHexString(i int64) string {
 	iSt := ""
 	for i > 0 {
 		if i >= 16 {
@@ -110,7 +126,7 @@ func (s *scaleCommon) Int64ToHexString(i int64) string {
 }
 
 // Uint32ToHexString uint32转十六进制字符串
-func (s *scaleCommon) Uint32ToHexString(i uint32) string {
+func (s *ScaleCommon) Uint32ToHexString(i uint32) string {
 	iSt := ""
 	for i > 0 {
 		if i >= 16 {
@@ -125,7 +141,7 @@ func (s *scaleCommon) Uint32ToHexString(i uint32) string {
 }
 
 // Int32ToHexString int32转十六进制字符串
-func (s *scaleCommon) Int32ToHexString(i int32) string {
+func (s *ScaleCommon) Int32ToHexString(i int32) string {
 	iSt := ""
 	for i > 0 {
 		if i >= 16 {
@@ -140,7 +156,7 @@ func (s *scaleCommon) Int32ToHexString(i int32) string {
 }
 
 // UintToHexString uint转十六进制字符串
-func (s *scaleCommon) UintToHexString(i uint) string {
+func (s *ScaleCommon) UintToHexString(i uint) string {
 	iSt := ""
 	for i > 0 {
 		if i >= 16 {
@@ -155,7 +171,7 @@ func (s *scaleCommon) UintToHexString(i uint) string {
 }
 
 // IntToHexString int转十六进制字符串
-func (s *scaleCommon) IntToHexString(i int) string {
+func (s *ScaleCommon) IntToHexString(i int) string {
 	iSt := ""
 	for i > 0 {
 		if i >= 16 {
@@ -170,7 +186,7 @@ func (s *scaleCommon) IntToHexString(i int) string {
 }
 
 // HexStringToUint64 int字符串转int
-func (s *scaleCommon) HexStringToUint64(hex string) uint64 {
+func (s *ScaleCommon) HexStringToUint64(hex string) uint64 {
 	hexLen := len(hex)
 	var uint64Hex uint64
 	uint64Hex = 0
@@ -180,8 +196,8 @@ func (s *scaleCommon) HexStringToUint64(hex string) uint64 {
 	return uint64Hex
 }
 
-// HexStringToUint64 int字符串转int
-func (s *scaleCommon) HexStringToInt64(hex string) int64 {
+// HexStringToInt64 int字符串转int
+func (s *ScaleCommon) HexStringToInt64(hex string) int64 {
 	hexLen := len(hex)
 	var int64Hex int64
 	int64Hex = 0
@@ -192,7 +208,7 @@ func (s *scaleCommon) HexStringToInt64(hex string) int64 {
 }
 
 // Uint64ToDuoString uint64转十六进制字符串
-func (s *scaleCommon) Uint64ToDuoString(i uint64) string {
+func (s *ScaleCommon) Uint64ToDuoString(i uint64) string {
 	iSt := ""
 	for i > 0 {
 		if i >= 32 {
@@ -207,7 +223,7 @@ func (s *scaleCommon) Uint64ToDuoString(i uint64) string {
 }
 
 // Int64ToDuoString int64转十六进制字符串
-func (s *scaleCommon) Int64ToDuoString(i int64) string {
+func (s *ScaleCommon) Int64ToDuoString(i int64) string {
 	iSt := ""
 	for i > 0 {
 		if i >= 32 {
@@ -222,7 +238,7 @@ func (s *scaleCommon) Int64ToDuoString(i int64) string {
 }
 
 // Uint32ToDuoString uint32转十六进制字符串
-func (s *scaleCommon) Uint32ToDuoString(i uint32) string {
+func (s *ScaleCommon) Uint32ToDuoString(i uint32) string {
 	iSt := ""
 	for i > 0 {
 		if i >= 32 {
@@ -237,7 +253,7 @@ func (s *scaleCommon) Uint32ToDuoString(i uint32) string {
 }
 
 // Int32ToDuoString int32转十六进制字符串
-func (s *scaleCommon) Int32ToDuoString(i int32) string {
+func (s *ScaleCommon) Int32ToDuoString(i int32) string {
 	iSt := ""
 	for i > 0 {
 		if i >= 32 {
@@ -252,7 +268,7 @@ func (s *scaleCommon) Int32ToDuoString(i int32) string {
 }
 
 // UintToDuoString uint转十六进制字符串
-func (s *scaleCommon) UintToDuoString(i uint) string {
+func (s *ScaleCommon) UintToDuoString(i uint) string {
 	iSt := ""
 	for i > 0 {
 		if i >= 32 {
@@ -267,7 +283,7 @@ func (s *scaleCommon) UintToDuoString(i uint) string {
 }
 
 // IntToDuoString int转十六进制字符串
-func (s *scaleCommon) IntToDuoString(i int) string {
+func (s *ScaleCommon) IntToDuoString(i int) string {
 	iSt := ""
 	for i > 0 {
 		if i >= 32 {
@@ -282,7 +298,7 @@ func (s *scaleCommon) IntToDuoString(i int) string {
 }
 
 // DuoStringToUint64 int字符串转int
-func (s *scaleCommon) DuoStringToUint64(duo string) uint64 {
+func (s *ScaleCommon) DuoStringToUint64(duo string) uint64 {
 	duoLen := len(duo)
 	var uint64Duo uint64
 	uint64Duo = 0
@@ -293,7 +309,7 @@ func (s *scaleCommon) DuoStringToUint64(duo string) uint64 {
 }
 
 // DuoStringToInt64 int字符串转int
-func (s *scaleCommon) DuoStringToInt64(duo string) int64 {
+func (s *ScaleCommon) DuoStringToInt64(duo string) int64 {
 	duoLen := len(duo)
 	var int64Duo int64
 	int64Duo = 0
@@ -304,7 +320,7 @@ func (s *scaleCommon) DuoStringToInt64(duo string) int64 {
 }
 
 // Uint64ToDDuoString uint64转十六进制字符串
-func (s *scaleCommon) Uint64ToDDuoString(i uint64) string {
+func (s *ScaleCommon) Uint64ToDDuoString(i uint64) string {
 	iSt := ""
 	for i > 0 {
 		if i >= 64 {
@@ -319,7 +335,7 @@ func (s *scaleCommon) Uint64ToDDuoString(i uint64) string {
 }
 
 // Int64ToDDuoString int64转十六进制字符串
-func (s *scaleCommon) Int64ToDDuoString(i int64) string {
+func (s *ScaleCommon) Int64ToDDuoString(i int64) string {
 	iSt := ""
 	for i > 0 {
 		if i >= 64 {
@@ -334,7 +350,7 @@ func (s *scaleCommon) Int64ToDDuoString(i int64) string {
 }
 
 // Uint32ToDDuoString uint32转十六进制字符串
-func (s *scaleCommon) Uint32ToDDuoString(i uint32) string {
+func (s *ScaleCommon) Uint32ToDDuoString(i uint32) string {
 	iSt := ""
 	for i > 0 {
 		if i >= 64 {
@@ -349,7 +365,7 @@ func (s *scaleCommon) Uint32ToDDuoString(i uint32) string {
 }
 
 // Int32ToDDuoString int32转十六进制字符串
-func (s *scaleCommon) Int32ToDDuoString(i int32) string {
+func (s *ScaleCommon) Int32ToDDuoString(i int32) string {
 	iSt := ""
 	for i > 0 {
 		if i >= 64 {
@@ -364,7 +380,7 @@ func (s *scaleCommon) Int32ToDDuoString(i int32) string {
 }
 
 // UintToDDuoString int转64进制字符串
-func (s *scaleCommon) UintToDDuoString(i uint) string {
+func (s *ScaleCommon) UintToDDuoString(i uint) string {
 	iSt := ""
 	for i > 0 {
 		if i >= 64 {
@@ -379,7 +395,7 @@ func (s *scaleCommon) UintToDDuoString(i uint) string {
 }
 
 // IntToDDuoString int转64进制字符串
-func (s *scaleCommon) IntToDDuoString(i int) string {
+func (s *ScaleCommon) IntToDDuoString(i int) string {
 	iSt := ""
 	for i > 0 {
 		if i >= 64 {
@@ -394,7 +410,7 @@ func (s *scaleCommon) IntToDDuoString(i int) string {
 }
 
 // DDuoStringToUint64 int字符串转int
-func (s *scaleCommon) DDuoStringToUint64(dDuo string) uint64 {
+func (s *ScaleCommon) DDuoStringToUint64(dDuo string) uint64 {
 	dDuoLen := len(dDuo)
 	var uint64DDuo uint64
 	uint64DDuo = 0
@@ -405,7 +421,7 @@ func (s *scaleCommon) DDuoStringToUint64(dDuo string) uint64 {
 }
 
 // DDuoStringToInt64 int字符串转int
-func (s *scaleCommon) DDuoStringToInt64(dDuo string) int64 {
+func (s *ScaleCommon) DDuoStringToInt64(dDuo string) int64 {
 	dDuoLen := len(dDuo)
 	var int64DDuo int64
 	int64DDuo = 0
@@ -415,7 +431,8 @@ func (s *scaleCommon) DDuoStringToInt64(dDuo string) int64 {
 	return int64DDuo
 }
 
-func (s *scaleCommon) Uint64Len(i uint64) int {
+// Uint64Len 计算整型字符串长度
+func (s *ScaleCommon) Uint64Len(i uint64) int {
 	iLen := 1
 	for i >= 10 {
 		i /= 10
@@ -424,7 +441,8 @@ func (s *scaleCommon) Uint64Len(i uint64) int {
 	return iLen
 }
 
-func (s *scaleCommon) Int64Len(i int64) int {
+// Int64Len 计算整型字符串长度
+func (s *ScaleCommon) Int64Len(i int64) int {
 	iLen := 1
 	for i >= 10 {
 		i /= 10
@@ -433,7 +451,8 @@ func (s *scaleCommon) Int64Len(i int64) int {
 	return iLen
 }
 
-func (s *scaleCommon) Uint32Len(i uint32) int {
+// Uint32Len 计算整型字符串长度
+func (s *ScaleCommon) Uint32Len(i uint32) int {
 	iLen := 1
 	for i >= 10 {
 		i /= 10
@@ -442,7 +461,8 @@ func (s *scaleCommon) Uint32Len(i uint32) int {
 	return iLen
 }
 
-func (s *scaleCommon) Int32Len(i int32) int {
+// Int32Len 计算整型字符串长度
+func (s *ScaleCommon) Int32Len(i int32) int {
 	iLen := 1
 	for i >= 10 {
 		i /= 10
@@ -451,7 +471,8 @@ func (s *scaleCommon) Int32Len(i int32) int {
 	return iLen
 }
 
-func (s *scaleCommon) UintLen(i uint) int {
+// UintLen 计算整型字符串长度
+func (s *ScaleCommon) UintLen(i uint) int {
 	iLen := 1
 	for i >= 10 {
 		i /= 10
@@ -460,7 +481,8 @@ func (s *scaleCommon) UintLen(i uint) int {
 	return iLen
 }
 
-func (s *scaleCommon) IntLen(i int) int {
+// IntLen 计算整型字符串长度
+func (s *ScaleCommon) IntLen(i int) int {
 	iLen := 1
 	for i >= 10 {
 		i /= 10
@@ -469,8 +491,8 @@ func (s *scaleCommon) IntLen(i int) int {
 	return iLen
 }
 
-// uint8toFullState 补全不满三位数状态，如1->001、34->034、215->215
-func (s *scaleCommon) Uint8toFullState(index uint8) string {
+// Uint8toFullState 补全不满三位数状态，如1->001、34->034、215->215
+func (s *ScaleCommon) Uint8toFullState(index uint8) string {
 	result := strconv.Itoa(int(index))
 	if index < 10 {
 		return strings.Join([]string{"00", result}, "")
@@ -480,8 +502,8 @@ func (s *scaleCommon) Uint8toFullState(index uint8) string {
 	return result
 }
 
-// uint32toFullState 补全不满十位数状态，如1->0000000001、34->0000000034、215->0000000215
-func (s *scaleCommon) Uint32toFullState(index uint32) string {
+// Uint32toFullState 补全不满十位数状态，如1->0000000001、34->0000000034、215->0000000215
+func (s *ScaleCommon) Uint32toFullState(index uint32) string {
 	pos := 0
 	for index > 1 {
 		index /= 10
@@ -495,22 +517,22 @@ func (s *scaleCommon) Uint32toFullState(index uint32) string {
 	return backZeroStr
 }
 
-//将float64转成精确的int64
-func (s *scaleCommon) Wrap(num float64, retain int) int64 {
+// Wrap 将float64转成精确的int64
+func (s *ScaleCommon) Wrap(num float64, retain int) int64 {
 	return int64(num * math.Pow10(retain))
 }
 
-//将int64恢复成正常的float64
-func (s *scaleCommon) Unwrap(num int64, retain int) float64 {
+// Unwrap 将int64恢复成正常的float64
+func (s *ScaleCommon) Unwrap(num int64, retain int) float64 {
 	return float64(num) / math.Pow10(retain)
 }
 
-//精准float64
-func (s *scaleCommon) WrapToFloat64(num float64, retain int) float64 {
+// WrapToFloat64 精准float64
+func (s *ScaleCommon) WrapToFloat64(num float64, retain int) float64 {
 	return num * math.Pow10(retain)
 }
 
-//精准int64
-func (s *scaleCommon) UnwrapToInt64(num int64, retain int) int64 {
+// UnwrapToInt64 精准int64
+func (s *ScaleCommon) UnwrapToInt64(num int64, retain int) int64 {
 	return int64(s.Unwrap(num, retain))
 }

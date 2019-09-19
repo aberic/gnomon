@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2019. aberic - All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 package gnomon
 
 import (
@@ -15,14 +30,15 @@ import (
 	"strings"
 )
 
-type rsaCommon struct{}
+// RSACommon rsa工具
+type RSACommon struct{}
 
 // GenerateRsaKey RSA公钥私钥产生
 //
 // bits 指定生成位大小
 //
 // path 指定公私钥所在生成目录
-func (r *rsaCommon) GenerateRsaKey(bits int, path string) (err error) {
+func (r *RSACommon) GenerateRsaKey(bits int, path string) (err error) {
 	var (
 		privateKey *rsa.PrivateKey
 		publicKey  *rsa.PublicKey
@@ -74,34 +90,34 @@ func (r *rsaCommon) GenerateRsaKey(bits int, path string) (err error) {
 }
 
 // EncryptRsaPub1 公钥加密
-func (r *rsaCommon) EncryptRsaPub1(publicKeyPath string, data []byte) (string, error) {
-	if bs, err := r.EncryptRsaPub3(publicKeyPath, data); nil != err {
+func (r *RSACommon) EncryptRsaPub1(publicKeyPath string, data []byte) (string, error) {
+	bs, err := r.EncryptRsaPub3(publicKeyPath, data)
+	if nil != err {
 		return "", err
-	} else {
-		return hex.EncodeToString(bs), nil
 	}
+	return hex.EncodeToString(bs), nil
 }
 
 // EncryptRsaPub2 公钥加密
-func (r *rsaCommon) EncryptRsaPub2(publicKey, data []byte) (string, error) {
-	if bs, err := r.EncryptRsaPub4(publicKey, []byte(data)); nil != err {
+func (r *RSACommon) EncryptRsaPub2(publicKey, data []byte) (string, error) {
+	bs, err := r.EncryptRsaPub4(publicKey, []byte(data))
+	if nil != err {
 		return "", err
-	} else {
-		return hex.EncodeToString(bs), nil
 	}
+	return hex.EncodeToString(bs), nil
 }
 
 // EncryptRsaPub3 公钥加密
-func (r *rsaCommon) EncryptRsaPub3(publicKeyPath string, data []byte) (bs []byte, err error) {
-	if bs, err = ioutil.ReadFile(publicKeyPath); nil != err {
+func (r *RSACommon) EncryptRsaPub3(publicKeyPath string, data []byte) (bs []byte, err error) {
+	bs, err = ioutil.ReadFile(publicKeyPath)
+	if nil != err {
 		return
-	} else {
-		return r.EncryptRsaPub4(bs, data)
 	}
+	return r.EncryptRsaPub4(bs, data)
 }
 
 // EncryptRsaPub4 公钥加密
-func (r *rsaCommon) EncryptRsaPub4(publicKey, data []byte) ([]byte, error) {
+func (r *RSACommon) EncryptRsaPub4(publicKey, data []byte) ([]byte, error) {
 	// 解密pem格式的公钥
 	block, _ := pem.Decode(publicKey)
 	if block == nil {
@@ -119,34 +135,34 @@ func (r *rsaCommon) EncryptRsaPub4(publicKey, data []byte) ([]byte, error) {
 }
 
 // DecryptRsaPri1 私钥解密
-func (r *rsaCommon) DecryptRsaPri1(privateKeyPath, data string) ([]byte, error) {
-	if bs, err := hex.DecodeString(data); nil != err {
+func (r *RSACommon) DecryptRsaPri1(privateKeyPath, data string) ([]byte, error) {
+	bs, err := hex.DecodeString(data)
+	if nil != err {
 		return bs, err
-	} else {
-		return r.DecryptRsaPri3(privateKeyPath, bs)
 	}
+	return r.DecryptRsaPri3(privateKeyPath, bs)
 }
 
 // DecryptRsaPri2 私钥解密
-func (r *rsaCommon) DecryptRsaPri2(privateKey []byte, data string) (bs []byte, err error) {
-	if bs, err := hex.DecodeString(data); nil != err {
+func (r *RSACommon) DecryptRsaPri2(privateKey []byte, data string) ([]byte, error) {
+	bs, err := hex.DecodeString(data)
+	if nil != err {
 		return bs, err
-	} else {
-		return r.DecryptRsaPri4(privateKey, bs)
 	}
+	return r.DecryptRsaPri4(privateKey, bs)
 }
 
 // DecryptRsaPri3 私钥解密
-func (r *rsaCommon) DecryptRsaPri3(privateKeyPath string, data []byte) ([]byte, error) {
-	if bs, err := ioutil.ReadFile(privateKeyPath); nil != err {
+func (r *RSACommon) DecryptRsaPri3(privateKeyPath string, data []byte) ([]byte, error) {
+	bs, err := ioutil.ReadFile(privateKeyPath)
+	if nil != err {
 		return bs, err
-	} else {
-		return r.DecryptRsaPri4(bs, data)
 	}
+	return r.DecryptRsaPri4(bs, data)
 }
 
 // DecryptRsaPri4 私钥解密
-func (r *rsaCommon) DecryptRsaPri4(privateKey, data []byte) ([]byte, error) {
+func (r *RSACommon) DecryptRsaPri4(privateKey, data []byte) ([]byte, error) {
 	//解密
 	block, _ := pem.Decode(privateKey)
 	if block == nil {
@@ -162,26 +178,26 @@ func (r *rsaCommon) DecryptRsaPri4(privateKey, data []byte) ([]byte, error) {
 }
 
 // RsaSign1 签名：采用sha1算法进行签名并输出为hex格式（私钥PKCS8格式）
-func (r *rsaCommon) RsaSign1(privateKeyPath, data string) (string, error) {
+func (r *RSACommon) RsaSign1(privateKeyPath, data string) (string, error) {
 	return r.RsaSign3(privateKeyPath, []byte(data))
 }
 
 // RsaSign2 签名：采用sha1算法进行签名并输出为hex格式（私钥PKCS8格式）
-func (r *rsaCommon) RsaSign2(privateKey []byte, data string) (string, error) {
+func (r *RSACommon) RsaSign2(privateKey []byte, data string) (string, error) {
 	return r.RsaSign4(privateKey, []byte(data))
 }
 
 // RsaSign3 签名：采用sha1算法进行签名并输出为hex格式（私钥PKCS8格式）
-func (r *rsaCommon) RsaSign3(privateKeyPath string, data []byte) (string, error) {
-	if bs, err := ioutil.ReadFile(privateKeyPath); nil != err {
+func (r *RSACommon) RsaSign3(privateKeyPath string, data []byte) (string, error) {
+	bs, err := ioutil.ReadFile(privateKeyPath)
+	if nil != err {
 		return "", err
-	} else {
-		return r.RsaSign4(bs, data)
 	}
+	return r.RsaSign4(bs, data)
 }
 
 // RsaSign4 签名：采用sha1算法进行签名并输出为hex格式（私钥PKCS8格式）
-func (r *rsaCommon) RsaSign4(privateKey, data []byte) (string, error) {
+func (r *RSACommon) RsaSign4(privateKey, data []byte) (string, error) {
 	priv, err := x509.ParsePKCS8PrivateKey(privateKey)
 	if err != nil {
 		Log().Error("RsaSign4 ParsePKCS8PrivateKey Error", Log().Err(err))
@@ -200,26 +216,26 @@ func (r *rsaCommon) RsaSign4(privateKey, data []byte) (string, error) {
 }
 
 // RsaVerySign1 验签：对采用sha1算法进行签名后转base64格式的数据进行验签
-func (r *rsaCommon) RsaVerySign1(publicKeyPath, data, signData string) error {
+func (r *RSACommon) RsaVerySign1(publicKeyPath, data, signData string) error {
 	return r.RsaVerySign3(publicKeyPath, []byte(data), signData)
 }
 
 // RsaVerySign2 验签：对采用sha1算法进行签名后转base64格式的数据进行验签
-func (r *rsaCommon) RsaVerySign2(publicKey []byte, data, signData string) error {
+func (r *RSACommon) RsaVerySign2(publicKey []byte, data, signData string) error {
 	return r.RsaVerySign4(publicKey, []byte(data), signData)
 }
 
 // RsaVerySign3 验签：对采用sha1算法进行签名后转base64格式的数据进行验签
-func (r *rsaCommon) RsaVerySign3(publicKeyPath string, data []byte, signData string) error {
-	if bs, err := ioutil.ReadFile(publicKeyPath); nil != err {
+func (r *RSACommon) RsaVerySign3(publicKeyPath string, data []byte, signData string) error {
+	bs, err := ioutil.ReadFile(publicKeyPath)
+	if nil != err {
 		return err
-	} else {
-		return r.RsaVerySign4(bs, data, signData)
 	}
+	return r.RsaVerySign4(bs, data, signData)
 }
 
 // RsaVerySign4 验签：对采用sha1算法进行签名后转base64格式的数据进行验签
-func (r *rsaCommon) RsaVerySign4(publicKey, data []byte, signData string) error {
+func (r *RSACommon) RsaVerySign4(publicKey, data []byte, signData string) error {
 	sign, err := base64.StdEncoding.DecodeString(signData)
 	if err != nil {
 		return err

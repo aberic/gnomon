@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2019. aberic - All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 package gnomon
 
 import (
@@ -46,7 +61,8 @@ const (
 	logNameFatal = "FATAL"
 )
 
-type logCommon struct {
+// LogCommon 日志工具
+type LogCommon struct {
 	logDir           string           // logDir 日志文件目录
 	maxSizeByte      int64            // maxSizeByte 每个日志文件保存的最大尺寸 单位：byte
 	maxAge           int              // maxAge 文件最多保存多少天
@@ -71,7 +87,7 @@ type logCommon struct {
 // compress 是否压缩
 //
 // utc CST & UTC 时间
-func (l *logCommon) Init(logDir string, maxSize, maxAge int, utc bool) {
+func (l *LogCommon) Init(logDir string, maxSize, maxAge int, utc bool) {
 	l.Info("log service init")
 	l.once.Do(func() {
 		if String().IsEmpty(logDir) {
@@ -108,7 +124,7 @@ func (l *logCommon) Init(logDir string, maxSize, maxAge int, utc bool) {
 }
 
 // checkMaxAge 遍历并检查文件是否达到保存天数，达到则删除
-func (l *logCommon) checkMaxAge() {
+func (l *LogCommon) checkMaxAge() {
 	// 每隔5秒执行一次：*/5 * * * * ?
 	// 每隔1分钟执行一次：0 */1 * * * ?
 	// 每天23点执行一次：0 0 23 * * ?
@@ -143,43 +159,44 @@ func (l *logCommon) checkMaxAge() {
 // level 日志级别(debugLevel/infoLevel/warnLevel/ErrorLevel/panicLevel/fatalLevel)
 //
 // production 是否生产环境，在生产环境下控制台不会输出任何日志
-func (l *logCommon) Set(level Level, production bool) {
+func (l *LogCommon) Set(level Level, production bool) {
 	l.level = level
 	l.production = production
 }
 
-// debugLevel logs are typically voluminous, and are usually disabled in production.
-func (l *logCommon) DebugLevel() Level {
+// DebugLevel logs are typically voluminous, and are usually disabled in production.
+func (l *LogCommon) DebugLevel() Level {
 	return debugLevel
 }
 
-// infoLevel is the default logging priority.
-func (l *logCommon) InfoLevel() Level {
+// InfoLevel is the default logging priority.
+func (l *LogCommon) InfoLevel() Level {
 	return infoLevel
 }
 
-// warnLevel logs are more important than Info, but don't need individual human review.
-func (l *logCommon) WarnLevel() Level {
+// WarnLevel logs are more important than Info, but don't need individual human review.
+func (l *LogCommon) WarnLevel() Level {
 	return warnLevel
 }
 
 // ErrorLevel logs are high-priority. If an application is running smoothly,
 // it shouldn't generate any error-level logs.
-func (l *logCommon) ErrorLevel() Level {
+func (l *LogCommon) ErrorLevel() Level {
 	return errorLevel
 }
 
-// panicLevel logs a message, then panics.
-func (l *logCommon) PanicLevel() Level {
+// PanicLevel logs a message, then panics.
+func (l *LogCommon) PanicLevel() Level {
 	return panicLevel
 }
 
-// panicLevel logs a message, then panics.
-func (l *logCommon) FatalLevel() Level {
+// FatalLevel logs a message, then panics.
+func (l *LogCommon) FatalLevel() Level {
 	return fatalLevel
 }
 
-func (l *logCommon) Debug(msg string, fields ...*field) {
+// Debug 输出指定级别日志
+func (l *LogCommon) Debug(msg string, fields ...*Field) {
 	if l.level > debugLevel {
 		return
 	}
@@ -190,7 +207,8 @@ func (l *logCommon) Debug(msg string, fields ...*field) {
 	}
 }
 
-func (l *logCommon) Info(msg string, fields ...*field) {
+// Info 输出指定级别日志
+func (l *LogCommon) Info(msg string, fields ...*Field) {
 	if l.level > infoLevel {
 		return
 	}
@@ -201,7 +219,8 @@ func (l *logCommon) Info(msg string, fields ...*field) {
 	}
 }
 
-func (l *logCommon) Warn(msg string, fields ...*field) {
+// Warn 输出指定级别日志
+func (l *LogCommon) Warn(msg string, fields ...*Field) {
 	if l.level > warnLevel {
 		return
 	}
@@ -212,7 +231,8 @@ func (l *logCommon) Warn(msg string, fields ...*field) {
 	}
 }
 
-func (l *logCommon) Error(msg string, fields ...*field) {
+// Error 输出指定级别日志
+func (l *LogCommon) Error(msg string, fields ...*Field) {
 	if l.level > errorLevel {
 		return
 	}
@@ -223,7 +243,8 @@ func (l *logCommon) Error(msg string, fields ...*field) {
 	}
 }
 
-func (l *logCommon) Panic(msg string, fields ...*field) {
+// Panic 输出指定级别日志
+func (l *LogCommon) Panic(msg string, fields ...*Field) {
 	if l.level > panicLevel {
 		return
 	}
@@ -234,7 +255,8 @@ func (l *logCommon) Panic(msg string, fields ...*field) {
 	}
 }
 
-func (l *logCommon) Fatal(msg string, fields ...*field) {
+// Fatal 输出指定级别日志
+func (l *LogCommon) Fatal(msg string, fields ...*Field) {
 	if l.level > fatalLevel {
 		return
 	}
@@ -245,16 +267,17 @@ func (l *logCommon) Fatal(msg string, fields ...*field) {
 	}
 }
 
-func (l *logCommon) Field(key string, value interface{}) *field {
-	return &field{key: key, value: value}
+// Field 自定义输出KV对象
+func (l *LogCommon) Field(key string, value interface{}) *Field {
+	return &Field{key: key, value: value}
 }
 
-func (l *logCommon) Err(err error) *field {
+// Err 自定义输出错误
+func (l *LogCommon) Err(err error) *Field {
 	if nil != err {
-		return &field{key: "error", value: err.Error()}
-	} else {
-		return &field{key: "error", value: nil}
+		return &Field{key: "error", value: err.Error()}
 	}
+	return &Field{key: "error", value: nil}
 }
 
 // logStandard 将日志输出到控制台
@@ -272,7 +295,7 @@ func (l *logCommon) Err(err error) *field {
 // level 日志级别
 //
 // fields 日志输出对象子集
-func (l *logCommon) logStandard(file, levelName, msg string, line int, ok bool, level Level, fields ...*field) {
+func (l *LogCommon) logStandard(file, levelName, msg string, line int, ok bool, level Level, fields ...*Field) {
 	var (
 		fileString  string
 		timeString  string
@@ -291,7 +314,7 @@ func (l *logCommon) logStandard(file, levelName, msg string, line int, ok bool, 
 	fileString = strings.Split(strings.Join([]string{file, strconv.Itoa(line)}, ":"), "/go/src/")[1]
 	if !l.production {
 		var (
-			commandJson []byte
+			commandJSON []byte
 			err         error
 		)
 		logCommand := make(map[string]interface{})
@@ -299,11 +322,11 @@ func (l *logCommon) logStandard(file, levelName, msg string, line int, ok bool, 
 		for _, field := range fields {
 			logCommand[field.key] = field.value
 		}
-		if commandJson, err = json.Marshal(logCommand); nil != err {
+		if commandJSON, err = json.Marshal(logCommand); nil != err {
 			l.Error("json Marshal error", Log().Err(err))
 			return
 		}
-		commandString := string(commandJson)
+		commandString := string(commandJSON)
 		fmt.Println(timeString, levelName, fileString, commandString)
 		switch levelName {
 		case logNameError:
@@ -314,21 +337,19 @@ func (l *logCommon) logStandard(file, levelName, msg string, line int, ok bool, 
 			fmt.Println(stackString)
 			if nil == l.files {
 				panic(commandString)
-				return
 			}
 		case logNameFatal:
 			stackString = string(debug.Stack())
 			fmt.Println(stackString)
 			if nil == l.files {
 				os.Exit(1)
-				return
 			}
 		}
 	}
 	if nil == l.files {
 		return
 	}
-	_ = pool().submitField(func(timeString, fileString, stackString, levelName, msg string, level Level, fields ...*field) {
+	_ = pool().submitField(func(timeString, fileString, stackString, levelName, msg string, level Level, fields ...*Field) {
 		l.logFile(timeString, fileString, stackString, levelName, msg, level, fields...)
 	}, timeString, fileString, stackString, levelName, msg, level, fields...)
 }
@@ -348,9 +369,9 @@ func (l *logCommon) logStandard(file, levelName, msg string, line int, ok bool, 
 // level 日志级别
 //
 // fields 日志输出对象子集
-func (l *logCommon) logFile(timeString, fileString, stackString, levelName, msg string, level Level, fields ...*field) {
+func (l *LogCommon) logFile(timeString, fileString, stackString, levelName, msg string, level Level, fields ...*Field) {
 	var (
-		mapJson     []byte
+		mapJSON     []byte
 		printString string
 		err         error
 		fd          *filed
@@ -363,7 +384,7 @@ func (l *logCommon) logFile(timeString, fileString, stackString, levelName, msg 
 	for _, field := range fields {
 		logMap[field.key] = field.value
 	}
-	if mapJson, err = json.Marshal(logMap); nil != err {
+	if mapJSON, err = json.Marshal(logMap); nil != err {
 		l.Error("json Marshal error", Log().Err(err))
 		return
 	}
@@ -372,9 +393,9 @@ func (l *logCommon) logFile(timeString, fileString, stackString, levelName, msg 
 		if String().IsEmpty(stackString) {
 			stackString = string(debug.Stack())
 		}
-		printString = strings.Join([]string{string(mapJson), stackString}, "\n")
+		printString = strings.Join([]string{string(mapJSON), stackString}, "\n")
 	default:
-		printString = strings.Join([]string{string(mapJson), "\n"}, "")
+		printString = strings.Join([]string{string(mapJSON), "\n"}, "")
 	}
 	if fd, err = l.useFiled(level, printString); nil == err {
 		fd.tasks <- printString
@@ -389,7 +410,7 @@ func (l *logCommon) logFile(timeString, fileString, stackString, levelName, msg 
 // level 日志级别
 //
 // printString 输出字符串
-func (l *logCommon) useFiled(level Level, printString string) (fd *filed, err error) {
+func (l *LogCommon) useFiled(level Level, printString string) (fd *filed, err error) {
 	if fd = l.files[level]; fd.file == nil {
 		defer fd.lock.Unlock()
 		fd.lock.Lock()
@@ -425,7 +446,7 @@ func (l *logCommon) useFiled(level Level, printString string) (fd *filed, err er
 // printStringLength 输出到文件中字节数长度
 //
 // lock 该操作是否需要给filed文件对象上锁。如果是复用对象，则需要上锁；如果是新建对象，则新建过程中本身就已经上锁，此处无需锁定
-func (l *logCommon) checkFiled(level Level, fd *filed, printStringLength int64, lock bool) (err error) {
+func (l *LogCommon) checkFiled(level Level, fd *filed, printStringLength int64, lock bool) (err error) {
 	var ret int64
 	if ret, err = fd.file.Seek(0, io.SeekEnd); nil != err {
 		return
@@ -435,9 +456,8 @@ func (l *logCommon) checkFiled(level Level, fd *filed, printStringLength int64, 
 			defer fd.lock.Unlock()
 			fd.lock.Lock()
 			return l.findAvailableFile(level, fd, printStringLength)
-		} else {
-			return l.findAvailableFile(level, fd, printStringLength)
 		}
+		return l.findAvailableFile(level, fd, printStringLength)
 	}
 	return
 }
@@ -451,7 +471,7 @@ func (l *logCommon) checkFiled(level Level, fd *filed, printStringLength int64, 
 // fd 日志文件操作对象
 //
 // printStringLength 输出到文件中字节数长度
-func (l *logCommon) findAvailableFile(level Level, fd *filed, printStringLength int64) (err error) {
+func (l *LogCommon) findAvailableFile(level Level, fd *filed, printStringLength int64) (err error) {
 	var (
 		ret  int64
 		pass bool
@@ -474,7 +494,7 @@ func (l *logCommon) findAvailableFile(level Level, fd *filed, printStringLength 
 }
 
 // path 日志文件路径
-func (l *logCommon) logFilePath(fd *filed, level Level) string {
+func (l *LogCommon) logFilePath(fd *filed, level Level) string {
 	parentPath := filepath.Join(l.logDir, l.date)
 	if exist := File().PathExists(parentPath); !exist {
 		if err := os.MkdirAll(parentPath, os.ModePerm); nil != err {
@@ -486,7 +506,7 @@ func (l *logCommon) logFilePath(fd *filed, level Level) string {
 }
 
 // levelFileName 包含日志类型的日志文件名称
-func (l *logCommon) levelFileName(fd *filed, level Level) string {
+func (l *LogCommon) levelFileName(fd *filed, level Level) string {
 	switch level {
 	case debugLevel:
 		return l.logFileName("debug_", fd.fileIndex)
@@ -505,7 +525,7 @@ func (l *logCommon) levelFileName(fd *filed, level Level) string {
 }
 
 // logFileName 不包含日志类型的日志文件名称
-func (l *logCommon) logFileName(name, index string) string {
+func (l *LogCommon) logFileName(name, index string) string {
 	return strings.Join([]string{name, l.date, "-", index, ".log"}, "")
 }
 
@@ -535,8 +555,8 @@ func (f *filed) running() {
 	}
 }
 
-// field 日志输出子集对象
-type field struct {
+// Field 日志输出子集对象
+type Field struct {
 	key   string
 	value interface{}
 }
