@@ -1,0 +1,25 @@
+language: go
+
+env:
+  - PORT=8080
+
+before_install:
+  - go get golang.org/x/sys/unix
+  - go get golang.org/x/lint/golint # 检测语法问题
+  - go get github.com/fzipp/gocyclo # 检查函数的复杂度
+  - go get github.com/jgautheron/goconst/cmd/goconst # 查找重复的字符串
+  - go get honnef.co/go/tools/cmd/staticcheck # 静态检查
+  - go get github.com/client9/misspell/cmd/misspell # 拼写检查
+  - go get github.com/fzipp/gocyclo # 检查函数的复杂度
+  - go get github.com/go-playground/overalls # overalls能够支持到各级子目录
+  - go get github.com/mattn/goveralls # 是coveralls对golang的测试覆盖率支持命令
+  - go get github.com/smartystreets/goconvey # 测试工具
+  - go get github.com/hashicorp/consul # consul测试
+
+script:
+  - make checkTravis
+
+go:
+  - 1.11.x
+  - 1.12.x
+  - master
