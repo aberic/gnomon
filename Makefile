@@ -4,8 +4,6 @@ GO_FILES := $(shell find . -name "*.go" -not -path "./vendor/*" -not -path ".git
 
 checkTravis: overalls vet lint misspell staticcheck cyclo const veralls test
 
-checkCircle: overalls vet lint misspell staticcheck cyclo const test
-
 checkLocal: overalls vet lint misspell staticcheck cyclo const test
 
 overalls:

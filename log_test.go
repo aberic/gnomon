@@ -18,6 +18,7 @@ package gnomon
 import (
 	"errors"
 	"testing"
+	"time"
 )
 
 var logDir = "./log"
@@ -63,4 +64,13 @@ func TestLogCommon_Fatal(t *testing.T) {
 	Log().Init(logDir, 1, 1, false)
 	Log().Set(Log().FatalLevel(), false)
 	logDo()
+}
+
+func TestLogCommon_Fatal_BigStorage(t *testing.T) {
+	Log().Init(logDir, 1, 1, false)
+	Log().Set(debugLevel, true)
+	for i := 0; i < 100000; i++ {
+		go Log().Debug("test", Log().Field("i", i), Log().Field("str", "str"), Log().Field("3", true))
+	}
+	time.Sleep(2 * time.Second)
 }
