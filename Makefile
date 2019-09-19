@@ -41,6 +41,10 @@ veralls:
 	@echo "goveralls"
 	goveralls -coverprofile=overalls.coverprofile -service=travis-ci -repotoken $(COVERALLS_TOKEN)
 
+traviscodecovtest:
+	@echo "travistest"
+	go test -race -coverprofile=coverage.txt -covermode=atomic
+
 test:
 	@echo "test"
 	go test -v -cover $(PKGS_WITH_OUT_EXAMPLES)

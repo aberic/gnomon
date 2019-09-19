@@ -354,9 +354,7 @@ func (l *LogCommon) logStandard(file, levelName, msg string, line int, ok bool, 
 	if nil == l.files {
 		return
 	}
-	_ = pool().submitField(func(timeString, fileString, stackString, levelName, msg string, level Level, fields ...*Field) {
-		l.logFile(timeString, fileString, stackString, levelName, msg, level, fields...)
-	}, timeString, fileString, stackString, levelName, msg, level, fields...)
+	go l.logFile(timeString, fileString, stackString, levelName, msg, level, fields...)
 }
 
 // logFile 将日志内容输入文件中存储
@@ -428,9 +426,7 @@ func (l *LogCommon) useFiled(level Level, printString string) (fd *filed, err er
 			if err = l.checkFiled(level, fd, int64(len(printString)), false); nil != err {
 				return
 			}
-			err = pool().submit(func() {
-				fd.running()
-			})
+			go fd.running()
 			return
 		}
 	}
