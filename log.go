@@ -311,7 +311,12 @@ func (l *LogCommon) logStandard(file, levelName, msg string, line int, ok bool, 
 		zoneName, _ = timeNow.Local().Zone()
 	}
 	timeString = strings.Join([]string{timeString, zoneName}, " ")
-	fileString = strings.Split(strings.Join([]string{file, strconv.Itoa(line)}, ":"), "/go/src/")[1]
+	logArr := strings.Split(strings.Join([]string{file, strconv.Itoa(line)}, ":"), "/go/src/")
+	if len(logArr) > 1 {
+		fileString = logArr[1]
+	} else {
+		fileString = logArr[0]
+	}
 	if !l.production {
 		var (
 			commandJSON []byte
