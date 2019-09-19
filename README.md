@@ -19,6 +19,22 @@
 ### 安装
 ``go get github.com/aberic/gnomon``
 
+### 使用
+```go
+gnomon.Byte(). … // 字节
+gnomon.Command(). … // 命令行
+gnomon.Env(). … // 环境变量
+gnomon.File(). … // 文件操作
+gnomon.IP(). … // IP
+gnomon.JWT(). … // JWT
+gnomon.String(). … // 字符串
+gnomon.CryptoHash(). … // Hash/散列
+gnomon.CryptoRSA(). … // RSA
+gnomon.Log(). … // 日志
+gnomon.Scale(). … // 算数/转换
+gnomon.Time(). … // 时间
+```
+
 ### 文档
 参考 https://godoc.org/github.com/aberic/gnomon
 
