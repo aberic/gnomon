@@ -188,7 +188,7 @@ func (s *ScaleCommon) IntToHexString(i int) string {
 // HexStringToUint64 int字符串转int
 func (s *ScaleCommon) HexStringToUint64(hex string) uint64 {
 	hexLen := len(hex)
-	var uint64Hex uint64 = 0
+	var uint64Hex uint64
 	for i := 0; i < hexLen; i++ {
 		uint64Hex += uint64(intHexMap[hex[i:i+1]]) * uint64(math.Pow(16, float64(hexLen-i-1)))
 	}
@@ -198,7 +198,7 @@ func (s *ScaleCommon) HexStringToUint64(hex string) uint64 {
 // HexStringToInt64 int字符串转int
 func (s *ScaleCommon) HexStringToInt64(hex string) int64 {
 	hexLen := len(hex)
-	var int64Hex int64 = 0
+	var int64Hex int64
 	for i := 0; i < hexLen; i++ {
 		int64Hex += int64(intHexMap[hex[i:i+1]]) * int64(math.Pow(16, float64(hexLen-i-1)))
 	}
@@ -298,7 +298,7 @@ func (s *ScaleCommon) IntToDuoString(i int) string {
 // DuoStringToUint64 int字符串转int
 func (s *ScaleCommon) DuoStringToUint64(duo string) uint64 {
 	duoLen := len(duo)
-	var uint64Duo uint64 = 0
+	var uint64Duo uint64
 	for i := 0; i < duoLen; i++ {
 		uint64Duo += uint64(intDuoMap[duo[i:i+1]]) * uint64(math.Pow(32, float64(duoLen-i-1)))
 	}
@@ -308,7 +308,7 @@ func (s *ScaleCommon) DuoStringToUint64(duo string) uint64 {
 // DuoStringToInt64 int字符串转int
 func (s *ScaleCommon) DuoStringToInt64(duo string) int64 {
 	duoLen := len(duo)
-	var int64Duo int64 = 0
+	var int64Duo int64
 	for i := 0; i < duoLen; i++ {
 		int64Duo += int64(intDuoMap[duo[i:i+1]]) * int64(math.Pow(32, float64(duoLen-i-1)))
 	}
@@ -408,7 +408,7 @@ func (s *ScaleCommon) IntToDDuoString(i int) string {
 // DDuoStringToUint64 int字符串转int
 func (s *ScaleCommon) DDuoStringToUint64(dDuo string) uint64 {
 	dDuoLen := len(dDuo)
-	var uint64DDuo uint64 = 0
+	var uint64DDuo uint64
 	for i := 0; i < dDuoLen; i++ {
 		uint64DDuo += uint64(intDDuoMap[dDuo[i:i+1]]) * uint64(math.Pow(64, float64(dDuoLen-i-1)))
 	}
@@ -418,7 +418,7 @@ func (s *ScaleCommon) DDuoStringToUint64(dDuo string) uint64 {
 // DDuoStringToInt64 int字符串转int
 func (s *ScaleCommon) DDuoStringToInt64(dDuo string) int64 {
 	dDuoLen := len(dDuo)
-	var int64DDuo int64 = 0
+	var int64DDuo int64
 	for i := 0; i < dDuoLen; i++ {
 		int64DDuo += int64(intDDuoMap[dDuo[i:i+1]]) * int64(math.Pow(64, float64(dDuoLen-i-1)))
 	}
