@@ -30,7 +30,7 @@ type HashCommon struct{}
 // MD5 MD5
 func (h *HashCommon) MD5(text string) string {
 	hash := md5.New()
-	hash.Write([]byte(text))
+	_, _ = hash.Write([]byte(text))
 	return hex.EncodeToString(hash.Sum(nil))
 }
 
@@ -43,34 +43,34 @@ func (h *HashCommon) MD516(text string) string {
 // Sha1 Sha1
 func (h *HashCommon) Sha1(text string) string {
 	hash := sha1.New()
-	hash.Write([]byte(text))
+	_, _ = hash.Write([]byte(text))
 	return hex.EncodeToString(hash.Sum(nil))
 }
 
 // Sha224 Sha224
 func (h *HashCommon) Sha224(text string) string {
 	hash := crypto.SHA224.New()
-	hash.Write([]byte(text))
+	_, _ = hash.Write([]byte(text))
 	return hex.EncodeToString(hash.Sum(nil))
 }
 
 // Sha256 Sha256
 func (h *HashCommon) Sha256(text string) string {
 	hash := sha256.New()
-	hash.Write([]byte(text))
+	_, _ = hash.Write([]byte(text))
 	return hex.EncodeToString(hash.Sum(nil))
 }
 
 // Sha384 Sha384
 func (h *HashCommon) Sha384(text string) string {
 	hash := sha512.New384()
-	hash.Write([]byte(text))
+	_, _ = hash.Write([]byte(text))
 	return hex.EncodeToString(hash.Sum(nil))
 }
 
 // Sha512 Sha512
 func (h *HashCommon) Sha512(text string) string {
 	hash := sha512.New()
-	hash.Write([]byte(text))
+	_, _ = hash.Write([]byte(text))
 	return hex.EncodeToString(hash.Sum(nil))
 }
