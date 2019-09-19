@@ -39,26 +39,57 @@ func (f *fileCommon) PathExists(path string) bool {
 	return false
 }
 
-// ReadFileFirstLine 从文件中逐行读取并返回字符串数组
-func (f *fileCommon) ReadFileFirstLine(filePath string) (string, error) {
-	fileIn, err := os.Open(filePath)
+// ReadFirstLine 从文件中读取第一行并返回字符串数组
+func (f *fileCommon) ReadFirstLine(filePath string) (string, error) {
+	file, err := os.Open(filePath)
 	if err != nil {
 		return "", err
 	}
-	defer fileIn.Close()
-	finReader := bufio.NewReader(fileIn)
+	defer func() {
+		_ = file.Close()
+	}()
+	finReader := bufio.NewReader(file)
 	inputString, _ := finReader.ReadString('\n')
 	return String().TrimN(inputString), nil
 }
 
-// ReadFileByLine 从文件中逐行读取并返回字符串数组
-func (f *fileCommon) ReadFileByLine(filePath string) ([]string, error) {
-	fileIn, err := os.Open(filePath)
+// ReadPointLine 从文件中读取指定行并返回字符串数组
+func (f *fileCommon) ReadPointLine(filePath string, line int) (string, error) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return "", err
+	}
+	defer func() {
+		_ = file.Close()
+	}()
+	finReader := bufio.NewReader(file)
+	lineCount := 1
+	for {
+		inputString, err := finReader.ReadString('\n')
+		//fmt.Println(inputString)
+		if err == io.EOF {
+			if lineCount == line {
+				return inputString, nil
+			}
+			return "", errors.New("index out of line count")
+		}
+		if lineCount == line {
+			return inputString, nil
+		}
+		lineCount++
+	}
+}
+
+// ReadLines 从文件中逐行读取并返回字符串数组
+func (f *fileCommon) ReadLines(filePath string) ([]string, error) {
+	file, err := os.Open(filePath)
 	if err != nil {
 		return nil, err
 	}
-	defer fileIn.Close()
-	finReader := bufio.NewReader(fileIn)
+	defer func() {
+		_ = file.Close()
+	}()
+	finReader := bufio.NewReader(file)
 	var fileList []string
 	for {
 		inputString, err := finReader.ReadString('\n')
@@ -73,34 +104,113 @@ func (f *fileCommon) ReadFileByLine(filePath string) ([]string, error) {
 	return fileList, nil
 }
 
-// CreateAndWrite 创建并写入内容到文件中
-func (f *fileCommon) CreateAndWrite(filePath string, data []byte, force bool) error {
-	if exist := f.PathExists(filePath); exist && !force {
-		return errors.New("file exist")
-	}
-	lastIndex := strings.LastIndex(filePath, "/")
-	parentPath := filePath[0:lastIndex]
-	if err := os.MkdirAll(parentPath, os.ModePerm); nil != err {
-		return err
-	}
-	// 创建文件，如果文件已存在，会将文件清空
-	if file, err := os.Create(filePath); err != nil {
-		return err
-	} else {
-		defer file.Close()
-		// 将数据写入文件中
-		//file.WriteString(string(data)) //写入字符串
-		if n, err := file.Write(data); nil != err { // 写入byte的slice数据
-			return err
+// ParentPath 文件父路径
+func (f *fileCommon) ParentPath(filePath string) string {
+	return filePath[0:strings.LastIndex(filePath, "/")]
+}
+
+// Append 追加内容到文件中
+//
+// filePath 文件地址
+//
+// data 内容
+//
+// force 如果文件已存在，会将文件清空
+//
+// It returns the number of bytes written and an error
+func (f *fileCommon) Append(filePath string, data []byte, force bool) (int, error) {
+	var (
+		file *os.File
+		err  error
+	)
+	exist := f.PathExists(filePath)
+	if exist {
+		if force {
+			// 创建文件，如果文件已存在，会将文件清空
+			if file, err = os.Create(filePath); err != nil {
+				return 0, err
+			}
 		} else {
-			Log().Debug("CreateAndWrite", Log().Field("byte count", n))
-			return nil
+			if file, err = os.OpenFile(filePath, os.O_RDWR|os.O_APPEND, 0644); nil != err {
+				return 0, err
+			}
 		}
+	} else {
+		parentPath := f.ParentPath(filePath)
+		if err = os.MkdirAll(parentPath, os.ModePerm); nil != err {
+			return 0, err
+		}
+		if file, err = os.Create(filePath); err != nil {
+			return 0, err
+		}
+	}
+	defer func() {
+		_ = file.Close()
+	}()
+	// 将数据写入文件中
+	//file.WriteString(string(data)) //写入字符串
+	if n, err := file.Write(data); nil != err { // 写入byte的slice数据
+		return 0, err
+	} else {
+		return n, nil
 	}
 }
 
-// LoopDirFromDir 遍历文件夹下的所有子文件夹
-func (f *fileCommon) LoopDirFromDir(pathname string) ([]string, error) {
+// Modify 修改文件中指定位置的内容
+//
+// filePath 文件地址
+//
+// offset 以0为起始坐标的偏移量
+//
+// data 内容
+//
+// force 如果文件已存在，会将文件清空
+//
+// It returns the number of bytes written and an error
+func (f *fileCommon) Modify(filePath string, offset int64, data []byte, force bool) (int, error) {
+	var (
+		file *os.File
+		err  error
+	)
+	exist := f.PathExists(filePath)
+	if exist {
+		if force {
+			// 创建文件，如果文件已存在，会将文件清空
+			if file, err = os.Create(filePath); err != nil {
+				return 0, err
+			}
+		} else {
+			if file, err = os.OpenFile(filePath, os.O_RDWR, 0644); nil != err {
+				return 0, err
+			}
+		}
+	} else {
+		parentPath := f.ParentPath(filePath)
+		if err = os.MkdirAll(parentPath, os.ModePerm); nil != err {
+			return 0, err
+		}
+		if file, err = os.Create(filePath); err != nil {
+			return 0, err
+		}
+	}
+	defer func() {
+		_ = file.Close()
+	}()
+	// 以0为起始坐标偏移指标到指定位置
+	if _, err = file.Seek(offset, io.SeekStart); nil != err {
+		return 0, err
+	}
+	// 将数据写入文件中
+	//file.WriteString(string(data)) //写入字符串
+	if n, err := file.Write(data); nil != err { // 写入byte的slice数据
+		return 0, err
+	} else {
+		return n, nil
+	}
+}
+
+// LoopDirs 遍历文件夹下的所有子文件夹
+func (f *fileCommon) LoopDirs(pathname string) ([]string, error) {
 	var s []string
 	rd, err := ioutil.ReadDir(pathname)
 	if err != nil {
@@ -116,8 +226,8 @@ func (f *fileCommon) LoopDirFromDir(pathname string) ([]string, error) {
 	return s, nil
 }
 
-// LoopAllFileFromDir 遍历文件夹及子文件夹下的所有文件
-func (f *fileCommon) LoopAllFileFromDir(pathname string, s []string) ([]string, error) {
+// LoopFiles 遍历文件夹及子文件夹下的所有文件
+func (f *fileCommon) LoopFiles(pathname string, s []string) ([]string, error) {
 	rd, err := ioutil.ReadDir(pathname)
 	if err != nil {
 		Log().Debug("read dir fail", Log().Err(err))
@@ -126,7 +236,7 @@ func (f *fileCommon) LoopAllFileFromDir(pathname string, s []string) ([]string, 
 	for _, fi := range rd {
 		if fi.IsDir() {
 			fullDir := pathname + "/" + fi.Name()
-			s, err = f.LoopAllFileFromDir(fullDir, s)
+			s, err = f.LoopFiles(fullDir, s)
 			if err != nil {
 				Log().Debug("read dir fail", Log().Err(err))
 				return s, err

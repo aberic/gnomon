@@ -15,103 +15,161 @@
 package gnomon
 
 import (
-	"fmt"
-	"os"
 	"testing"
-	"time"
 )
 
-func TestPathExists(t *testing.T) {
-	path := "/etc/profile"
+func TestFileCommon_PathExists(t *testing.T) {
+	path := "/etc"
 	exist := File().PathExists(path)
-	fmt.Println(path, "exist =", exist)
+	t.Log(path, "exist =", exist)
 
 	path = "/etc/hello"
 	exist = File().PathExists(path)
-	fmt.Println(path, "exist =", exist)
+	t.Log(path, "exist =", exist)
+}
 
-	path = "/ha/oo"
-	err = os.MkdirAll(path, os.ModePerm)
-	if nil == err {
-		exist = File().PathExists(path)
-		fmt.Println(path, "exist =", exist)
-		err = os.Remove(path)
-		if nil != err {
-			fmt.Println(err.Error())
-		}
+func TestFileCommon_ReadFirstLine(t *testing.T) {
+	profile, err := File().ReadFirstLine("/etc/profile")
+	if nil != err {
+		t.Skip(err)
 	} else {
-		fmt.Println(err.Error())
+		t.Log("profile =", profile)
 	}
 }
 
-func TestReadFileFirstLine(t *testing.T) {
-	txt, err := File().ReadFileFirstLine("../../../a.txt")
-	if nil != err {
-		fmt.Println(err.Error())
-	} else {
-		fmt.Println("txt =", txt)
-	}
+func TestFileCommon_ReadFirstLine_Fail(t *testing.T) {
+	_, err := File().ReadFirstLine("/etc/hello")
+	t.Skip(err)
+}
 
-	profile, err := File().ReadFileFirstLine("/etc/profile")
+func TestFileCommon_ReadPointLine(t *testing.T) {
+	profile, err := File().ReadPointLine("/etc/profile", 1)
 	if nil != err {
-		fmt.Println(err.Error())
+		t.Skip(err)
 	} else {
-		fmt.Println("profile =", profile)
-	}
-
-	hello, err := File().ReadFileFirstLine("/etc/hello")
-	if nil != err {
-		fmt.Println(err.Error())
-	} else {
-		fmt.Println("hello =", hello)
+		t.Log("profile =", profile)
 	}
 }
 
-func TestReadFileByLine(t *testing.T) {
-	hosts, err := File().ReadFileByLine("/etc/hostname")
-	if nil != err {
-		fmt.Println(err.Error())
-	} else {
-		fmt.Println("hosts =", hosts)
-	}
+func TestFileCommon_ReadPointLine_Fail_IndexOut(t *testing.T) {
+	_, err := File().ReadPointLine("/etc/profile", 300)
+	t.Skip(err)
+}
 
-	profile, err := File().ReadFileByLine("/etc/profile")
-	if nil != err {
-		fmt.Println(err.Error())
-	} else {
-		fmt.Println("profile =", profile)
-	}
+func TestFileCommon_ReadPointLine_Fail_NotExist(t *testing.T) {
+	_, err := File().ReadFirstLine("/etc/hello")
+	t.Skip(err)
+}
 
-	hello, err := File().ReadFileByLine("/etc/hello")
+func TestFileCommon_ReadLines(t *testing.T) {
+	profile, err := File().ReadLines("/etc/profile")
 	if nil != err {
-		fmt.Println(err.Error())
+		t.Skip(err)
 	} else {
-		fmt.Println("hello =", hello)
+		t.Log("profile =", profile)
 	}
 }
 
-func TestCreateAndWrite(t *testing.T) {
-	if err := File().CreateAndWrite("/etc/yes/go/test.txt", []byte("haha"), false); nil != err {
+func TestFileCommon_ReadLines_Fail(t *testing.T) {
+	_, err := File().ReadLines("/etc/hello")
+	t.Skip(err)
+}
+
+func TestFileCommon_ParentPath(t *testing.T) {
+	t.Log(File().ParentPath("/etc/yes/go/test.txt"))
+}
+
+func TestFileCommon_Append(t *testing.T) {
+	if _, err := File().Append("./log/yes/go/test.txt", []byte("haha"), false); nil != err {
 		t.Skip(err)
 	} else {
 		t.Log("success")
 	}
 }
 
-func TestGetAllFile(t *testing.T) {
-	var s []string
-	if arr, err := File().LoopAllFileFromDir("./log", s); nil != err {
+func TestFileCommon_Append_Force(t *testing.T) {
+	if _, err := File().Append("./log/yes/go/test.txt", []byte("haha"), true); nil != err {
+		t.Skip(err)
+	} else {
+		t.Log("success")
+	}
+}
+
+func TestFileCommon_Append_UnForce(t *testing.T) {
+	if _, err := File().Append("./log/yes/go/test.txt", []byte("haha"), false); nil != err {
+		t.Skip(err)
+	} else {
+		t.Log("success")
+	}
+}
+
+func TestFileCommon_Append_Fail_PermissionFileForce(t *testing.T) {
+	_, err := File().Append("/etc/www.json", []byte("haha"), true)
+	t.Skip(err)
+}
+
+func TestFileCommon_Append_Fail_PermissionFileUnForce(t *testing.T) {
+	_, err := File().Append("/etc/www.json", []byte("haha"), false)
+	t.Skip(err)
+}
+
+func TestFileCommon_Modify(t *testing.T) {
+	if _, err := File().Modify("./log/yes/go/test.txt", 1, []byte("haha"), false); nil != err {
+		t.Skip(err)
+	} else {
+		t.Log("success")
+	}
+}
+
+func TestFileCommon_Modify_Force(t *testing.T) {
+	if _, err := File().Modify("./log/yes/go/test.txt", 1, []byte("haha"), true); nil != err {
+		t.Skip(err)
+	} else {
+		t.Log("success")
+	}
+}
+
+func TestFileCommon_Modify_UnForce(t *testing.T) {
+	if _, err := File().Modify("./log/yes/go/test.txt", 1, []byte("haha"), false); nil != err {
+		t.Skip(err)
+	} else {
+		t.Log("success")
+	}
+}
+
+func TestFileCommon_Modify_Fail_PermissionFileForce(t *testing.T) {
+	_, err := File().Modify("/etc/www.json", 1, []byte("haha"), true)
+	t.Skip(err)
+}
+
+func TestFileCommon_Modify_Fail_PermissionFileUnForce(t *testing.T) {
+	_, err := File().Modify("/etc/www.json", 1, []byte("haha"), false)
+	t.Skip(err)
+}
+
+func TestFileCommon_LoopDirs(t *testing.T) {
+	if arr, err := File().LoopDirs("./log"); nil != err {
 		t.Skip(err)
 	} else {
 		t.Log(arr)
 	}
 }
 
-func TestFileCommon_LoopDirFromDir(t *testing.T) {
-	if arr, err := File().LoopDirFromDir("./log"); nil != err {
+func TestFileCommon_LoopDirs_Fail(t *testing.T) {
+	_, err := File().LoopDirs("./logger")
+	t.Skip(err)
+}
+
+func TestFileCommon_LoopFiles(t *testing.T) {
+	var s []string
+	if arr, err := File().LoopFiles("./log", s); nil != err {
 		t.Skip(err)
 	} else {
 		t.Log(arr)
 	}
-	t.Log(time.Now().Local().Format("20060102"))
+}
+
+func TestFileCommon_LoopFiles_Fail(t *testing.T) {
+	_, err := File().LoopFiles("./logger", nil)
+	t.Skip(err)
 }

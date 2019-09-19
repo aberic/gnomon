@@ -34,10 +34,9 @@ func (b *byteCommon) GetBytes(key interface{}) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-// IntToBytes 整形转换成字节
+// IntToBytes int转换成字节
 func (b *byteCommon) IntToBytes(n int) ([]byte, error) {
 	x := int32(n)
-
 	bytesBuffer := bytes.NewBuffer([]byte{})
 	if err := binary.Write(bytesBuffer, binary.BigEndian, x); nil != err {
 		return nil, err
@@ -45,28 +44,50 @@ func (b *byteCommon) IntToBytes(n int) ([]byte, error) {
 	return bytesBuffer.Bytes(), nil
 }
 
-// BytesToInt 字节转换成整形
+// BytesToInt 字节转换成int
 func (b *byteCommon) BytesToInt(byte []byte) (int, error) {
 	bytesBuffer := bytes.NewBuffer(byte)
-
 	var x int32
 	if err := binary.Read(bytesBuffer, binary.BigEndian, &x); nil != err {
 		return 0, err
 	}
-
 	return int(x), nil
 }
 
-// Int64ToBytes 整形64转换成字节
-func (b *byteCommon) Int64ToBytes(i int64) []byte {
+// Uint16ToBytes uint16转换成字节
+func (b *byteCommon) Uint16ToBytes(i uint16) []byte {
 	var buf = make([]byte, 8)
-	binary.BigEndian.PutUint64(buf, uint64(i))
+	binary.BigEndian.PutUint16(buf, i)
 	return buf
 }
 
-// BytesToInt64 字节转换成整形64
-func (b *byteCommon) BytesToInt64(buf []byte) int64 {
-	return int64(binary.BigEndian.Uint64(buf))
+// BytesToUint16 字节转换成uint16
+func (b *byteCommon) BytesToUint16(buf []byte) uint16 {
+	return binary.BigEndian.Uint16(buf)
+}
+
+// Uint32ToBytes uint32转换成字节
+func (b *byteCommon) Uint32ToBytes(i uint32) []byte {
+	var buf = make([]byte, 8)
+	binary.BigEndian.PutUint32(buf, i)
+	return buf
+}
+
+// BytesToUint32 字节转换成uint32
+func (b *byteCommon) BytesToUint32(buf []byte) uint32 {
+	return binary.BigEndian.Uint32(buf)
+}
+
+// Uint64ToBytes uint64转换成字节
+func (b *byteCommon) Uint64ToBytes(i uint64) []byte {
+	var buf = make([]byte, 8)
+	binary.BigEndian.PutUint64(buf, i)
+	return buf
+}
+
+// BytesToUint64 字节转换成uint64
+func (b *byteCommon) BytesToUint64(buf []byte) uint64 {
+	return binary.BigEndian.Uint64(buf)
 }
 
 // Append 字节数组追加
