@@ -33,6 +33,7 @@ var (
 	rc          *rsaCommon
 	lc          *logCommon
 	scc         *scaleCommon
+	tc          *timeCommon
 	onceByte    sync.Once
 	onceCommand sync.Once
 	onceEnv     sync.Once
@@ -44,6 +45,7 @@ var (
 	onceRSA     sync.Once
 	onceLog     sync.Once
 	onceScale   sync.Once
+	onceTime    sync.Once
 )
 
 func Byte() *byteCommon {
@@ -121,4 +123,11 @@ func Scale() *scaleCommon {
 		scc = &scaleCommon{}
 	})
 	return scc
+}
+
+func Time() *timeCommon {
+	onceTime.Do(func() {
+		tc = &timeCommon{}
+	})
+	return tc
 }
