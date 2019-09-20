@@ -28,11 +28,11 @@ import (
 
 // ECCCommon ECC椭圆加密工具，依赖ETH的包
 //
-// ECC,全称椭圆曲线密码学（英语：Elliptic curve cryptography，缩写为 ECC）,主要是指相关数学原理
+// ECC，全称椭圆曲线密码学（英语：Elliptic curve cryptography，缩写为 ECC），主要是指相关数学原理
 //
-// ECIES,在ECC原理的基础上实现的一种公钥加密方法,和RSA类似
+// ECIES，在ECC原理的基础上实现的一种公钥加密方法，和RSA类似
 //
-// ECDSA,在ECC原理上实现的签名方法
+// ECDSA，在ECC原理上实现的签名方法
 //
 // ECDH在ECC和DH的基础上实现的密钥交换算法
 type ECCCommon struct{}

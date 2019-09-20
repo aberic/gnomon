@@ -34,6 +34,12 @@
 //
 // gnomon.CryptoRSA(). … // RSA
 //
+// gnomon.CryptoECC(). … // ECC
+//
+// gnomon.CryptoAES(). … // AES
+//
+// gnomon.CryptoDES(). … // DES
+//
 // gnomon.Log(). … // 日志
 //
 // gnomon.Scale(). … // 算数/转换
