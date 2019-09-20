@@ -15,7 +15,7 @@ before_install:
   - go get github.com/btcsuite/btcd
   - go get github.com/dgrijalva/jwt-go
   - go get github.com/robfig/cron
-  - go get golang.org/x/crypto
+  - go get golang.org/x/crypto/sha3
 
 script:
   - make checkTravis
