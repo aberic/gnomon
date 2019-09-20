@@ -30,6 +30,9 @@ gnomon.JWT(). … // JWT
 gnomon.String(). … // 字符串
 gnomon.CryptoHash(). … // Hash/散列
 gnomon.CryptoRSA(). … // RSA
+gnomon.CryptoECC(). … // ECC
+gnomon.CryptoAES(). … // AES
+gnomon.CryptoDES(). … // DES
 gnomon.Log(). … // 日志
 gnomon.Scale(). … // 算数/转换
 gnomon.Time(). … // 时间

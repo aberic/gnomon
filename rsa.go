@@ -24,74 +24,305 @@ import (
 	"errors"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
 const (
-	publicKeyPemType  = "PUBLIC KEY"
-	privateKeyPemType = "RSA PRIVATE KEY"
+	pksC1             PKSCType = "PKCS1"
+	pksC8             PKSCType = "PKCS8"
+	publicKeyPemType           = "PUBLIC KEY"
+	privateKeyPemType          = "RSA PRIVATE KEY"
 )
 
-// RSACommon rsa工具
+// PKSCType 私钥格式，默认提供PKCS1和PKCS8
+//
+// 通过调用‘CryptoRSA().pksC1()’和‘CryptoRSA().pksC8()’方法赋值
+type PKSCType string
+
+// RSACommon RSA工具
 type RSACommon struct{}
 
-// GenerateRsaKey RSA公钥私钥产生
+// GenerateRsaPKCS1Key RSA公钥私钥产生（私钥PKCS1格式）
 //
 // bits 指定生成位大小
 //
 // path 指定公私钥所在生成目录
-func (r *RSACommon) GenerateRsaKey(bits int, path string) (err error) {
+//
+// priFileName 指定私钥的文件名称，如'private.pem'
+//
+// pubFileName 指定公钥的文件名称，如'public.pem'
+func (r *RSACommon) GenerateRsaPKCS1Key(bits int, path, priFileName, pubFileName string) error {
 	var (
 		privateKey *rsa.PrivateKey
 		publicKey  *rsa.PublicKey
-		fileIO     *os.File
-		derPkix    []byte
+		fileIOPri  *os.File
+		fileIOPub  *os.File
+		derPkiX    []byte
+		err        error
 	)
 	// 创建公私钥生成目录
 	if !File().PathExists(path) {
 		if err = os.MkdirAll(path, os.ModePerm); nil != err {
-			return
+			return err
 		}
 	}
 	// 生成私钥文件
 	if privateKey, err = rsa.GenerateKey(rand.Reader, bits); nil != err {
-		return
+		return err
 	}
 	// 将私钥转换为ASN.1 DER编码的形式
 	derStream := x509.MarshalPKCS1PrivateKey(privateKey)
 	// block表示PEM编码的结构
 	block := &pem.Block{
-		Type:  "RSA PRIVATE KEY",
+		Type:  privateKeyPemType,
 		Bytes: derStream,
 	}
-	if fileIO, err = os.Create(strings.Join([]string{path, "private.pem"}, "/")); nil != err {
-		return
+	defer func() { _ = fileIOPri.Close() }()
+	if fileIOPri, err = os.Create(filepath.Join(path, priFileName)); nil != err {
+		return err
 	}
 	// 将block的PEM编码写入fileIO
-	if err = pem.Encode(fileIO, block); nil != err {
-		return
+	if err = pem.Encode(fileIOPri, block); nil != err {
+		return err
 	}
 	// 生成公钥文件
 	publicKey = &privateKey.PublicKey
 	// 将公钥序列化为der编码的PKIX格式
-	if derPkix, err = x509.MarshalPKIXPublicKey(publicKey); nil != err {
-		return
+	if derPkiX, err = x509.MarshalPKIXPublicKey(publicKey); nil != err {
+		return err
+	}
+	block = &pem.Block{
+		Type:  publicKeyPemType,
+		Bytes: derPkiX,
+	}
+	defer func() { _ = fileIOPub.Close() }()
+	if fileIOPub, err = os.Create(filepath.Join(path, pubFileName)); nil != err {
+		return err
+	}
+	// 将block的PEM编码写入fileIO
+	if err = pem.Encode(fileIOPub, block); nil != err {
+		return err
+	}
+	return nil
+}
+
+// GenerateRsaPKCS8Key RSA公钥私钥产生（私钥PKCS8格式）
+//
+// bits 指定生成位大小
+//
+// path 指定公私钥所在生成目录
+func (r *RSACommon) GenerateRsaPKCS8Key(bits int, path, priFileName, pubFileName string) error {
+	var (
+		privateKey *rsa.PrivateKey
+		publicKey  *rsa.PublicKey
+		derStream  []byte
+		fileIOPri  *os.File
+		fileIOPub  *os.File
+		derPkiX    []byte
+		err        error
+	)
+	// 创建公私钥生成目录
+	if !File().PathExists(path) {
+		if err = os.MkdirAll(path, os.ModePerm); nil != err {
+			return err
+		}
+	}
+	// 生成私钥文件
+	if privateKey, err = rsa.GenerateKey(rand.Reader, bits); nil != err {
+		return err
+	}
+	// 将私钥转换为ASN.1 DER编码的形式
+	if derStream, err = x509.MarshalPKCS8PrivateKey(privateKey); nil != err {
+		return err
+	}
+	// block表示PEM编码的结构
+	block := &pem.Block{
+		Type:  "RSA PRIVATE KEY",
+		Bytes: derStream,
+	}
+	defer func() { _ = fileIOPri.Close() }()
+	if fileIOPri, err = os.Create(filepath.Join(path, priFileName)); nil != err {
+		return err
+	}
+	// 将block的PEM编码写入fileIO
+	if err = pem.Encode(fileIOPri, block); nil != err {
+		return err
+	}
+	// 生成公钥文件
+	publicKey = &privateKey.PublicKey
+	// 将公钥序列化为der编码的PKIX格式
+	if derPkiX, err = x509.MarshalPKIXPublicKey(publicKey); nil != err {
+		return err
 	}
 	block = &pem.Block{
 		Type:  "PUBLIC KEY",
-		Bytes: derPkix,
+		Bytes: derPkiX,
 	}
-	if fileIO, err = os.Create(strings.Join([]string{path, "public.pem"}, "/")); nil != err {
-		return
+	defer func() { _ = fileIOPub.Close() }()
+	if fileIOPub, err = os.Create(filepath.Join(path, pubFileName)); nil != err {
+		return err
+	}
+	// 将block的PEM编码写入fileIO
+	if err = pem.Encode(fileIOPub, block); nil != err {
+		return err
+	}
+	return nil
+}
+
+// GenerateRsaPKCS1PriKey RSA私钥产生（私钥PKCS1格式）
+//
+// bits 指定生成位大小
+//
+// path 指定私钥所在生成目录
+//
+// fileName 指定私钥的文件名称，如'private.pem'
+func (r *RSACommon) GenerateRsaPKCS1PriKey(bits int, path, fileName string) error {
+	var (
+		privateKey *rsa.PrivateKey
+		fileIO     *os.File
+		err        error
+	)
+	// 创建公私钥生成目录
+	if !File().PathExists(path) {
+		if err = os.MkdirAll(path, os.ModePerm); nil != err {
+			return err
+		}
+	}
+	// 生成私钥文件
+	if privateKey, err = rsa.GenerateKey(rand.Reader, bits); nil != err {
+		return err
+	}
+	// 将私钥转换为ASN.1 DER编码的形式
+	derStream := x509.MarshalPKCS1PrivateKey(privateKey)
+	// block表示PEM编码的结构
+	block := &pem.Block{
+		Type:  privateKeyPemType,
+		Bytes: derStream,
+	}
+	defer func() { _ = fileIO.Close() }()
+	if fileIO, err = os.Create(filepath.Join(path, fileName)); nil != err {
+		return err
 	}
 	// 将block的PEM编码写入fileIO
 	if err = pem.Encode(fileIO, block); nil != err {
-		return
+		return err
 	}
-	return
+	return nil
+}
+
+// GenerateRsaPKCS8PriKey RSA私钥产生（私钥PKCS8格式）
+//
+// bits 指定生成位大小
+//
+// path 指定私钥所在生成目录
+//
+// fileName 指定私钥的文件名称，如'private.pem'
+func (r *RSACommon) GenerateRsaPKCS8PriKey(bits int, path, fileName string) error {
+	var (
+		privateKey *rsa.PrivateKey
+		derStream  []byte
+		fileIO     *os.File
+		err        error
+	)
+	// 创建公私钥生成目录
+	if !File().PathExists(path) {
+		if err = os.MkdirAll(path, os.ModePerm); nil != err {
+			return err
+		}
+	}
+	// 生成私钥文件
+	if privateKey, err = rsa.GenerateKey(rand.Reader, bits); nil != err {
+		return err
+	}
+	// 将私钥转换为ASN.1 DER编码的形式
+	if derStream, err = x509.MarshalPKCS8PrivateKey(privateKey); nil != err {
+		return err
+	}
+	// block表示PEM编码的结构
+	block := &pem.Block{
+		Type:  "RSA PRIVATE KEY",
+		Bytes: derStream,
+	}
+	defer func() { _ = fileIO.Close() }()
+	if fileIO, err = os.Create(filepath.Join(path, fileName)); nil != err {
+		return err
+	}
+	// 将block的PEM编码写入fileIO
+	if err = pem.Encode(fileIO, block); nil != err {
+		return err
+	}
+	return nil
+}
+
+// GenerateRsaPubKey RSA公钥产生
+//
+// privateKey 私钥内容，如取出字符串'priData'，则传入'string(priData)'即可
+//
+// path 指定公私钥所在生成目录
+//
+// fileName 指定公钥的文件名称，如'public.pem'
+//
+// pks 私钥格式，默认提供PKCS1和PKCS8，通过调用‘CryptoRSA().pksC1()’和‘CryptoRSA().pksC8()’方法赋值
+func (r *RSACommon) GenerateRsaPubKey(privateKey []byte, path, fileName string, pks PKSCType) error {
+	var (
+		fileIO  *os.File
+		derPkiX []byte
+		err     error
+	)
+	pri, err := r.parsePrivateKey(privateKey, pks)
+	if err != nil {
+		return err
+	}
+	// 创建公私钥生成目录
+	if !File().PathExists(path) {
+		if err = os.MkdirAll(path, os.ModePerm); nil != err {
+			return err
+		}
+	}
+	// 生成公钥文件
+	publicKey := &pri.PublicKey
+	// 将公钥序列化为der编码的PKIX格式
+	if derPkiX, err = x509.MarshalPKIXPublicKey(publicKey); nil != err {
+		return err
+	}
+	block := &pem.Block{
+		Type:  publicKeyPemType,
+		Bytes: derPkiX,
+	}
+	defer func() { _ = fileIO.Close() }()
+	if fileIO, err = os.Create(filepath.Join(path, fileName)); nil != err {
+		return err
+	}
+	// 将block的PEM编码写入fileIO
+	if err = pem.Encode(fileIO, block); nil != err {
+		return err
+	}
+	return nil
+}
+
+// GenerateRsaPubKeyFP RSA公钥产生
+//
+// privateKeyFilePath 私钥地址
+//
+// path 指定公私钥所在生成目录
+//
+// fileName 指定公钥的文件名称，如'public.pem'
+//
+// pks 私钥格式，默认提供PKCS1和PKCS8，通过调用‘CryptoRSA().pksC1()’和‘CryptoRSA().pksC8()’方法赋值
+func (r *RSACommon) GenerateRsaPubKeyFP(privateKeyFilePath, path, fileName string, pks PKSCType) error {
+	bs, err := ioutil.ReadFile(privateKeyFilePath)
+	if nil != err {
+		return err
+	}
+	return r.GenerateRsaPubKey(bs, path, fileName, pks)
 }
 
 // RsaPubEncrypt 公钥加密
+//
+// publicKey 公钥内容，如取出字符串'pubData'，则传入'string(pubData)'即可
+//
+// data 待加密数据
 func (r *RSACommon) RsaPubEncrypt(publicKey, data []byte) ([]byte, error) {
 	pub, err := r.parsePublicKey(publicKey)
 	if nil != err {
@@ -102,6 +333,10 @@ func (r *RSACommon) RsaPubEncrypt(publicKey, data []byte) ([]byte, error) {
 }
 
 // RsaPubEncryptFP 公钥加密
+//
+// publicKeyFilePath 公钥地址
+//
+// data 待加密数据
 func (r *RSACommon) RsaPubEncryptFP(publicKeyFilePath string, data []byte) ([]byte, error) {
 	bs, err := ioutil.ReadFile(publicKeyFilePath)
 	if nil != err {
@@ -111,8 +346,14 @@ func (r *RSACommon) RsaPubEncryptFP(publicKeyFilePath string, data []byte) ([]by
 }
 
 // RsaPriDecrypt 私钥解密
-func (r *RSACommon) RsaPriDecrypt(privateKey, data []byte) ([]byte, error) {
-	pri, err := r.parsePrivateKey(privateKey)
+//
+// privateKey 私钥内容，如取出字符串'priData'，则传入'string(priData)'即可
+//
+// data 待解密数据
+//
+// pks 私钥格式，默认提供PKCS1和PKCS8，通过调用‘CryptoRSA().pksC1()’和‘CryptoRSA().pksC8()’方法赋值
+func (r *RSACommon) RsaPriDecrypt(privateKey, data []byte, pks PKSCType) ([]byte, error) {
+	pri, err := r.parsePrivateKey(privateKey, pks)
 	if err != nil {
 		return nil, err
 	}
@@ -121,21 +362,34 @@ func (r *RSACommon) RsaPriDecrypt(privateKey, data []byte) ([]byte, error) {
 }
 
 // RsaPriDecryptFP 私钥解密
-func (r *RSACommon) RsaPriDecryptFP(privateKeyFilePath string, data []byte) ([]byte, error) {
+//
+// privateKeyFilePath 私钥地址
+//
+// data 待解密数据
+//
+// pks 私钥格式，默认提供PKCS1和PKCS8，通过调用‘CryptoRSA().pksC1()’和‘CryptoRSA().pksC8()’方法赋值
+func (r *RSACommon) RsaPriDecryptFP(privateKeyFilePath string, data []byte, pks PKSCType) ([]byte, error) {
 	bs, err := ioutil.ReadFile(privateKeyFilePath)
 	if nil != err {
 		return bs, err
 	}
-	return r.RsaPriDecrypt(bs, data)
+	return r.RsaPriDecrypt(bs, data, pks)
 }
 
 // RsaPriSign 签名：采用sha1算法进行签名并输出为hex格式（私钥PKCS8格式）
-func (r *RSACommon) RsaPriSign(privateKey, data []byte) ([]byte, error) {
-	pri, err := r.parsePrivateKey(privateKey)
+//
+// privateKey 私钥内容，如取出字符串'priData'，则传入'string(priData)'即可
+//
+// data 待签名数据
+//
+// hash 算法，如 crypto.SHA1/crypto.SHA256等
+//
+// pks 私钥格式，默认提供PKCS1和PKCS8，通过调用‘CryptoRSA().pksC1()’和‘CryptoRSA().pksC8()’方法赋值
+func (r *RSACommon) RsaPriSign(privateKey, data []byte, hash crypto.Hash, pks PKSCType) ([]byte, error) {
+	pri, err := r.parsePrivateKey(privateKey, pks)
 	if err != nil {
 		return nil, err
 	}
-	hash := crypto.SHA1
 	h := hash.New()
 	h.Write(data)
 	hashed := h.Sum(nil)
@@ -143,21 +397,34 @@ func (r *RSACommon) RsaPriSign(privateKey, data []byte) ([]byte, error) {
 }
 
 // RsaPriSignFP 签名：采用sha1算法进行签名并输出为hex格式（私钥PKCS8格式）
-func (r *RSACommon) RsaPriSignFP(privateKeyPath string, data []byte) ([]byte, error) {
+//
+// privateKeyPath 私钥文件存储路径
+//
+// data 待签名数据
+//
+// hash 算法，如 crypto.SHA1/crypto.SHA256等
+//
+// pks 私钥格式，默认提供PKCS1和PKCS8，通过调用‘CryptoRSA().pksC1()’和‘CryptoRSA().pksC8()’方法赋值
+func (r *RSACommon) RsaPriSignFP(privateKeyPath string, data []byte, hash crypto.Hash, pks PKSCType) ([]byte, error) {
 	bs, err := ioutil.ReadFile(privateKeyPath)
 	if nil != err {
 		return nil, err
 	}
-	return r.RsaPriSign(bs, data)
+	return r.RsaPriSign(bs, data, hash, pks)
 }
 
 // RsaPubVerySign 验签：对采用sha1算法进行签名后转base64格式的数据进行验签
-func (r *RSACommon) RsaPubVerySign(publicKey, data, signData []byte) error {
+//
+// publicKey 公钥内容，如取出字符串'pubData'，则传入'string(pubData)'即可
+//
+// data 待签名数据
+//
+// hash 算法，如 crypto.SHA1/crypto.SHA256等
+func (r *RSACommon) RsaPubVerySign(publicKey, data, signData []byte, hash crypto.Hash) error {
 	pub, err := r.parsePublicKey(publicKey)
 	if nil != err {
 		return err
 	}
-	hash := crypto.SHA1
 	h := hash.New()
 	h.Write(data)
 	hashed := h.Sum(nil)
@@ -165,20 +432,38 @@ func (r *RSACommon) RsaPubVerySign(publicKey, data, signData []byte) error {
 }
 
 // RsaPubVerySignFP 验签：对采用sha1算法进行签名后转base64格式的数据进行验签
-func (r *RSACommon) RsaPubVerySignFP(privateKeyPath string, data, signData []byte) error {
-	bs, err := ioutil.ReadFile(privateKeyPath)
+//
+// publicKeyPath 公钥文件存储路径
+//
+// data 待签名数据
+//
+// hash 算法，如 crypto.SHA1/crypto.SHA256等
+func (r *RSACommon) RsaPubVerySignFP(publicKeyPath string, data, signData []byte, hash crypto.Hash) error {
+	bs, err := ioutil.ReadFile(publicKeyPath)
 	if nil != err {
 		return err
 	}
-	return r.RsaPubVerySign(bs, data, signData)
+	return r.RsaPubVerySign(bs, data, signData, hash)
 }
 
-func (r *RSACommon) parsePrivateKey(key []byte) (*rsa.PrivateKey, error) {
+// parsePrivateKey 解析私钥
+//
+// pks 私钥格式，默认提供PKCS1和PKCS8，通过调用‘CryptoRSA().pksC1()’和‘CryptoRSA().pksC8()’方法赋值
+func (r *RSACommon) parsePrivateKey(key []byte, pks PKSCType) (*rsa.PrivateKey, error) {
 	pemData, err := r.pemParse(key, privateKeyPemType)
 	if err != nil {
 		return nil, err
 	}
-	return x509.ParsePKCS1PrivateKey(pemData)
+	switch pks {
+	default:
+		pri, err := x509.ParsePKCS8PrivateKey(pemData)
+		if nil != err {
+			return nil, err
+		}
+		return pri.(*rsa.PrivateKey), nil
+	case pksC1:
+		return x509.ParsePKCS1PrivateKey(pemData)
+	}
 }
 
 func (r *RSACommon) parsePublicKey(key []byte) (*rsa.PublicKey, error) {
@@ -207,4 +492,12 @@ func (r *RSACommon) pemParse(key []byte, pemType string) ([]byte, error) {
 		return nil, errors.New(strings.Join([]string{"Key's type is ", block.Type, ", expected ", pemType}, ""))
 	}
 	return block.Bytes, nil
+}
+
+func (r *RSACommon) pksC1() PKSCType {
+	return pksC1
+}
+
+func (r *RSACommon) pksC8() PKSCType {
+	return pksC8
 }

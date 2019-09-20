@@ -38,7 +38,7 @@ func TestLogCommon_Debug(t *testing.T) {
 }
 
 func TestLogCommon_Info(t *testing.T) {
-	Log().Init(logDir, 1, 1, false)
+	Log().Init(logDir, 1, 1, true)
 	Log().Set(Log().InfoLevel(), false)
 	logDo()
 }

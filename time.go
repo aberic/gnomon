@@ -45,6 +45,11 @@ func (t *TimeCommon) String2Timestamp(date, format string, zone *time.Location) 
 // timestampNSec 时间戳纳秒值
 //
 // format 时间字符串格式化类型 如：2006/01/02 15:04:05
-func (t *TimeCommon) Timestamp2String(timestampSec, timestampNSec int64, format string) string {
-	return time.Unix(timestampSec, timestampNSec).Format(format) //设置时间戳 使用模板格式化为日期字符串
+func (t *TimeCommon) Timestamp2String(timestampSec, timestampNSec int64, format string, zone *time.Location) string {
+	switch zone {
+	default:
+		return time.Unix(timestampSec, timestampNSec).Local().Format(format) //设置时间戳 使用模板格式化为日期字符串
+	case time.UTC:
+		return time.Unix(timestampSec, timestampNSec).UTC().Format(format) //设置时间戳 使用模板格式化为日期字符串
+	}
 }

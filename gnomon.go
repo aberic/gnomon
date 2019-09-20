@@ -31,6 +31,9 @@ var (
 	sc          *StringCommon
 	hc          *HashCommon
 	rc          *RSACommon
+	ac          *AESCommon
+	dc          *DESCommon
+	ecc         *ECCCommon
 	lc          *LogCommon
 	scc         *ScaleCommon
 	tc          *TimeCommon
@@ -43,6 +46,9 @@ var (
 	onceString  sync.Once
 	onceHash    sync.Once
 	onceRSA     sync.Once
+	onceAES     sync.Once
+	onceDES     sync.Once
+	onceECC     sync.Once
 	onceLog     sync.Once
 	onceScale   sync.Once
 	onceTime    sync.Once
@@ -118,6 +124,30 @@ func CryptoRSA() *RSACommon {
 		rc = &RSACommon{}
 	})
 	return rc
+}
+
+// CryptoAES AES工具
+func CryptoAES() *AESCommon {
+	onceAES.Do(func() {
+		ac = &AESCommon{}
+	})
+	return ac
+}
+
+// CryptoDES DES工具
+func CryptoDES() *DESCommon {
+	onceDES.Do(func() {
+		dc = &DESCommon{}
+	})
+	return dc
+}
+
+// CryptoECC ECC工具
+func CryptoECC() *ECCCommon {
+	onceECC.Do(func() {
+		ecc = &ECCCommon{}
+	})
+	return ecc
 }
 
 // Log 日志工具
