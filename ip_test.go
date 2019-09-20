@@ -57,3 +57,78 @@ func TestIPCommon_Get(t *testing.T) {
 		}
 	}
 }
+
+func TestIPCommon_Get_XRealIP(t *testing.T) {
+	statusCode := http.StatusOK
+	server := mockServer()
+	defer server.Close()
+
+	client := &http.Client{}
+	req, _ := http.NewRequest("GET", server.URL, nil)
+	cookie1 := &http.Cookie{Name: "X-Xsrftoken", Value: "df41ba54db5011e89861002324e63af81", HttpOnly: true}
+	req.AddCookie(cookie1)
+
+	req.Header.Add("X-Real-IP", "192.168.0.1")
+	resp, err := client.Do(req)
+	if err != nil {
+		t.Fatal("\tShould be able to make the Get call.", ballotX, err)
+	}
+	t.Log("\t\tShould be able to make the Get call.", checkMark)
+	defer func() { _ = resp.Body.Close() }()
+
+	if resp.StatusCode == statusCode {
+		t.Logf("\t\tShould receive a \"%d\" status, %v", statusCode, checkMark)
+	} else {
+		t.Errorf("\t\tShould receive a \"%d\" status. %v %v", statusCode, ballotX, resp.StatusCode)
+	}
+}
+
+func TestIPCommon_Get_XForwardedFor(t *testing.T) {
+	statusCode := http.StatusOK
+	server := mockServer()
+	defer server.Close()
+
+	client := &http.Client{}
+	req, _ := http.NewRequest("GET", server.URL, nil)
+	cookie1 := &http.Cookie{Name: "X-Xsrftoken", Value: "df41ba54db5011e89861002324e63af81", HttpOnly: true}
+	req.AddCookie(cookie1)
+
+	req.Header.Add("X-Forwarded-For", "192.168.0.2")
+	resp, err := client.Do(req)
+	if err != nil {
+		t.Fatal("\tShould be able to make the Get call.", ballotX, err)
+	}
+	t.Log("\t\tShould be able to make the Get call.", checkMark)
+	defer func() { _ = resp.Body.Close() }()
+
+	if resp.StatusCode == statusCode {
+		t.Logf("\t\tShould receive a \"%d\" status, %v", statusCode, checkMark)
+	} else {
+		t.Errorf("\t\tShould receive a \"%d\" status. %v %v", statusCode, ballotX, resp.StatusCode)
+	}
+}
+
+func TestIPCommon_Get_XForwardedForIP6(t *testing.T) {
+	statusCode := http.StatusOK
+	server := mockServer()
+	defer server.Close()
+
+	client := &http.Client{}
+	req, _ := http.NewRequest("GET", server.URL, nil)
+	cookie1 := &http.Cookie{Name: "X-Xsrftoken", Value: "df41ba54db5011e89861002324e63af81", HttpOnly: true}
+	req.AddCookie(cookie1)
+
+	req.Header.Add("X-Forwarded-For", "::1")
+	resp, err := client.Do(req)
+	if err != nil {
+		t.Fatal("\tShould be able to make the Get call.", ballotX, err)
+	}
+	t.Log("\t\tShould be able to make the Get call.", checkMark)
+	defer func() { _ = resp.Body.Close() }()
+
+	if resp.StatusCode == statusCode {
+		t.Logf("\t\tShould receive a \"%d\" status, %v", statusCode, checkMark)
+	} else {
+		t.Errorf("\t\tShould receive a \"%d\" status. %v %v", statusCode, ballotX, resp.StatusCode)
+	}
+}

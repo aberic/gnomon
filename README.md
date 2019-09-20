@@ -3,7 +3,7 @@
 [![GolangCI](https://golangci.com/badges/github.com/aberic/gnomon.svg)](https://golangci.com/r/github.com/aberic/gnomon)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/4f11995425294f42aec6a207b8aab367)](https://www.codacy.com/manual/aberic/gnomon?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=aberic/gnomon&amp;utm_campaign=Badge_Grade)
 [![Travis (.org)](https://img.shields.io/travis/aberic/gnomon.svg?label=build)](https://www.travis-ci.org/aberic/gnomon)
-[![Coveralls github](https://img.shields.io/coveralls/github/aberic/gnomon.svg)](https://coveralls.io/github/aberic/gnomon?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/aberic/gnomon/badge.svg?branch=master)](https://coveralls.io/github/aberic/gnomon?branch=master)
 
 # Gnomon
 通用编写go应用的公共库。
