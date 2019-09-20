@@ -11,6 +11,11 @@ before_install:
   - go get github.com/go-playground/overalls # overalls能够支持到各级子目录
   - go get github.com/mattn/goveralls # 是coveralls对golang的测试覆盖率支持命令
   - go get github.com/smartystreets/goconvey # 测试工具
+  - go get github.com/ethereum/go-ethereum
+  - go get github.com/btcsuite/btcd
+  - go get github.com/dgrijalva/jwt-go
+  - go get github.com/robfig/cron
+  - go get golang.org/x/crypto
 
 script:
   - make checkTravis
