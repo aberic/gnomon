@@ -21,7 +21,7 @@ import (
 	"time"
 )
 
-var logDir = "./log"
+var logDir = "./tmp/log"
 
 func logDo() {
 	Log().Debug("test", Log().Field("1", "2"), Log().Field("2", 3), Log().Field("3", true))

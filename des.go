@@ -25,12 +25,12 @@ type DESCommon struct{}
 
 //--------------------------------------------------------------------------------------------------------------------
 
-// DESEncryptCBC CBC加密
+// EncryptCBC CBC加密
 //
 // data 待加密数据
 //
 // key 自定义密钥，如：'[]byte("12345678")'，长度必须是8位
-func (d *DESCommon) DESEncryptCBC(data, key []byte) []byte {
+func (d *DESCommon) EncryptCBC(data, key []byte) []byte {
 	block, err := des.NewCipher(key)
 	if err != nil {
 		panic(err)
@@ -44,12 +44,12 @@ func (d *DESCommon) DESEncryptCBC(data, key []byte) []byte {
 	return out
 }
 
-// DESDecryptCBC CBC解密
+// DecryptCBC CBC解密
 //
 // data 待加密数据
 //
 // key 自定义密钥，如：'[]byte("12345678")'，长度必须是8位
-func (d *DESCommon) DESDecryptCBC(data, key []byte) []byte {
+func (d *DESCommon) DecryptCBC(data, key []byte) []byte {
 	block, err := des.NewCipher(key)
 	if err != nil {
 		panic(err)
@@ -64,12 +64,12 @@ func (d *DESCommon) DESDecryptCBC(data, key []byte) []byte {
 
 //--------------------------------------------------------------------------------------------------------------------
 
-// DESEncryptECB ECB加密
+// EncryptECB ECB加密
 //
 // data 待加密数据
 //
 // key 自定义密钥，如：'[]byte("12345678")'，长度必须是8位
-func (d *DESCommon) DESEncryptECB(data, key []byte) []byte {
+func (d *DESCommon) EncryptECB(data, key []byte) []byte {
 	block, err := des.NewCipher(key)
 	if err != nil {
 		panic(err)
@@ -92,12 +92,12 @@ func (d *DESCommon) DESEncryptECB(data, key []byte) []byte {
 	return out
 }
 
-// DESDecryptECB ECB解密
+// DecryptECB ECB解密
 //
 // data 待加密数据
 //
 // key 自定义密钥，如：'[]byte("12345678")'，长度必须是8位
-func (d *DESCommon) DESDecryptECB(data, key []byte) []byte {
+func (d *DESCommon) DecryptECB(data, key []byte) []byte {
 	block, err := des.NewCipher(key)
 	if err != nil {
 		panic(err)

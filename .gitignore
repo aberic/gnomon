@@ -25,3 +25,4 @@ gen### Go template
 /profile.coverprofile
 /overalls.coverprofile
 /coverage.txt
+/tmp/
