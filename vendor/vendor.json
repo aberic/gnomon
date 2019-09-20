@@ -3,22 +3,72 @@
 	"ignore": "test",
 	"package": [
 		{
+			"checksumSHA1": "gZQ6HheWahvZzIc3phBnOwoWHjE=",
+			"origin": "github.com/ethereum/go-ethereum/vendor/github.com/btcsuite/btcd/btcec",
+			"path": "github.com/btcsuite/btcd/btcec",
+			"revision": "63b18027dc9e5ad86992b3e7acbd3f033a458192",
+			"revisionTime": "2019-09-20T11:33:08Z"
+		},
+		{
 			"checksumSHA1": "blOHP3HPYU+IeV6yWCalQuuM+zE=",
 			"path": "github.com/dgrijalva/jwt-go",
 			"revision": "3af4c746e1c248ee8491a3e0c6f7a9cd831e95f8",
 			"revisionTime": "2018-09-21T17:23:15Z"
 		},
 		{
-			"checksumSHA1": "NTo14LBjh+GB8Pbf9KcePrCXN8c=",
-			"path": "github.com/panjf2000/ants",
-			"revision": "9d68c36305015fe704b6d515d3e1c9f34e58c42f",
-			"revisionTime": "2019-08-27T16:20:06Z"
+			"checksumSHA1": "TVhIKSvAidkYuzAYkRZ/MvplE2E=",
+			"path": "github.com/ethereum/go-ethereum/common",
+			"revision": "63b18027dc9e5ad86992b3e7acbd3f033a458192",
+			"revisionTime": "2019-09-20T11:33:08Z"
+		},
+		{
+			"checksumSHA1": "tvdkin+xdCuyH0IPqxbrHYGL1gc=",
+			"path": "github.com/ethereum/go-ethereum/common/hexutil",
+			"revision": "63b18027dc9e5ad86992b3e7acbd3f033a458192",
+			"revisionTime": "2019-09-20T11:33:08Z"
+		},
+		{
+			"checksumSHA1": "DHETzc73aN40YHhMczku7MQV1iE=",
+			"path": "github.com/ethereum/go-ethereum/common/math",
+			"revision": "63b18027dc9e5ad86992b3e7acbd3f033a458192",
+			"revisionTime": "2019-09-20T11:33:08Z"
+		},
+		{
+			"checksumSHA1": "pyUQKWiLgeo05Q7KtC/ADegvPj0=",
+			"path": "github.com/ethereum/go-ethereum/crypto",
+			"revision": "63b18027dc9e5ad86992b3e7acbd3f033a458192",
+			"revisionTime": "2019-09-20T11:33:08Z"
+		},
+		{
+			"checksumSHA1": "h/0RCAuS2HAjwCylHYh6yQgrFu8=",
+			"path": "github.com/ethereum/go-ethereum/crypto/ecies",
+			"revision": "63b18027dc9e5ad86992b3e7acbd3f033a458192",
+			"revisionTime": "2019-09-20T11:33:08Z"
+		},
+		{
+			"checksumSHA1": "09V3eE1EhOkdfksyjsH+03c5fQg=",
+			"path": "github.com/ethereum/go-ethereum/crypto/secp256k1",
+			"revision": "63b18027dc9e5ad86992b3e7acbd3f033a458192",
+			"revisionTime": "2019-09-20T11:33:08Z"
+		},
+		{
+			"checksumSHA1": "Oha44pjFKeOSJ1iOozVoGqJkKnM=",
+			"path": "github.com/ethereum/go-ethereum/rlp",
+			"revision": "63b18027dc9e5ad86992b3e7acbd3f033a458192",
+			"revisionTime": "2019-09-20T11:33:08Z"
 		},
 		{
 			"checksumSHA1": "xGlhb4NZjBVCNSbb7GIMvhn6mQg=",
 			"path": "github.com/robfig/cron",
 			"revision": "b41be1df696709bb6395fe435af20370037c0b4c",
 			"revisionTime": "2018-05-05T20:34:41Z"
+		},
+		{
+			"checksumSHA1": "hUsBzxJ8KTL4v0vpPT/mqvdJ46s=",
+			"origin": "github.com/ethereum/go-ethereum/vendor/golang.org/x/crypto/sha3",
+			"path": "golang.org/x/crypto/sha3",
+			"revision": "63b18027dc9e5ad86992b3e7acbd3f033a458192",
+			"revisionTime": "2019-09-20T11:33:08Z"
 		}
 	],
 	"rootPath": "github.com/aberic/gnomon"
