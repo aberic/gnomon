@@ -29,10 +29,10 @@ import (
 )
 
 const (
-	pksC1             PKSCType = "PKCS1"
-	pksC8             PKSCType = "PKCS8"
-	publicKeyPemType           = "PUBLIC KEY"
-	privateKeyPemType          = "RSA PRIVATE KEY"
+	pksC1                PKSCType = "PKCS1"
+	pksC8                PKSCType = "PKCS8"
+	publicRSAKeyPemType           = "PUBLIC KEY"
+	privateRSAKeyPemType          = "RSA PRIVATE KEY"
 )
 
 // PKSCType 私钥格式，默认提供PKCS1和PKCS8
@@ -75,7 +75,7 @@ func (r *RSACommon) GeneratePKCS1Key(bits int, path, priFileName, pubFileName st
 	derStream := x509.MarshalPKCS1PrivateKey(privateKey)
 	// block表示PEM编码的结构
 	block := &pem.Block{
-		Type:  privateKeyPemType,
+		Type:  privateRSAKeyPemType,
 		Bytes: derStream,
 	}
 	defer func() { _ = fileIOPri.Close() }()
@@ -93,7 +93,7 @@ func (r *RSACommon) GeneratePKCS1Key(bits int, path, priFileName, pubFileName st
 		return err
 	}
 	block = &pem.Block{
-		Type:  publicKeyPemType,
+		Type:  publicRSAKeyPemType,
 		Bytes: derPkiX,
 	}
 	defer func() { _ = fileIOPub.Close() }()
@@ -197,7 +197,7 @@ func (r *RSACommon) GeneratePKCS1PriKey(bits int, path, fileName string) error {
 	derStream := x509.MarshalPKCS1PrivateKey(privateKey)
 	// block表示PEM编码的结构
 	block := &pem.Block{
-		Type:  privateKeyPemType,
+		Type:  privateRSAKeyPemType,
 		Bytes: derStream,
 	}
 	defer func() { _ = fileIO.Close() }()
@@ -287,7 +287,7 @@ func (r *RSACommon) GeneratePubKey(privateKey []byte, path, fileName string, pks
 		return err
 	}
 	block := &pem.Block{
-		Type:  publicKeyPemType,
+		Type:  publicRSAKeyPemType,
 		Bytes: derPkiX,
 	}
 	defer func() { _ = fileIO.Close() }()
@@ -454,7 +454,7 @@ func (r *RSACommon) VerifyFP(publicKeyPath string, data, signData []byte, hash c
 //
 // pks 私钥格式，默认提供PKCS1和PKCS8，通过调用‘CryptoRSA().pksC1()’和‘CryptoRSA().pksC8()’方法赋值
 func (r *RSACommon) parsePrivateKey(key []byte, pks PKSCType) (*rsa.PrivateKey, error) {
-	pemData, err := r.pemParse(key, privateKeyPemType)
+	pemData, err := r.pemParse(key, privateRSAKeyPemType)
 	if err != nil {
 		return nil, err
 	}
@@ -471,7 +471,7 @@ func (r *RSACommon) parsePrivateKey(key []byte, pks PKSCType) (*rsa.PrivateKey, 
 }
 
 func (r *RSACommon) parsePublicKey(key []byte) (*rsa.PublicKey, error) {
-	pemData, err := r.pemParse(key, publicKeyPemType)
+	pemData, err := r.pemParse(key, publicRSAKeyPemType)
 	if err != nil {
 		return nil, err
 	}
