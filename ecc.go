@@ -19,8 +19,10 @@ import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
-	"github.com/ethereum/go-ethereum/crypto"
+	"encoding/hex"
+	"errors"
 	"github.com/ethereum/go-ethereum/crypto/ecies"
+	"io/ioutil"
 	"math/big"
 	"os"
 	"path/filepath"
@@ -61,9 +63,9 @@ func (e *ECCCommon) GenerateKey(path, priFileName, pubFileName string, curve ell
 	if err = e.SavePri(filepath.Join(path, priFileName), privateKey); nil != err {
 		return nil, nil, err
 	}
-	//if err = e.SavePub(filepath.Join(path, pubFileName), &privateKey.PublicKey, curve); nil != err {
-	//	return nil, nil, err
-	//}
+	if err = e.SavePub(filepath.Join(path, pubFileName), &privateKey.PublicKey, curve); nil != err {
+		return nil, nil, err
+	}
 
 	pri := ecies.ImportECDSA(privateKey)
 	return pri, &pri.PublicKey, nil
@@ -71,95 +73,94 @@ func (e *ECCCommon) GenerateKey(path, priFileName, pubFileName string, curve ell
 
 // SavePri 将私钥保存到给定文件，密钥数据保存为hex编码
 func (e *ECCCommon) SavePri(file string, privateKey *ecdsa.PrivateKey) error {
-	return crypto.SaveECDSA(file, privateKey)
+	k := hex.EncodeToString(e.PriKey2Bytes(privateKey))
+	return ioutil.WriteFile(file, []byte(k), 0600)
+	//return crypto.SaveECDSA(file, privateKey)
 }
 
 // LoadPri 从文件中加载私钥
 //
 // file 文件路径
-func (e *ECCCommon) LoadPri(file string) (*ecdsa.PrivateKey, error) {
-	return crypto.LoadECDSA(file)
+func (e *ECCCommon) LoadPri(file string, curve elliptic.Curve) (*ecdsa.PrivateKey, error) {
+	bs, err := ioutil.ReadFile(file)
+	if nil != err {
+		return nil, err
+	}
+	data, err := hex.DecodeString(string(bs))
+	if err != nil {
+		return nil, err
+	}
+	return e.Bytes2PriKey(data, curve), nil
+	//return crypto.LoadECDSA(file)
 }
 
-//// SavePub 将公钥保存到给定文件，密钥数据保存为hex编码
-////
-//// file 文件路径
-////
-//// curve 曲线生成类型，如 crypto.S256()/elliptic.P256()/elliptic.P384()/elliptic.P512()
-//func (e *ECCCommon) SavePub(file string, publicKey *ecdsa.PublicKey, curve elliptic.Curve) error {
-//	k := hex.EncodeToString(e.PubKey2Bytes(publicKey, curve))
-//	return ioutil.WriteFile(file, []byte(k), 0600)
-//}
-
-//// LoadPub 从文件中加载公钥
-////
-//// file 文件路径
-////
-//// curve 曲线生成类型，如 crypto.S256()/elliptic.P256()/elliptic.P384()/elliptic.P512()
-//func (e *ECCCommon) LoadPub(file string, curve elliptic.Curve) (*ecdsa.PublicKey, error) {
-//	var lenBuf int
-//	switch curve {
-//	default:
-//		lenBuf = 130
-//	case elliptic.P224():
-//		lenBuf = 114
-//	case elliptic.P256():
-//		lenBuf = 130
-//	case elliptic.P384():
-//		lenBuf = 194
-//	case elliptic.P521():
-//		lenBuf = 266
-//	}
-//	buf := make([]byte, lenBuf)
-//	fd, err := os.Open(file)
-//	if err != nil {
-//		return nil, err
-//	}
-//	defer func() { _ = fd.Close() }()
-//	if _, err := io.ReadFull(fd, buf); err != nil {
-//		return nil, err
-//	}
+// SavePub 将公钥保存到给定文件，密钥数据保存为hex编码
 //
-//	key, err := hex.DecodeString(string(buf))
-//	if err != nil {
-//		return nil, err
-//	}
-//	return e.Bytes2PubKey(key, curve)
-//}
-
-//// PriKey2Bytes 私钥转[]byte
-//func (e *ECCCommon) PriKey2Bytes(privateKey *ecdsa.PrivateKey) []byte {
-//	return crypto.FromECDSA(privateKey)
-//}
+// file 文件路径
 //
-//// Bytes2PriKey []byte转私钥
-//func (e *ECCCommon) Bytes2PriKey(data []byte) (*ecdsa.PrivateKey, error) {
-//	return crypto.ToECDSA(data)
-//}
+// curve 曲线生成类型，如 crypto.S256()/elliptic.P256()/elliptic.P384()/elliptic.P512()
+func (e *ECCCommon) SavePub(file string, publicKey *ecdsa.PublicKey, curve elliptic.Curve) error {
+	k := hex.EncodeToString(e.PubKey2Bytes(publicKey, curve))
+	return ioutil.WriteFile(file, []byte(k), 0600)
+}
 
-//// PubKey2Bytes 公钥转[]byte
-////
-//// pub 公钥
-////
-//// curve 曲线生成类型，如 crypto.S256()/elliptic.P256()/elliptic.P384()/elliptic.P512()
-//func (e *ECCCommon) PubKey2Bytes(publicKey *ecdsa.PublicKey, curve elliptic.Curve) []byte {
-//	if publicKey == nil || publicKey.X == nil || publicKey.Y == nil {
-//		return nil
-//	}
-//	return elliptic.Marshal(curve, publicKey.X, publicKey.Y)
-//}
+// LoadPub 从文件中加载公钥
 //
-//// Bytes2PubKey []byte转公钥
-//func (e *ECCCommon) Bytes2PubKey(data []byte, curve elliptic.Curve) (*ecdsa.PublicKey, error) {
-//	x, y := elliptic.Unmarshal(curve, data)
-//	if x == nil {
-//		return nil, errors.New("invalid public key")
-//	}
-//	return &ecdsa.PublicKey{Curve: curve, X: x, Y: y}, nil
-//}
+// file 文件路径
+//
+// curve 曲线生成类型，如 crypto.S256()/elliptic.P256()/elliptic.P384()/elliptic.P512()
+func (e *ECCCommon) LoadPub(file string, curve elliptic.Curve) (*ecdsa.PublicKey, error) {
+	data, err := ioutil.ReadFile(file)
+	if nil != err {
+		return nil, err
+	}
+	key, err := hex.DecodeString(string(data))
+	if err != nil {
+		return nil, err
+	}
+	return e.Bytes2PubKey(key, curve)
+}
+
+// PriKey2Bytes 私钥转[]byte
+func (e *ECCCommon) PriKey2Bytes(privateKey *ecdsa.PrivateKey) []byte {
+	return privateKey.D.Bytes()
+}
+
+// Bytes2PriKey []byte转私钥
+func (e *ECCCommon) Bytes2PriKey(data []byte, curve elliptic.Curve) *ecdsa.PrivateKey {
+	priv := new(ecdsa.PrivateKey)
+	priv.PublicKey.Curve = curve
+	priv.D = new(big.Int).SetBytes(data)
+	priv.PublicKey.X, priv.PublicKey.Y = curve.ScalarBaseMult(data)
+	return priv
+}
+
+// PubKey2Bytes 公钥转[]byte
+//
+// pub 公钥
+//
+// curve 曲线生成类型，如 crypto.S256()/elliptic.P256()/elliptic.P384()/elliptic.P512()
+func (e *ECCCommon) PubKey2Bytes(publicKey *ecdsa.PublicKey, curve elliptic.Curve) []byte {
+	if publicKey == nil || publicKey.X == nil || publicKey.Y == nil {
+		return nil
+	}
+	return elliptic.Marshal(curve, publicKey.X, publicKey.Y)
+}
+
+// Bytes2PubKey []byte转公钥
+func (e *ECCCommon) Bytes2PubKey(data []byte, curve elliptic.Curve) (*ecdsa.PublicKey, error) {
+	x, y := elliptic.Unmarshal(curve, data)
+	if x == nil {
+		return nil, errors.New("invalid public key")
+	}
+	return &ecdsa.PublicKey{Curve: curve, X: x, Y: y}, nil
+}
 
 // Encrypt 加密
 func (e *ECCCommon) Encrypt(data []byte, publicKey *ecies.PublicKey) ([]byte, error) {
+	if publicKey.Curve.Params().BitSize != 256 {
+		return nil, errors.New("just support P256 and S256")
+	}
 	return ecies.Encrypt(rand.Reader, publicKey, data, nil, nil)
 }
 
@@ -176,6 +177,9 @@ func (e *ECCCommon) Encrypt(data []byte, publicKey *ecies.PublicKey) ([]byte, er
 
 // Decrypt 解密
 func (e *ECCCommon) Decrypt(data []byte, privateKey *ecies.PrivateKey) ([]byte, error) {
+	if privateKey.Curve.Params().BitSize != 256 {
+		return nil, errors.New("just support P256 and S256")
+	}
 	return privateKey.Decrypt(data, nil, nil)
 }
 

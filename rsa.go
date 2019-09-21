@@ -391,7 +391,9 @@ func (r *RSACommon) Sign(privateKey, data []byte, hash crypto.Hash, pks PKSCType
 		return nil, err
 	}
 	h := hash.New()
-	h.Write(data)
+	if _, err = h.Write(data); nil != err {
+		return nil, err
+	}
 	hashed := h.Sum(nil)
 	return rsa.SignPKCS1v15(rand.Reader, pri, hash, hashed)
 }
@@ -426,7 +428,9 @@ func (r *RSACommon) Verify(publicKey, data, signData []byte, hash crypto.Hash) e
 		return err
 	}
 	h := hash.New()
-	h.Write(data)
+	if _, err = h.Write(data); nil != err {
+		return err
+	}
 	hashed := h.Sum(nil)
 	return rsa.VerifyPKCS1v15(pub, hash, hashed, signData)
 }

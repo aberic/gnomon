@@ -91,7 +91,7 @@ func (l *LogCommon) Init(logDir string, maxSize, maxAge int, utc bool) {
 	l.Info("log service init")
 	l.once.Do(func() {
 		if String().IsEmpty(logDir) {
-			logDir = "./log"
+			logDir = "./tmp/log"
 		}
 		if err := os.MkdirAll(logDir, os.ModePerm); nil != err {
 			l.Panic("log service init error", Log().Err(err))

@@ -52,8 +52,8 @@ func TestFileCommon_ReadPointLine(t *testing.T) {
 }
 
 func TestFileCommon_ReadPointLine_KeyPoint(t *testing.T) {
-	_, _ = File().Append("./log/yes/go/point.txt", []byte("haha"), false)
-	profile, err := File().ReadPointLine("./log/yes/go/point.txt", 1)
+	_, _ = File().Append("./tmp/log/yes/go/point.txt", []byte("haha"), false)
+	profile, err := File().ReadPointLine("./tmp/log/yes/go/point.txt", 1)
 	if nil != err {
 		t.Skip(err)
 	} else {
@@ -90,7 +90,7 @@ func TestFileCommon_ParentPath(t *testing.T) {
 }
 
 func TestFileCommon_Append(t *testing.T) {
-	if _, err := File().Append("./log/yes/go/test.txt", []byte("haha"), false); nil != err {
+	if _, err := File().Append("./tmp/log/yes/go/test.txt", []byte("haha"), false); nil != err {
 		t.Skip(err)
 	} else {
 		t.Log("success")
@@ -98,7 +98,7 @@ func TestFileCommon_Append(t *testing.T) {
 }
 
 func TestFileCommon_Append_Force(t *testing.T) {
-	if _, err := File().Append("./log/yes/go/test.txt", []byte("haha"), true); nil != err {
+	if _, err := File().Append("./tmp/log/yes/go/test.txt", []byte("haha"), true); nil != err {
 		t.Skip(err)
 	} else {
 		t.Log("success")
@@ -106,7 +106,7 @@ func TestFileCommon_Append_Force(t *testing.T) {
 }
 
 func TestFileCommon_Append_UnForce(t *testing.T) {
-	if _, err := File().Append("./log/yes/go/test.txt", []byte("haha"), false); nil != err {
+	if _, err := File().Append("./tmp/log/yes/go/test.txt", []byte("haha"), false); nil != err {
 		t.Skip(err)
 	} else {
 		t.Log("success")
@@ -124,7 +124,7 @@ func TestFileCommon_Append_Fail_PermissionFileUnForce(t *testing.T) {
 }
 
 func TestFileCommon_Modify(t *testing.T) {
-	if _, err := File().Modify("./log/yes/go/test.txt", 1, []byte("haha"), false); nil != err {
+	if _, err := File().Modify("./tmp/log/yes/go/test.txt", 1, []byte("haha"), false); nil != err {
 		t.Skip(err)
 	} else {
 		t.Log("success")
@@ -132,7 +132,7 @@ func TestFileCommon_Modify(t *testing.T) {
 }
 
 func TestFileCommon_Modify_Force(t *testing.T) {
-	if _, err := File().Modify("./log/yes/go/test.txt", 1, []byte("haha"), true); nil != err {
+	if _, err := File().Modify("./tmp/log/yes/go/test.txt", 1, []byte("haha"), true); nil != err {
 		t.Skip(err)
 	} else {
 		t.Log("success")
@@ -140,7 +140,7 @@ func TestFileCommon_Modify_Force(t *testing.T) {
 }
 
 func TestFileCommon_Modify_UnForce(t *testing.T) {
-	if _, err := File().Modify("./log/yes/go/test.txt", 1, []byte("haha"), false); nil != err {
+	if _, err := File().Modify("./tmp/log/yes/go/test.txt", 1, []byte("haha"), false); nil != err {
 		t.Skip(err)
 	} else {
 		t.Log("success")
@@ -158,7 +158,7 @@ func TestFileCommon_Modify_Fail_PermissionFileUnForce(t *testing.T) {
 }
 
 func TestFileCommon_LoopDirs(t *testing.T) {
-	if arr, err := File().LoopDirs("./log"); nil != err {
+	if arr, err := File().LoopDirs("./tmp/log"); nil != err {
 		t.Skip(err)
 	} else {
 		t.Log(arr)
@@ -166,13 +166,13 @@ func TestFileCommon_LoopDirs(t *testing.T) {
 }
 
 func TestFileCommon_LoopDirs_Fail(t *testing.T) {
-	_, err := File().LoopDirs("./logger")
+	_, err := File().LoopDirs("./tmp/logger")
 	t.Skip(err)
 }
 
 func TestFileCommon_LoopFiles(t *testing.T) {
 	var s []string
-	if arr, err := File().LoopFiles("./log", s); nil != err {
+	if arr, err := File().LoopFiles("./tmp/log", s); nil != err {
 		t.Skip(err)
 	} else {
 		t.Log(arr)
@@ -180,6 +180,6 @@ func TestFileCommon_LoopFiles(t *testing.T) {
 }
 
 func TestFileCommon_LoopFiles_Fail(t *testing.T) {
-	_, err := File().LoopFiles("./logger", nil)
+	_, err := File().LoopFiles("./tmp/logger", nil)
 	t.Skip(err)
 }
