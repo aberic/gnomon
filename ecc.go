@@ -66,6 +66,10 @@ func (e *ECCCommon) Generate(curve elliptic.Curve) (*ecdsa.PrivateKey, *ecdsa.Pu
 //
 // path 指定公私钥所在生成目录
 //
+// priFileName 指定生成的密钥名称
+//
+// pubFileName 指定生成的密钥名称
+//
 // curve 曲线生成类型，如 crypto.S256()/elliptic.P256()/elliptic.P384()/elliptic.P512()
 func (e *ECCCommon) GenerateKey(path, priFileName, pubFileName string, curve elliptic.Curve) error {
 	var (
@@ -95,6 +99,10 @@ func (e *ECCCommon) GenerateKey(path, priFileName, pubFileName string, curve ell
 // GeneratePemKey 生成公私钥对
 //
 // path 指定公私钥所在生成目录
+//
+// priFileName 指定生成的密钥名称
+//
+// pubFileName 指定生成的密钥名称
 //
 // curve 曲线生成类型，如 crypto.S256()/elliptic.P256()/elliptic.P384()/elliptic.P512()
 func (e *ECCCommon) GeneratePemKey(path, priFileName, pubFileName string, curve elliptic.Curve) error {
@@ -126,6 +134,8 @@ func (e *ECCCommon) GeneratePemKey(path, priFileName, pubFileName string, curve 
 //
 // path 指定私钥所在生成目录
 //
+// priFileName 指定生成的密钥名称
+//
 // curve 曲线生成类型，如 crypto.S256()/elliptic.P256()/elliptic.P384()/elliptic.P512()
 func (e *ECCCommon) GeneratePriKey(path, priFileName string, curve elliptic.Curve) error {
 	var (
@@ -151,6 +161,8 @@ func (e *ECCCommon) GeneratePriKey(path, priFileName string, curve elliptic.Curv
 // GeneratePemPriKey 生成私钥
 //
 // path 指定私钥所在生成目录
+//
+// priFileName 指定生成的密钥名称
 //
 // curve 曲线生成类型，如 crypto.S256()/elliptic.P256()/elliptic.P384()/elliptic.P512()
 func (e *ECCCommon) GeneratePemPriKey(path, priFileName string, curve elliptic.Curve) error {

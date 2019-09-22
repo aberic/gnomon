@@ -34,6 +34,7 @@ var (
 	ac          *AESCommon
 	dc          *DESCommon
 	ecc         *ECCCommon
+	cac         *CACommon
 	lc          *LogCommon
 	scc         *ScaleCommon
 	tc          *TimeCommon
@@ -49,6 +50,7 @@ var (
 	onceAES     sync.Once
 	onceDES     sync.Once
 	onceECC     sync.Once
+	onceCAC     sync.Once
 	onceLog     sync.Once
 	onceScale   sync.Once
 	onceTime    sync.Once
@@ -148,6 +150,14 @@ func CryptoECC() *ECCCommon {
 		ecc = &ECCCommon{}
 	})
 	return ecc
+}
+
+// CA CA工具
+func CA() *CACommon {
+	onceCAC.Do(func() {
+		cac = &CACommon{}
+	})
+	return cac
 }
 
 // Log 日志工具
