@@ -18,48 +18,226 @@
 package gnomon
 
 import (
-	"crypto/elliptic"
+	"crypto"
+	"crypto/rand"
 	"crypto/x509"
-	"io"
+	"crypto/x509/pkix"
+	"encoding/pem"
+	"math/big"
+	"os"
+	"time"
+)
+
+const (
+	certificateRequestType = "CERTIFICATE REQUEST"
+	certificateType        = "CERTIFICATE"
 )
 
 // CACommon CA工具
 type CACommon struct{}
 
-// GenerateRSAPKCS1PrivateKey 生成CA自己的私钥——RSA私钥产生（私钥PKCS1格式）
+// GenerateRSACertificateRequest 生成证书签名请求文件
 //
-// bits 指定生成位大小
+// cert 证书生成请求对象
 //
-// path 指定私钥所在生成目录
-//
-// fileName 指定私钥的文件名称，如'rootCA.key'
-func (ca *CACommon) GenerateRSAPKCS1PrivateKey(bits int, path, fileName string) error {
-	return CryptoRSA().GeneratePKCS1PriKey(bits, path, fileName)
+// pks 私钥格式，默认提供PKCS1和PKCS8，通过调用‘CryptoRSA().PKSC1()’和‘CryptoRSA().PKSC8()’方法赋值
+func (ca *CACommon) GenerateRSACertificateRequest(cert *CertRequest, pks PKSCType) (csr []byte, err error) {
+	priRSAKey, err := CryptoRSA().LoadPri(cert.PrivateKeyData, pks)
+	if err != nil {
+		return nil, err
+	}
+	certModel := cert.init()
+	certModel.PrivateKey = priRSAKey
+	return ca.GenerateCertificateRequest(certModel)
 }
 
-// GenerateRSAPKCS8PrivateKey 生成CA自己的私钥——RSA私钥产生（私钥PKCS8格式）
+// GenerateRSACertificateRequestWithPass 生成证书签名请求文件
 //
-// bits 指定生成位大小
+// cert 证书生成请求对象
 //
-// path 指定私钥所在生成目录
+// password 生成时输入的密码
 //
-// fileName 指定私钥的文件名称，如'rootCA.key'
-func (ca *CACommon) GenerateRSAPKCS8PrivateKey(bits int, path, fileName string) error {
-	return CryptoRSA().GeneratePKCS8PriKey(bits, path, fileName)
+// pks 私钥格式，默认提供PKCS1和PKCS8，通过调用‘CryptoRSA().PKSC1()’和‘CryptoRSA().PKSC8()’方法赋值
+func (ca *CACommon) GenerateRSACertificateRequestWithPass(cert *CertRequest, password string, pks PKSCType) (csr []byte, err error) {
+	priRSAKey, err := CryptoRSA().LoadPriWithPass(cert.PrivateKeyData, password, pks)
+	if err != nil {
+		return nil, err
+	}
+	certModel := cert.init()
+	certModel.PrivateKey = priRSAKey
+	return ca.GenerateCertificateRequest(certModel)
 }
 
-// GenerateECCPrivateKey 生成CA自己的私钥——生成ECC私钥
+// GenerateRSACertificateRequestFP 生成证书签名请求文件
 //
-// path 指定私钥所在生成目录
+// cert 证书生成请求对象
 //
-// fileName 指定生成的密钥名称，如'rootCA.key'
-//
-// curve 曲线生成类型，如 crypto.S256()/elliptic.P256()/elliptic.P384()/elliptic.P512()
-func (ca *CACommon) GenerateECCPrivateKey(path, fileName string, curve elliptic.Curve) error {
-	return CryptoECC().GeneratePemPriKey(path, fileName, curve)
+// pks 私钥格式，默认提供PKCS1和PKCS8，通过调用‘CryptoRSA().PKSC1()’和‘CryptoRSA().PKSC8()’方法赋值
+func (ca *CACommon) GenerateRSACertificateRequestFP(cert *CertRequestFP, pks PKSCType) (csr []byte, err error) {
+	priRSAKey, err := CryptoRSA().LoadPriFP(cert.PrivateKeyFilePath, pks)
+	if err != nil {
+		return nil, err
+	}
+	certModel := cert.init()
+	certModel.PrivateKey = priRSAKey
+	return ca.GenerateCertificateRequest(certModel)
 }
 
-// GenerateCertificate 生成证书
-func (ca *CACommon) GenerateCertificate(rand io.Reader, template *x509.CertificateRequest, priv interface{}) (csr []byte, err error) {
-	return x509.CreateCertificateRequest(rand, template, priv)
+// GenerateRSACertificateRequestFPWithPass 生成证书签名请求文件
+//
+// cert 证书生成请求对象
+//
+// password 生成时输入的密码
+//
+// pks 私钥格式，默认提供PKCS1和PKCS8，通过调用‘CryptoRSA().PKSC1()’和‘CryptoRSA().PKSC8()’方法赋值
+func (ca *CACommon) GenerateRSACertificateRequestFPWithPass(cert *CertRequestFP, password string, pks PKSCType) (csr []byte, err error) {
+	priRSAKey, err := CryptoRSA().LoadPriFPWithPass(cert.PrivateKeyFilePath, password, pks)
+	if err != nil {
+		return nil, err
+	}
+	certModel := cert.init()
+	certModel.PrivateKey = priRSAKey
+	return ca.GenerateCertificateRequest(certModel)
+}
+
+// GenerateECCCertificateRequestFP 生成证书签名请求文件
+//
+// cert 证书生成请求对象
+func (ca *CACommon) GenerateECCCertificateRequestFP(cert *CertRequestFP) (csr []byte, err error) {
+	priECCKey, err := CryptoECC().LoadPriPem(cert.PrivateKeyFilePath)
+	if err != nil {
+		return nil, err
+	}
+	certModel := cert.init()
+	certModel.PrivateKey = priECCKey
+	return ca.GenerateCertificateRequest(certModel)
+}
+
+// GenerateECCCertificateRequestFPWithPass 生成证书签名请求文件
+//
+// cert 证书生成请求对象
+//
+// password 生成时输入的密码
+func (ca *CACommon) GenerateECCCertificateRequestFPWithPass(cert *CertRequestFP, password string) (csr []byte, err error) {
+	priECCKey, err := CryptoECC().LoadPriPemWithPass(cert.PrivateKeyFilePath, password)
+	if err != nil {
+		return nil, err
+	}
+	certModel := cert.init()
+	certModel.PrivateKey = priECCKey
+	return ca.GenerateCertificateRequest(certModel)
+}
+
+// GenerateCertificateRequest 生成证书签名请求文件
+//
+// cert 证书生成请求对象
+func (ca *CACommon) GenerateCertificateRequest(cert *CertRequestModel) (csr []byte, err error) {
+	csrData, err := x509.CreateCertificateRequest(rand.Reader, cert.Template, cert.PrivateKey)
+	if nil != err {
+		return nil, err
+	}
+	fileIO, err := os.OpenFile(cert.CertificateRequestFilePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
+	if nil != err {
+		return nil, err
+	}
+	// 将block的PEM编码写入fileIO
+	if err = pem.Encode(fileIO, &pem.Block{Type: certificateRequestType, Bytes: csrData}); nil != err {
+		return nil, err
+	}
+	return csrData, nil
+}
+
+// GenerateCertificate 对签名请求进行处理并生成签名数字证书
+//
+// cert 签名数字证书对象
+func (ca *CACommon) GenerateCertificate(cert *Cert) (certData []byte, err error) {
+	bigInt, err := rand.Int(rand.Reader, big.NewInt(time.Now().Unix()))
+	if nil != err {
+		return nil, err
+	}
+	template := &x509.Certificate{
+		SerialNumber:          bigInt,
+		Subject:               cert.Subject,
+		NotBefore:             time.Now().Add(cert.NotBeforeDays * 24 * time.Hour),
+		NotAfter:              time.Now().Add(cert.NotAfterDays * 24 * time.Hour),
+		BasicConstraintsValid: true,
+		IsCA:                  true,
+		SignatureAlgorithm:    x509.SHA1WithRSA, // 签名算法选择SHA1WithRSA
+		KeyUsage:              x509.KeyUsageCertSign | x509.KeyUsageCRLSign | x509.KeyUsageDataEncipherment,
+		SubjectKeyId:          []byte{1, 2, 3},
+	}
+	certData, err = x509.CreateCertificate(rand.Reader, template, template, cert.PublicKey, cert.PrivateKey)
+	if err != nil {
+		return nil, err
+	}
+	path := File().ParentPath(cert.CertificateFilePath)
+	// 创建生成目录
+	if !File().PathExists(path) {
+		if err = os.MkdirAll(path, os.ModePerm); nil != err {
+			return nil, err
+		}
+	}
+	fileIO, err := os.OpenFile(cert.CertificateFilePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
+	if nil != err {
+		return nil, err
+	}
+	// 将block的PEM编码写入fileIO
+	if err = pem.Encode(fileIO, &pem.Block{Type: certificateType, Bytes: certData}); nil != err {
+		return nil, err
+	}
+	return certData, nil
+
+}
+
+// Cert 签名数字证书对象
+type Cert struct {
+	CertificateFilePath         string        // 签名后数字证书文件存储路径
+	Subject                     pkix.Name     // Subject 签名信息
+	PrivateKey, PublicKey       interface{}   // 公私钥
+	NotBeforeDays, NotAfterDays time.Duration // 在指定时间之后生效及之前失效
+}
+
+// CertRequest 证书生成请求对象
+type CertRequest struct {
+	PrivateKeyData             []byte                  // privateKeyData 私钥字节数组
+	CertificateRequestFilePath string                  // certificateFilePath 指定生成的证书签名请求文件路径，如'/etc/rootCA.csr'
+	SignatureAlgorithm         x509.SignatureAlgorithm // signatureAlgorithm 生成证书时候采用的签名算法
+	Subject                    pkix.Name               // Subject 签名信息
+}
+
+func (cert *CertRequest) init() *CertRequestModel {
+	temp := &x509.CertificateRequest{
+		SignatureAlgorithm: cert.SignatureAlgorithm,
+		Subject:            cert.Subject,
+	}
+	return &CertRequestModel{
+		CertificateRequestFilePath: cert.CertificateRequestFilePath,
+		Template:                   temp,
+	}
+}
+
+// CertRequestFP 证书生成请求对象
+type CertRequestFP struct {
+	PrivateKeyFilePath         string                  // privateKeyFilePath 私钥文件存储路径
+	CertificateRequestFilePath string                  // certificateFilePath 指定生成的证书签名请求文件路径，如'/etc/rootCA.csr'
+	SignatureAlgorithm         x509.SignatureAlgorithm // signatureAlgorithm 生成证书时候采用的签名算法
+	Subject                    pkix.Name               // Subject 签名信息
+}
+
+func (cert *CertRequestFP) init() *CertRequestModel {
+	temp := &x509.CertificateRequest{
+		SignatureAlgorithm: cert.SignatureAlgorithm,
+		Subject:            cert.Subject,
+	}
+	return &CertRequestModel{
+		CertificateRequestFilePath: cert.CertificateRequestFilePath,
+		Template:                   temp,
+	}
+}
+
+// CertRequestModel 证书生成请求对象
+type CertRequestModel struct {
+	PrivateKey                 crypto.Signer            // privateKey 私钥字节数组
+	CertificateRequestFilePath string                   // certificateFilePath 指定生成的证书签名请求文件路径，如'/etc/rootCA.csr'
+	Template                   *x509.CertificateRequest // template 生成证书时候采用的请求模板
 }
