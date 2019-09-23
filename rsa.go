@@ -99,11 +99,7 @@ func (r *RSACommon) GeneratePKCS8Key(bits int, path, priFileName, pubFileName st
 //
 // passwd 生成密码
 func (r *RSACommon) GeneratePKCS8KeyWithPass(bits int, path, priFileName, pubFileName, passwd string) error {
-	privateKey, err := r.GeneratePKCS8PriKeyWithPass(bits, path, priFileName, passwd)
-	if nil != err {
-		return err
-	}
-	return r.GeneratePubKey(privateKey, path, pubFileName, pksC8)
+	return r.GeneratePKCS8KeyWithPass(bits, path, priFileName, pubFileName, passwd)
 }
 
 // GeneratePKCS1PriKey RSA私钥产生（私钥PKCS1格式）

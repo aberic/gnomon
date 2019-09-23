@@ -106,6 +106,21 @@ func (e *ECCCommon) GenerateKey(path, priFileName, pubFileName string, curve ell
 //
 // curve 曲线生成类型，如 crypto.S256()/elliptic.P256()/elliptic.P384()/elliptic.P512()
 func (e *ECCCommon) GeneratePemKey(path, priFileName, pubFileName string, curve elliptic.Curve) error {
+	return e.GeneratePemKeyWithPass(path, priFileName, pubFileName, "", curve)
+}
+
+// GeneratePemKey 生成公私钥对
+//
+// path 指定公私钥所在生成目录
+//
+// priFileName 指定生成的密钥名称
+//
+// pubFileName 指定生成的密钥名称
+//
+// passwd 生成密码
+//
+// curve 曲线生成类型，如 crypto.S256()/elliptic.P256()/elliptic.P384()/elliptic.P512()
+func (e *ECCCommon) GeneratePemKeyWithPass(path, priFileName, pubFileName, passwd string, curve elliptic.Curve) error {
 	var (
 		privateKey *ecdsa.PrivateKey
 		err        error
@@ -121,7 +136,7 @@ func (e *ECCCommon) GeneratePemKey(path, priFileName, pubFileName string, curve 
 		return err
 	}
 
-	if err = e.SavePriPem(filepath.Join(path, priFileName), privateKey); nil != err {
+	if err = e.SavePriPemWithPass(privateKey, passwd, filepath.Join(path, priFileName)); nil != err {
 		return err
 	}
 	if err = e.SavePubPem(filepath.Join(path, pubFileName), &privateKey.PublicKey); nil != err {
@@ -166,6 +181,19 @@ func (e *ECCCommon) GeneratePriKey(path, priFileName string, curve elliptic.Curv
 //
 // curve 曲线生成类型，如 crypto.S256()/elliptic.P256()/elliptic.P384()/elliptic.P512()
 func (e *ECCCommon) GeneratePemPriKey(path, priFileName string, curve elliptic.Curve) error {
+	return e.GeneratePemPriKeyWithPass(path, priFileName, "", curve)
+}
+
+// GeneratePemPriKey 生成私钥
+//
+// path 指定私钥所在生成目录
+//
+// priFileName 指定生成的密钥名称
+//
+// passwd 生成时输入的密码
+//
+// curve 曲线生成类型，如 crypto.S256()/elliptic.P256()/elliptic.P384()/elliptic.P512()
+func (e *ECCCommon) GeneratePemPriKeyWithPass(path, priFileName, passwd string, curve elliptic.Curve) error {
 	var (
 		privateKey *ecdsa.PrivateKey
 		err        error
@@ -180,7 +208,7 @@ func (e *ECCCommon) GeneratePemPriKey(path, priFileName string, curve elliptic.C
 	if err != nil {
 		return err
 	}
-	if err = e.SavePriPem(filepath.Join(path, priFileName), privateKey); nil != err {
+	if err = e.SavePriPemWithPass(privateKey, passwd, filepath.Join(path, priFileName)); nil != err {
 		return err
 	}
 	return nil
@@ -230,17 +258,29 @@ func (e *ECCCommon) LoadPri(file string, curve elliptic.Curve) (*ecdsa.PrivateKe
 }
 
 // SavePriPem 将私钥保存到给定文件
-func (e *ECCCommon) SavePriPem(file string, privateKey *ecdsa.PrivateKey) error {
-	var fileIO *os.File
+func (e *ECCCommon) SavePriPem(privateKey *ecdsa.PrivateKey, file string) error {
+	return e.SavePriPemWithPass(privateKey, "", file)
+}
+
+// SavePriPem 将私钥保存到给定文件
+func (e *ECCCommon) SavePriPemWithPass(privateKey *ecdsa.PrivateKey, passwd, file string) error {
+	var (
+		fileIO *os.File
+		block  *pem.Block
+	)
 	// 将私钥转换为ASN.1 DER编码的形式
 	derStream, err := x509.MarshalECPrivateKey(privateKey)
 	if nil != err {
 		return err
 	}
 	// block表示PEM编码的结构
-	block := &pem.Block{
-		Type:  privateECCKeyPemType,
-		Bytes: derStream,
+	if String().IsEmpty(passwd) {
+		block = &pem.Block{Type: privateECCKeyPemType, Bytes: derStream}
+	} else {
+		block, err = x509.EncryptPEMBlock(rand.Reader, privateECCKeyPemType, derStream, []byte(passwd), x509.PEMCipher3DES)
+		if nil != err {
+			return err
+		}
 	}
 	defer func() { _ = fileIO.Close() }()
 	if fileIO, err = os.OpenFile(file, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600); nil != err {
@@ -257,13 +297,34 @@ func (e *ECCCommon) SavePriPem(file string, privateKey *ecdsa.PrivateKey) error 
 //
 // file 文件路径
 func (e *ECCCommon) LoadPriPem(file string) (*ecdsa.PrivateKey, error) {
+	return e.LoadPriPemWithPass(file, "")
+}
+
+// LoadPriPemWithPass 从文件中加载私钥
+//
+// file 文件路径
+//
+// passwd 生成privateKey时输入密码
+func (e *ECCCommon) LoadPriPemWithPass(file, passwd string) (*ecdsa.PrivateKey, error) {
+	var (
+		pemData []byte
+		err     error
+	)
 	keyData, err := ioutil.ReadFile(file)
 	if nil != err {
 		return nil, err
 	}
-	pemData, err := e.pemParse(keyData, privateECCKeyPemType)
-	if err != nil {
-		return nil, err
+	if String().IsEmpty(passwd) {
+		pemData, err = e.pemParse(keyData, privateECCKeyPemType)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		block, _ := pem.Decode(keyData)
+		pemData, err = x509.DecryptPEMBlock(block, []byte(passwd))
+		if err != nil {
+			return nil, err
+		}
 	}
 	pri, err := x509.ParseECPrivateKey(pemData)
 	if nil != err {
