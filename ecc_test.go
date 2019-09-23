@@ -635,7 +635,7 @@ func TestCryptoECCPem_Sign_File(t *testing.T) {
 	t.Log("=================================")
 	t.Log("=================================")
 
-	if priKeyP384, errECC = CryptoECC().LoadPriPem(filepath.Join(patheccpemp384, privateECCName)); nil != errECC {
+	if priKeyP384, errECC = CryptoECC().LoadPriPemWithPass(filepath.Join(patheccpemp384, privateECCName), "123456"); nil != errECC {
 		t.Error(errECC)
 	}
 	if signECCResult, errECC = CryptoECC().Sign(priKeyP384, []byte(contentECC)); nil != errECC {

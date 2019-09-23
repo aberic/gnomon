@@ -109,7 +109,7 @@ func (e *ECCCommon) GeneratePemKey(path, priFileName, pubFileName string, curve 
 	return e.GeneratePemKeyWithPass(path, priFileName, pubFileName, "", curve)
 }
 
-// GeneratePemKey 生成公私钥对
+// GeneratePemKeyWithPass 生成公私钥对
 //
 // path 指定公私钥所在生成目录
 //
@@ -184,7 +184,7 @@ func (e *ECCCommon) GeneratePemPriKey(path, priFileName string, curve elliptic.C
 	return e.GeneratePemPriKeyWithPass(path, priFileName, "", curve)
 }
 
-// GeneratePemPriKey 生成私钥
+// GeneratePemPriKeyWithPass 生成私钥
 //
 // path 指定私钥所在生成目录
 //
@@ -262,7 +262,7 @@ func (e *ECCCommon) SavePriPem(privateKey *ecdsa.PrivateKey, file string) error 
 	return e.SavePriPemWithPass(privateKey, "", file)
 }
 
-// SavePriPem 将私钥保存到给定文件
+// SavePriPemWithPass 将私钥保存到给定文件
 func (e *ECCCommon) SavePriPemWithPass(privateKey *ecdsa.PrivateKey, passwd, file string) error {
 	var (
 		fileIO *os.File

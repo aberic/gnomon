@@ -99,7 +99,11 @@ func (r *RSACommon) GeneratePKCS8Key(bits int, path, priFileName, pubFileName st
 //
 // passwd 生成密码
 func (r *RSACommon) GeneratePKCS8KeyWithPass(bits int, path, priFileName, pubFileName, passwd string) error {
-	return r.GeneratePKCS8KeyWithPass(bits, path, priFileName, pubFileName, passwd)
+	privateKey, err := r.GeneratePKCS8PriKeyWithPass(bits, path, priFileName, passwd)
+	if nil != err {
+		return err
+	}
+	return r.GeneratePubKey(privateKey, path, pubFileName, pksC8)
 }
 
 // GeneratePKCS1PriKey RSA私钥产生（私钥PKCS1格式）
@@ -290,7 +294,7 @@ func (r *RSACommon) GeneratePubKeyBytes(privateKey []byte, path, fileName string
 //
 // pks 私钥格式，默认提供PKCS1和PKCS8，通过调用‘CryptoRSA().PKSC1()’和‘CryptoRSA().PKSC8()’方法赋值
 func (r *RSACommon) GeneratePubKeyBytesWithPass(privateKey []byte, passwd, path, fileName string, pks PKSCType) error {
-	pri, err := r.LoadPri(privateKey, passwd, pks)
+	pri, err := r.LoadPriWithPass(privateKey, passwd, pks)
 	if err != nil {
 		return err
 	}
@@ -378,7 +382,7 @@ func (r *RSACommon) Decrypt(privateKey, data []byte, pks PKSCType) ([]byte, erro
 //
 // pks 私钥格式，默认提供PKCS1和PKCS8，通过调用‘CryptoRSA().PKSC1()’和‘CryptoRSA().PKSC8()’方法赋值
 func (r *RSACommon) DecryptWithPass(privateKey, data []byte, passwd string, pks PKSCType) ([]byte, error) {
-	pri, err := r.LoadPri(privateKey, passwd, pks)
+	pri, err := r.LoadPriWithPass(privateKey, passwd, pks)
 	if err != nil {
 		return nil, err
 	}
@@ -444,7 +448,7 @@ func (r *RSACommon) Sign(privateKey, data []byte, hash crypto.Hash, pks PKSCType
 //
 // mod RSA签名模式，默认提供PSS和PKCS1v15，通过调用‘CryptoRSA().SignPss()’和‘CryptoRSA().SignPKCS()’方法赋值
 func (r *RSACommon) SignWithPass(privateKey, data []byte, passwd string, hash crypto.Hash, pks PKSCType, mod SignMode) ([]byte, error) {
-	pri, err := r.LoadPri(privateKey, passwd, pks)
+	pri, err := r.LoadPriWithPass(privateKey, passwd, pks)
 	if err != nil {
 		return nil, err
 	}
@@ -634,7 +638,7 @@ func (r *RSACommon) LoadPriFPWithPass(privateKeyFilePath, passwd string, pks PKS
 	if nil != err {
 		return nil, err
 	}
-	return r.LoadPri(bs, passwd, pks)
+	return r.LoadPriWithPass(bs, passwd, pks)
 }
 
 // LoadPubFP 加载公钥
@@ -652,10 +656,19 @@ func (r *RSACommon) LoadPubFP(publicKeyFilePath string) (*rsa.PublicKey, error) 
 //
 // privateKey 私钥内容，如取出字符串'priData'，则传入'string(priData)'即可
 //
+// pks 私钥格式，默认提供PKCS1和PKCS8，通过调用‘CryptoRSA().PKSC1()’和‘CryptoRSA().PKSC8()’方法赋值
+func (r *RSACommon) LoadPri(privateKey []byte, pks PKSCType) (*rsa.PrivateKey, error) {
+	return r.LoadPriWithPass(privateKey, "", pks)
+}
+
+// LoadPriWithPass 解析私钥
+//
+// privateKey 私钥内容，如取出字符串'priData'，则传入'string(priData)'即可
+//
 // passwd 生成privateKey时输入密码
 //
 // pks 私钥格式，默认提供PKCS1和PKCS8，通过调用‘CryptoRSA().PKSC1()’和‘CryptoRSA().PKSC8()’方法赋值
-func (r *RSACommon) LoadPri(privateKey []byte, passwd string, pks PKSCType) (*rsa.PrivateKey, error) {
+func (r *RSACommon) LoadPriWithPass(privateKey []byte, passwd string, pks PKSCType) (*rsa.PrivateKey, error) {
 	var (
 		pemData []byte
 		err     error
