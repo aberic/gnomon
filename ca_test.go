@@ -44,7 +44,7 @@ var (
 
 	caPriKeyFileName             = "rootCA.key" // ca 私钥
 	caCertificateRequestFileName = "rootCA.csr" // 证书签名请求文件
-	caCertificateFileName        = "rootCA.crt"
+	//caCertificateFileName        = "rootCA.crt"
 
 	errCA error
 )
