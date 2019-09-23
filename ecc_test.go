@@ -20,6 +20,7 @@ import (
 	"encoding/hex"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/crypto/ecies"
+	"io/ioutil"
 	"path/filepath"
 	"testing"
 )
@@ -73,39 +74,68 @@ func TestECCCommon_Generate(t *testing.T) {
 // curve 曲线生成类型，如 crypto.S256()/elliptic.P256()/elliptic.P384()/elliptic.P512()
 func TestECCCommon_GenerateKey(t *testing.T) {
 	if errECC = CryptoECC().GenerateKey(patheccs256, privateECCName, publicECCName, crypto.S256()); nil != errECC {
-		t.Skip(errECC)
+		t.Error(errECC)
 	}
 	if errECC = CryptoECC().GenerateKey(patheccp224, privateECCName, publicECCName, elliptic.P224()); nil != errECC {
-		t.Skip(errECC)
+		t.Error(errECC)
 	}
 	if errECC = CryptoECC().GenerateKey(patheccp256, privateECCName, publicECCName, elliptic.P256()); nil != errECC {
-		t.Skip(errECC)
+		t.Error(errECC)
 	}
 	if errECC = CryptoECC().GenerateKey(patheccp384, privateECCName, publicECCName, elliptic.P384()); nil != errECC {
-		t.Skip(errECC)
+		t.Error(errECC)
 	}
 
 	if errECC = CryptoECC().GeneratePriKey(patheccp521, privateECCName, elliptic.P521()); nil != errECC {
-		t.Skip(errECC)
+		t.Error(errECC)
 	}
 	if priKeyP521, errECC = CryptoECC().LoadPri(filepath.Join(patheccp521, privateECCName), elliptic.P521()); nil != errECC {
 		t.Error(errECC)
 	}
 	if errECC = CryptoECC().GeneratePubKey(priKeyP521, patheccp521, publicECCName, elliptic.P521()); nil != errECC {
-		t.Skip(errECC)
+		t.Error(errECC)
 	}
 
 	if errECC = CryptoECC().GeneratePemKey(patheccpemp224, privateECCName, publicECCName, elliptic.P224()); nil != errECC {
-		t.Skip(errECC)
+		t.Error(errECC)
 	}
+
+	if errECC = CryptoECC().GeneratePemPriKey(patheccpemp224, privateECCName, elliptic.P224()); nil != errECC {
+		t.Error(errECC)
+	}
+	dataECC, errECC = ioutil.ReadFile(filepath.Join(patheccpemp224, privateECCName))
+	if nil != errECC {
+		t.Error(errECC)
+	}
+	if priKeyP224, errECC = CryptoECC().LoadPriPem(dataECC); nil != errECC {
+		t.Error(errECC)
+	}
+	if errECC = CryptoECC().GeneratePemPubKey(priKeyP224, patheccpemp224, publicECCName); nil != errECC {
+		t.Error(errECC)
+	}
+
+	if errECC = CryptoECC().GeneratePemPriKeyWithPass(patheccpemp256, privateECCName, "123456", elliptic.P256()); nil != errECC {
+		t.Error(errECC)
+	}
+	dataECC, errECC = ioutil.ReadFile(filepath.Join(patheccpemp256, privateECCName))
+	if nil != errECC {
+		t.Error(errECC)
+	}
+	if priKeyP256, errECC = CryptoECC().LoadPriPemWithPass(dataECC, "123456"); nil != errECC {
+		t.Error(errECC)
+	}
+	if errECC = CryptoECC().GeneratePemPubKey(priKeyP256, patheccpemp256, publicECCName); nil != errECC {
+		t.Error(errECC)
+	}
+
 	if errECC = CryptoECC().GeneratePemKey(patheccpemp256, privateECCName, publicECCName, elliptic.P256()); nil != errECC {
-		t.Skip(errECC)
+		t.Error(errECC)
 	}
 
 	if errECC = CryptoECC().GeneratePemPriKeyWithPass(patheccpemp384, privateECCName, "123456", elliptic.P384()); nil != errECC {
 		t.Skip(errECC)
 	}
-	if priKeyP384, errECC = CryptoECC().LoadPriPemWithPass(filepath.Join(patheccpemp384, privateECCName), "123456"); nil != errECC {
+	if priKeyP384, errECC = CryptoECC().LoadPriPemFPWithPass(filepath.Join(patheccpemp384, privateECCName), "123456"); nil != errECC {
 		t.Error(errECC)
 	}
 	if errECC = CryptoECC().GeneratePemPubKey(priKeyP384, patheccpemp384, publicECCName); nil != errECC {
@@ -115,7 +145,7 @@ func TestECCCommon_GenerateKey(t *testing.T) {
 	if errECC = CryptoECC().GeneratePemPriKey(patheccpemp521, privateECCName, elliptic.P521()); nil != errECC {
 		t.Skip(errECC)
 	}
-	if priKeyP521, errECC = CryptoECC().LoadPriPem(filepath.Join(patheccpemp521, privateECCName)); nil != errECC {
+	if priKeyP521, errECC = CryptoECC().LoadPriPemFP(filepath.Join(patheccpemp521, privateECCName)); nil != errECC {
 		t.Error(errECC)
 	}
 	if errECC = CryptoECC().GeneratePemPubKey(priKeyP521, patheccpemp521, publicECCName); nil != errECC {
@@ -218,7 +248,7 @@ func TestCryptoECCPem_Crypt(t *testing.T) {
 	t.Log("加密前：", contentECC)
 	t.Log("=================================")
 
-	if priKeyP256, errECC = CryptoECC().LoadPriPem(filepath.Join(patheccpemp256, privateECCName)); nil != errECC {
+	if priKeyP256, errECC = CryptoECC().LoadPriPemFP(filepath.Join(patheccpemp256, privateECCName)); nil != errECC {
 		t.Error(errECC)
 	}
 	pri = ecies.ImportECDSA(priKeyP256)
@@ -292,7 +322,7 @@ func TestCryptoECCPem_CryptFile(t *testing.T) {
 		t.Error(errECC)
 	}
 	t.Log("加密后PemP256：", hex.EncodeToString(dataECCEncode))
-	if priKeyP256, errECC = CryptoECC().LoadPriPem(filepath.Join(patheccpemp256, privateECCName)); nil != errECC {
+	if priKeyP256, errECC = CryptoECC().LoadPriPemFP(filepath.Join(patheccpemp256, privateECCName)); nil != errECC {
 		t.Error(errECC)
 	}
 	pri = ecies.ImportECDSA(priKeyP256)
@@ -386,7 +416,7 @@ func TestCryptoECCPem_Sign(t *testing.T) {
 	t.Log("签名内容：", contentECC)
 	t.Log("=================================")
 
-	if priKeyP224, errECC = CryptoECC().LoadPriPem(filepath.Join(patheccpemp256, privateECCName)); nil != errECC {
+	if priKeyP224, errECC = CryptoECC().LoadPriPemFP(filepath.Join(patheccpemp256, privateECCName)); nil != errECC {
 		t.Error(errECC)
 	}
 	if signECCResult, errECC = CryptoECC().Sign(priKeyP224, []byte(contentECC)); nil != errECC {
@@ -406,7 +436,7 @@ func TestCryptoECCPem_Sign(t *testing.T) {
 	t.Log("=================================")
 	t.Log("=================================")
 
-	if priKeyP256, errECC = CryptoECC().LoadPriPem(filepath.Join(patheccpemp256, privateECCName)); nil != errECC {
+	if priKeyP256, errECC = CryptoECC().LoadPriPemFP(filepath.Join(patheccpemp256, privateECCName)); nil != errECC {
 		t.Error(errECC)
 	}
 	if signECCResult, errECC = CryptoECC().Sign(priKeyP256, []byte(contentECC)); nil != errECC {
@@ -426,7 +456,7 @@ func TestCryptoECCPem_Sign(t *testing.T) {
 	t.Log("=================================")
 	t.Log("=================================")
 
-	if priKeyP384, errECC = CryptoECC().LoadPriPemWithPass(filepath.Join(patheccpemp384, privateECCName), "123456"); nil != errECC {
+	if priKeyP384, errECC = CryptoECC().LoadPriPemFPWithPass(filepath.Join(patheccpemp384, privateECCName), "123456"); nil != errECC {
 		t.Error(errECC)
 	}
 	if signECCResult, errECC = CryptoECC().Sign(priKeyP384, []byte(contentECC)); nil != errECC {
@@ -446,7 +476,7 @@ func TestCryptoECCPem_Sign(t *testing.T) {
 	t.Log("=================================")
 	t.Log("=================================")
 
-	if priKeyP521, errECC = CryptoECC().LoadPriPem(filepath.Join(patheccpemp521, privateECCName)); nil != errECC {
+	if priKeyP521, errECC = CryptoECC().LoadPriPemFP(filepath.Join(patheccpemp521, privateECCName)); nil != errECC {
 		t.Error(errECC)
 	}
 	if signECCResult, errECC = CryptoECC().Sign(priKeyP521, []byte(contentECC)); nil != errECC {
@@ -589,7 +619,7 @@ func TestCryptoECCPem_Sign_File(t *testing.T) {
 	t.Log("签名内容：", contentECC)
 	t.Log("=================================")
 
-	if priKeyP224, errECC = CryptoECC().LoadPriPem(filepath.Join(patheccpemp224, privateECCName)); nil != errECC {
+	if priKeyP224, errECC = CryptoECC().LoadPriPemFP(filepath.Join(patheccpemp224, privateECCName)); nil != errECC {
 		t.Error(errECC)
 	}
 	if signECCResult, errECC = CryptoECC().Sign(priKeyP224, []byte(contentECC)); nil != errECC {
@@ -612,7 +642,7 @@ func TestCryptoECCPem_Sign_File(t *testing.T) {
 	t.Log("=================================")
 	t.Log("=================================")
 
-	if priKeyP256, errECC = CryptoECC().LoadPriPem(filepath.Join(patheccpemp256, privateECCName)); nil != errECC {
+	if priKeyP256, errECC = CryptoECC().LoadPriPemFP(filepath.Join(patheccpemp256, privateECCName)); nil != errECC {
 		t.Error(errECC)
 	}
 	if signECCResult, errECC = CryptoECC().Sign(priKeyP256, []byte(contentECC)); nil != errECC {
@@ -635,7 +665,7 @@ func TestCryptoECCPem_Sign_File(t *testing.T) {
 	t.Log("=================================")
 	t.Log("=================================")
 
-	if priKeyP384, errECC = CryptoECC().LoadPriPemWithPass(filepath.Join(patheccpemp384, privateECCName), "123456"); nil != errECC {
+	if priKeyP384, errECC = CryptoECC().LoadPriPemFPWithPass(filepath.Join(patheccpemp384, privateECCName), "123456"); nil != errECC {
 		t.Error(errECC)
 	}
 	if signECCResult, errECC = CryptoECC().Sign(priKeyP384, []byte(contentECC)); nil != errECC {
@@ -658,7 +688,7 @@ func TestCryptoECCPem_Sign_File(t *testing.T) {
 	t.Log("=================================")
 	t.Log("=================================")
 
-	if priKeyP521, errECC = CryptoECC().LoadPriPem(filepath.Join(patheccpemp521, privateECCName)); nil != errECC {
+	if priKeyP521, errECC = CryptoECC().LoadPriPemFP(filepath.Join(patheccpemp521, privateECCName)); nil != errECC {
 		t.Error(errECC)
 	}
 	if signECCResult, errECC = CryptoECC().Sign(priKeyP521, []byte(contentECC)); nil != errECC {

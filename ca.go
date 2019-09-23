@@ -24,6 +24,9 @@ import (
 	"crypto/x509/pkix"
 	"encoding/pem"
 	"math/big"
+	rd "math/rand"
+	"net"
+	"net/url"
 	"os"
 	"time"
 )
@@ -100,11 +103,20 @@ func (ca *CACommon) GenerateRSACertificateRequestFPWithPass(cert *CertRequestFP,
 	return ca.GenerateCertificateRequest(certModel)
 }
 
-// GenerateECCCertificateRequestFP 生成证书签名请求文件
+// GenerateECCCertificateRequest 生成证书签名请求文件
 //
 // cert 证书生成请求对象
-func (ca *CACommon) GenerateECCCertificateRequestFP(cert *CertRequestFP) (csr []byte, err error) {
-	priECCKey, err := CryptoECC().LoadPriPem(cert.PrivateKeyFilePath)
+func (ca *CACommon) GenerateECCCertificateRequest(cert *CertRequest) (csr []byte, err error) {
+	return ca.GenerateECCCertificateRequestWithPass(cert, "")
+}
+
+// GenerateECCCertificateRequestWithPass 生成证书签名请求文件
+//
+// cert 证书生成请求对象
+//
+// password 生成时输入的密码
+func (ca *CACommon) GenerateECCCertificateRequestWithPass(cert *CertRequest, password string) (csr []byte, err error) {
+	priECCKey, err := CryptoECC().LoadPriPemWithPass(cert.PrivateKeyData, password)
 	if err != nil {
 		return nil, err
 	}
@@ -113,13 +125,20 @@ func (ca *CACommon) GenerateECCCertificateRequestFP(cert *CertRequestFP) (csr []
 	return ca.GenerateCertificateRequest(certModel)
 }
 
+// GenerateECCCertificateRequestFP 生成证书签名请求文件
+//
+// cert 证书生成请求对象
+func (ca *CACommon) GenerateECCCertificateRequestFP(cert *CertRequestFP) (csr []byte, err error) {
+	return ca.GenerateECCCertificateRequestFPWithPass(cert, "")
+}
+
 // GenerateECCCertificateRequestFPWithPass 生成证书签名请求文件
 //
 // cert 证书生成请求对象
 //
 // password 生成时输入的密码
 func (ca *CACommon) GenerateECCCertificateRequestFPWithPass(cert *CertRequestFP, password string) (csr []byte, err error) {
-	priECCKey, err := CryptoECC().LoadPriPemWithPass(cert.PrivateKeyFilePath, password)
+	priECCKey, err := CryptoECC().LoadPriPemFPWithPass(cert.PrivateKeyFilePath, password)
 	if err != nil {
 		return nil, err
 	}
@@ -151,19 +170,16 @@ func (ca *CACommon) GenerateCertificateRequest(cert *CertRequestModel) (csr []by
 //
 // cert 签名数字证书对象
 func (ca *CACommon) GenerateCertificate(cert *Cert) (certData []byte, err error) {
-	bigInt, err := rand.Int(rand.Reader, big.NewInt(time.Now().Unix()))
-	if nil != err {
-		return nil, err
-	}
 	template := &x509.Certificate{
-		SerialNumber:          bigInt,
+		SerialNumber:          big.NewInt(rd.Int63()), // 证书序列号
 		Subject:               cert.Subject,
-		NotBefore:             time.Now().Add(cert.NotBeforeDays * 24 * time.Hour),
-		NotAfter:              time.Now().Add(cert.NotAfterDays * 24 * time.Hour),
-		BasicConstraintsValid: true,
-		IsCA:                  true,
-		SignatureAlgorithm:    x509.SHA1WithRSA, // 签名算法选择SHA1WithRSA
-		KeyUsage:              x509.KeyUsageCertSign | x509.KeyUsageCRLSign | x509.KeyUsageDataEncipherment,
+		NotBefore:             cert.NotBeforeDays,
+		NotAfter:              cert.NotAfterDays,
+		BasicConstraintsValid: cert.BasicConstraintsValid,
+		IsCA:                  cert.IsCA,
+		SignatureAlgorithm:    cert.SignatureAlgorithm,
+		ExtKeyUsage:           cert.ExtKeyUsage,
+		KeyUsage:              cert.KeyUsage,
 		SubjectKeyId:          []byte{1, 2, 3},
 	}
 	certData, err = x509.CreateCertificate(rand.Reader, template, template, cert.PublicKey, cert.PrivateKey)
@@ -191,10 +207,15 @@ func (ca *CACommon) GenerateCertificate(cert *Cert) (certData []byte, err error)
 
 // Cert 签名数字证书对象
 type Cert struct {
-	CertificateFilePath         string        // 签名后数字证书文件存储路径
-	Subject                     pkix.Name     // Subject 签名信息
-	PrivateKey, PublicKey       interface{}   // 公私钥
-	NotBeforeDays, NotAfterDays time.Duration // 在指定时间之后生效及之前失效
+	CertificateFilePath         string                  // 签名后数字证书文件存储路径
+	Subject                     pkix.Name               // Subject 签名信息
+	PrivateKey, PublicKey       interface{}             // 公私钥
+	BasicConstraintsValid       bool                    // 基本的有效性约束
+	IsCA                        bool                    // 是否是根证书
+	NotBeforeDays, NotAfterDays time.Time               // 在指定时间之后生效及之前失效
+	ExtKeyUsage                 []x509.ExtKeyUsage      // ExtKeyUsage表示对给定键有效的扩展操作集。每个ExtKeyUsage*常量定义一个惟一的操作。
+	KeyUsage                    x509.KeyUsage           // KeyUsage表示对给定密钥有效的操作集。它是KeyUsage*常量的位图。
+	SignatureAlgorithm          x509.SignatureAlgorithm // signatureAlgorithm 生成证书时候采用的签名算法
 }
 
 // CertRequest 证书生成请求对象
@@ -203,12 +224,20 @@ type CertRequest struct {
 	CertificateRequestFilePath string                  // certificateFilePath 指定生成的证书签名请求文件路径，如'/etc/rootCA.csr'
 	SignatureAlgorithm         x509.SignatureAlgorithm // signatureAlgorithm 生成证书时候采用的签名算法
 	Subject                    pkix.Name               // Subject 签名信息
+	DNSNames                   []string                // DNSNames DNS限制
+	EmailAddresses             []string                // EmailAddresses 邮箱地址限制
+	IPAddresses                []net.IP                // IPAddresses IP地址限制
+	URIs                       []*url.URL              // URIs URL地址限制
 }
 
 func (cert *CertRequest) init() *CertRequestModel {
 	temp := &x509.CertificateRequest{
 		SignatureAlgorithm: cert.SignatureAlgorithm,
 		Subject:            cert.Subject,
+		DNSNames:           cert.DNSNames,
+		EmailAddresses:     cert.EmailAddresses,
+		IPAddresses:        cert.IPAddresses,
+		URIs:               cert.URIs,
 	}
 	return &CertRequestModel{
 		CertificateRequestFilePath: cert.CertificateRequestFilePath,
@@ -222,12 +251,20 @@ type CertRequestFP struct {
 	CertificateRequestFilePath string                  // certificateFilePath 指定生成的证书签名请求文件路径，如'/etc/rootCA.csr'
 	SignatureAlgorithm         x509.SignatureAlgorithm // signatureAlgorithm 生成证书时候采用的签名算法
 	Subject                    pkix.Name               // Subject 签名信息
+	DNSNames                   []string                // DNSNames DNS限制
+	EmailAddresses             []string                // EmailAddresses 邮箱地址限制
+	IPAddresses                []net.IP                // IPAddresses IP地址限制
+	URIs                       []*url.URL              // URIs URL地址限制
 }
 
 func (cert *CertRequestFP) init() *CertRequestModel {
 	temp := &x509.CertificateRequest{
 		SignatureAlgorithm: cert.SignatureAlgorithm,
 		Subject:            cert.Subject,
+		DNSNames:           cert.DNSNames,
+		EmailAddresses:     cert.EmailAddresses,
+		IPAddresses:        cert.IPAddresses,
+		URIs:               cert.URIs,
 	}
 	return &CertRequestModel{
 		CertificateRequestFilePath: cert.CertificateRequestFilePath,

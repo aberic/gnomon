@@ -293,19 +293,55 @@ func (e *ECCCommon) SavePriPemWithPass(privateKey *ecdsa.PrivateKey, passwd, fil
 	return nil
 }
 
-// LoadPriPem 从文件中加载私钥
+// LoadPriPem 解析私钥
 //
-// file 文件路径
-func (e *ECCCommon) LoadPriPem(file string) (*ecdsa.PrivateKey, error) {
-	return e.LoadPriPemWithPass(file, "")
+// privateKey 私钥内容，如取出字符串'priData'，则传入'string(priData)'即可
+func (e *ECCCommon) LoadPriPem(privateKey []byte) (*ecdsa.PrivateKey, error) {
+	return e.LoadPriPemWithPass(privateKey, "")
 }
 
-// LoadPriPemWithPass 从文件中加载私钥
+// LoadPriPemWithPass 解析私钥
+//
+// privateKey 私钥内容，如取出字符串'priData'，则传入'string(priData)'即可
+//
+// passwd 生成privateKey时输入密码
+func (e *ECCCommon) LoadPriPemWithPass(privateKey []byte, passwd string) (*ecdsa.PrivateKey, error) {
+	var (
+		pemData []byte
+		err     error
+	)
+	if String().IsEmpty(passwd) {
+		pemData, err = e.pemParse(privateKey, privateECCKeyPemType)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		block, _ := pem.Decode(privateKey)
+		pemData, err = x509.DecryptPEMBlock(block, []byte(passwd))
+		if err != nil {
+			return nil, err
+		}
+	}
+	pri, err := x509.ParseECPrivateKey(pemData)
+	if nil != err {
+		return nil, err
+	}
+	return pri, nil
+}
+
+// LoadPriPemFP 从文件中加载私钥
+//
+// file 文件路径
+func (e *ECCCommon) LoadPriPemFP(file string) (*ecdsa.PrivateKey, error) {
+	return e.LoadPriPemFPWithPass(file, "")
+}
+
+// LoadPriPemFPWithPass 从文件中加载私钥
 //
 // file 文件路径
 //
 // passwd 生成privateKey时输入密码
-func (e *ECCCommon) LoadPriPemWithPass(file, passwd string) (*ecdsa.PrivateKey, error) {
+func (e *ECCCommon) LoadPriPemFPWithPass(file, passwd string) (*ecdsa.PrivateKey, error) {
 	var (
 		pemData []byte
 		err     error

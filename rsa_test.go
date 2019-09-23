@@ -16,6 +16,7 @@ package gnomon
 
 import (
 	"crypto"
+	"crypto/rsa"
 	"encoding/hex"
 	"testing"
 )
@@ -32,6 +33,9 @@ var (
 	pathrsapksc82048 = "./tmp/example/rsa/pksc8/2048"
 	privateRSAName   = "private.pem"
 	publicRSAName    = "public.pem"
+
+	priRSAKey *rsa.PrivateKey
+	//pubRSAKey *rsa.PublicKey
 
 	dataRSA       []byte
 	dataRSAEncode []byte
