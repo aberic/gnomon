@@ -17,6 +17,7 @@ package gnomon
 
 import (
 	"errors"
+	"sync"
 	"testing"
 	"time"
 )
@@ -31,44 +32,49 @@ func logDo() {
 	Log().Error("test", Log().Field("1", "2"), Log().Field("2", 3), Log().Field("3", true), Log().Err(errors.New("yes")))
 }
 
+func TestLogCommon_Fail(t *testing.T) {
+	t.Log(Log().Init("/etc/log", 1, 1, false))
+}
+
 func TestLogCommon_Debug(t *testing.T) {
-	Log().Init("", 1, 1, false)
+	_ = Log().Init("", 1, 1, false)
 	Log().Set(Log().DebugLevel(), false)
 	logDo()
 }
 
 func TestLogCommon_Info(t *testing.T) {
-	Log().Init(logDir, 1, 1, true)
+	Log().once = sync.Once{}
+	_ = Log().Init(logDir, 1, 1, true)
 	Log().Set(Log().InfoLevel(), false)
 	logDo()
 }
 
 func TestLogCommon_Warn(t *testing.T) {
-	Log().Init(logDir, 1, 1, true)
+	_ = Log().Init(logDir, 1, 1, true)
 	Log().Set(Log().WarnLevel(), false)
 	logDo()
 }
 
 func TestLogCommon_Error(t *testing.T) {
-	Log().Init(logDir, 1, 1, false)
+	_ = Log().Init(logDir, 1, 1, false)
 	Log().Set(Log().ErrorLevel(), false)
 	logDo()
 }
 
 func TestLogCommon_Panic(t *testing.T) {
-	Log().Init(logDir, 1, 1, false)
+	_ = Log().Init(logDir, 1, 1, false)
 	Log().Set(Log().PanicLevel(), false)
 	logDo()
 }
 
 func TestLogCommon_Fatal(t *testing.T) {
-	Log().Init(logDir, 1, 1, false)
+	_ = Log().Init(logDir, 1, 1, false)
 	Log().Set(Log().FatalLevel(), false)
 	logDo()
 }
 
 func TestLogCommon_Fatal_BigStorage(t *testing.T) {
-	Log().Init(logDir, 1, 1, false)
+	_ = Log().Init(logDir, 1, 1, false)
 	Log().Set(debugLevel, true)
 	for i := 0; i < 100000; i++ {
 		go Log().Debug("test", Log().Field("i", i), Log().Field("str", "str"), Log().Field("3", true))

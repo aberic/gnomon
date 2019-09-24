@@ -87,14 +87,16 @@ type LogCommon struct {
 // compress 是否压缩
 //
 // utc CST & UTC 时间
-func (l *LogCommon) Init(logDir string, maxSize, maxAge int, utc bool) {
+func (l *LogCommon) Init(logDir string, maxSize, maxAge int, utc bool) error {
 	l.Info("log service init")
+	var errInit error
 	l.once.Do(func() {
 		if String().IsEmpty(logDir) {
 			logDir = "./tmp/log"
 		}
 		if err := os.MkdirAll(logDir, os.ModePerm); nil != err {
-			l.Panic("log service init error", Log().Err(err))
+			l.Error("log service init error", Log().Err(err))
+			errInit = err
 			return
 		}
 		l.mkRootDirSuccess = true
@@ -121,6 +123,7 @@ func (l *LogCommon) Init(logDir string, maxSize, maxAge int, utc bool) {
 		l.job = cron.New()
 		go l.checkMaxAge()
 	})
+	return errInit
 }
 
 // checkMaxAge 遍历并检查文件是否达到保存天数，达到则删除

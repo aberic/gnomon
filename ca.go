@@ -166,10 +166,10 @@ func (ca *CACommon) GenerateCertificateRequest(cert *CertRequestModel) (csr []by
 	return csrData, nil
 }
 
-// GenerateCertificate 对签名请求进行处理并生成签名数字证书
+// GenerateCertificateSelf 对签名请求进行处理并生成自签名数字证书
 //
 // cert 签名数字证书对象
-func (ca *CACommon) GenerateCertificate(cert *Cert) (certData []byte, err error) {
+func (ca *CACommon) GenerateCertificateSelf(cert *CertSelf) (certData []byte, err error) {
 	template := &x509.Certificate{
 		SerialNumber:          big.NewInt(rd.Int63()), // 证书序列号
 		Subject:               cert.Subject,
@@ -202,11 +202,48 @@ func (ca *CACommon) GenerateCertificate(cert *Cert) (certData []byte, err error)
 		return nil, err
 	}
 	return certData, nil
-
 }
 
-// Cert 签名数字证书对象
-type Cert struct {
+// GenerateCertificate 对签名请求进行处理并生成签名数字证书
+//
+// cert 签名数字证书对象
+func (ca *CACommon) GenerateCertificate(cert *Cert) (certData []byte, err error) {
+	template := &x509.Certificate{
+		SerialNumber:          big.NewInt(rd.Int63()), // 证书序列号
+		Subject:               cert.Subject,
+		NotBefore:             cert.NotBeforeDays,
+		NotAfter:              cert.NotAfterDays,
+		BasicConstraintsValid: cert.BasicConstraintsValid,
+		IsCA:                  cert.IsCA,
+		SignatureAlgorithm:    cert.SignatureAlgorithm,
+		ExtKeyUsage:           cert.ExtKeyUsage,
+		KeyUsage:              cert.KeyUsage,
+		SubjectKeyId:          []byte{1, 2, 3},
+	}
+	certData, err = x509.CreateCertificate(rand.Reader, template, cert.ParentCert, cert.PublicKey, cert.PrivateKey)
+	if err != nil {
+		return nil, err
+	}
+	path := File().ParentPath(cert.CertificateFilePath)
+	// 创建生成目录
+	if !File().PathExists(path) {
+		if err = os.MkdirAll(path, os.ModePerm); nil != err {
+			return nil, err
+		}
+	}
+	fileIO, err := os.OpenFile(cert.CertificateFilePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
+	if nil != err {
+		return nil, err
+	}
+	// 将block的PEM编码写入fileIO
+	if err = pem.Encode(fileIO, &pem.Block{Type: certificateType, Bytes: certData}); nil != err {
+		return nil, err
+	}
+	return certData, nil
+}
+
+// CertSelf 自签名数字证书对象
+type CertSelf struct {
 	CertificateFilePath         string                  // 签名后数字证书文件存储路径
 	Subject                     pkix.Name               // Subject 签名信息
 	PrivateKey, PublicKey       interface{}             // 公私钥
@@ -216,6 +253,12 @@ type Cert struct {
 	ExtKeyUsage                 []x509.ExtKeyUsage      // ExtKeyUsage表示对给定键有效的扩展操作集。每个ExtKeyUsage*常量定义一个惟一的操作。
 	KeyUsage                    x509.KeyUsage           // KeyUsage表示对给定密钥有效的操作集。它是KeyUsage*常量的位图。
 	SignatureAlgorithm          x509.SignatureAlgorithm // signatureAlgorithm 生成证书时候采用的签名算法
+}
+
+// Cert 签名数字证书对象
+type Cert struct {
+	ParentCert *x509.Certificate // 父证书对象
+	CertSelf
 }
 
 // CertRequest 证书生成请求对象

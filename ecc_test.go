@@ -151,16 +151,31 @@ func TestECCCommon_GenerateKey(t *testing.T) {
 	if errECC = CryptoECC().GeneratePemPubKey(priKeyP521, patheccpemp521, publicECCName); nil != errECC {
 		t.Skip(errECC)
 	}
+
+	t.Log(CryptoECC().SavePriPem(priKeyP521, filepath.Join(patheccpemp521, "test.pem")))
+	t.Log(CryptoECC().SavePriPem(priKeyP521, filepath.Join("/etc/ecc", "test.pem")))
 }
 
-func TestECCCommon_GenerateKey_FailPathExists(t *testing.T) {
+func TestECCCommon_GenerateKey_FailPathPermissionDenied(t *testing.T) {
 	if errECC = CryptoECC().GenerateKey("/etc/test", privateECCName, publicECCName, crypto.S256()); nil != errECC {
 		t.Skip(errECC)
 	}
 }
 
-func TestECCCommon_GeneratePemKey_FailPathExists(t *testing.T) {
+func TestECCCommon_GeneratePriKey_FailPathPermissionDenied(t *testing.T) {
+	if errECC = CryptoECC().GeneratePriKey("/etc/test", privateECCName, crypto.S256()); nil != errECC {
+		t.Skip(errECC)
+	}
+}
+
+func TestECCCommon_GeneratePemKey_FailPathPermissionDenied(t *testing.T) {
 	if errECC = CryptoECC().GeneratePemKey("/etc/test", privateECCName, publicECCName, crypto.S256()); nil != errECC {
+		t.Skip(errECC)
+	}
+}
+
+func TestECCCommon_GeneratePemPriKey_FailPathPermissionDenied(t *testing.T) {
+	if errECC = CryptoECC().GeneratePemPriKey("/etc/test", privateECCName, crypto.S256()); nil != errECC {
 		t.Skip(errECC)
 	}
 }
@@ -171,10 +186,84 @@ func TestECCCommon_GenerateKey_FailCreate(t *testing.T) {
 	}
 }
 
+func TestECCCommon_GeneratePriKey_FailCreate(t *testing.T) {
+	if errECC = CryptoECC().GeneratePriKey("/etc", privateECCName, crypto.S256()); nil != errECC {
+		t.Skip(errECC)
+	}
+}
+
 func TestECCCommon_GeneratePemKey_FailCreate(t *testing.T) {
 	if errECC = CryptoECC().GeneratePemKey("/etc", privateECCName, publicECCName, crypto.S256()); nil != errECC {
 		t.Skip(errECC)
 	}
+}
+
+func TestECCCommon_GeneratePemPriKey_FailCreate(t *testing.T) {
+	if errECC = CryptoECC().GeneratePemPriKey("/etc", privateECCName, crypto.S256()); nil != errECC {
+		t.Skip(errECC)
+	}
+}
+
+func TestECCCommon_GeneratePubKey_Fail(t *testing.T) {
+	if errECC = CryptoECC().GeneratePriKey(patheccp521, privateECCName, elliptic.P521()); nil != errECC {
+		t.Skip(errECC)
+	}
+	if priKeyP521, errECC = CryptoECC().LoadPri(filepath.Join(patheccp521, privateECCName), elliptic.P521()); nil != errECC {
+		t.Error(errECC)
+	}
+	t.Log(CryptoECC().GeneratePubKey(priKeyP521, "/etc/ecc", publicECCName, elliptic.P521()))
+}
+
+func TestECCCommon_GeneratePemPubKey_Fail(t *testing.T) {
+	if errECC = CryptoECC().GeneratePemPriKey(patheccpemp521, privateECCName, elliptic.P521()); nil != errECC {
+		t.Skip(errECC)
+	}
+	if priKeyP521, errECC = CryptoECC().LoadPriPemFP(filepath.Join(patheccpemp521, privateECCName)); nil != errECC {
+		t.Error(errECC)
+	}
+	t.Log(CryptoECC().GeneratePemPubKey(priKeyP521, "/etc/ecc", publicECCName))
+	t.Log(CryptoECC().SavePubPem("/etc/ecc", &priKeyP521.PublicKey))
+}
+
+func TestECCCommon_LoadPri_Fail(t *testing.T) {
+	if priKeyS256, errECC = CryptoECC().LoadPri(filepath.Join(patheccs256, "test.ha"), crypto.S256()); nil != errECC {
+		t.Log(errECC)
+	}
+}
+
+func TestECCCommon_LoadPub_Fail1(t *testing.T) {
+	if _, errECC = CryptoECC().LoadPub("/etc/ecc", elliptic.P224()); nil != errECC {
+		t.Log(errECC)
+	}
+}
+
+func TestECCCommon_LoadPubPem_Fail1(t *testing.T) {
+	if _, errECC = CryptoECC().LoadPubPem("/etc/ecc"); nil != errECC {
+		t.Log(errECC)
+	}
+}
+
+func TestECCCommon_LoadPubPem_Fail2(t *testing.T) {
+	if _, errECC = CryptoECC().LoadPubPem(filepath.Join(patheccs256, publicECCName)); nil != errECC {
+		t.Log(errECC)
+	}
+}
+
+func TestECCCommon_PubKey2Bytes_Fail(t *testing.T) {
+	t.Log(CryptoECC().PubKey2Bytes(&ecdsa.PublicKey{}, elliptic.P224()))
+}
+
+func TestECCCommon_Bytes2PubKey_Fail(t *testing.T) {
+	_, errECC = CryptoECC().Bytes2PubKey([]byte{}, elliptic.P224())
+	t.Log(errECC)
+}
+
+func TestECCCommon_Verify_Fail(t *testing.T) {
+	if priKeyP384, errECC = CryptoECC().LoadPriPemFPWithPass(filepath.Join(patheccpemp384, privateECCName), "123456"); nil != errECC {
+		t.Error(errECC)
+	}
+	_, errECC = CryptoECC().Verify(&priKeyP384.PublicKey, []byte("yes"), []byte{})
+	t.Log(errECC)
 }
 
 func TestCryptoECC_Crypt(t *testing.T) {
@@ -218,11 +307,11 @@ func TestCryptoECC_Crypt(t *testing.T) {
 	}
 	pri = ecies.ImportECDSA(priKeyP384)
 	if dataECCEncode, errECC = CryptoECC().Encrypt([]byte(contentECC), &pri.PublicKey); nil != errECC {
-		t.Skip(errECC)
+		t.Log(errECC)
 	}
 	t.Log("加密后P384：", hex.EncodeToString(dataECCEncode))
 	if dataECC, errECC = CryptoECC().Decrypt(dataECCEncode, pri); nil != errECC {
-		t.Skip(errECC)
+		t.Log(errECC)
 	}
 	t.Log("解密后P384：", string(dataECC))
 	t.Log("=================================")
@@ -234,11 +323,11 @@ func TestCryptoECC_Crypt(t *testing.T) {
 	}
 	pri = ecies.ImportECDSA(priKeyP521)
 	if dataECCEncode, errECC = CryptoECC().Encrypt([]byte(contentECC), &pri.PublicKey); nil != errECC {
-		t.Skip(errECC)
+		t.Log(errECC)
 	}
 	t.Log("加密后P521：", hex.EncodeToString(dataECCEncode))
 	if dataECC, errECC = CryptoECC().Decrypt(dataECCEncode, pri); nil != errECC {
-		t.Skip(errECC)
+		t.Log(errECC)
 	}
 	t.Log("解密后P521：", string(dataECC))
 	t.Log("=================================")

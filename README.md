@@ -33,6 +33,7 @@ gnomon.CryptoRSA(). … // RSA
 gnomon.CryptoECC(). … // ECC
 gnomon.CryptoAES(). … // AES
 gnomon.CryptoDES(). … // DES
+gnomon.CA(). … // CA
 gnomon.Log(). … // 日志
 gnomon.Scale(). … // 算数/转换
 gnomon.Time(). … // 时间

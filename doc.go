@@ -40,6 +40,8 @@
 //
 // gnomon.CryptoDES(). … // DES
 //
+// gnomon.CA(). … // CA
+//
 // gnomon.Log(). … // 日志
 //
 // gnomon.Scale(). … // 算数/转换
