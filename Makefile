@@ -1,6 +1,9 @@
 PKGS_WITH_OUT_EXAMPLES := $(shell go list ./... | grep -v 'examples/')
 PKGS_WITH_OUT_EXAMPLES_AND_UTILS := $(shell go list ./... | grep -v 'examples/\|utils/')
-GO_FILES := $(shell find . -name "*.go" -not -path "./vendor/*" -not -path ".git/*" -print0 | xargs -0)
+GO_FILES := $(shell find . -name "*.go" -not -name "*_test.go" -not -path "./vendor/*" -not -path ".git/*" -print0 | xargs -0)
+
+export GOPROXY=https://goproxy.io
+export GO111MODULE=on
 
 checkTravis: overalls vet lint misspell staticcheck cyclo const veralls test
 
@@ -28,7 +31,7 @@ staticcheck:
 
 cyclo:
 	@echo "gocyclo"
-#	gocyclo -over 18 $(GO_FILES)
+	gocyclo -over 15 $(GO_FILES)
 	gocyclo -top 10 $(GO_FILES)
 
 const:

@@ -449,7 +449,9 @@ func (r *RSACommon) SignFPWithPass(privateKeyPath, passwd string, data []byte, h
 // hash 算法，如 crypto.SHA1/crypto.SHA256等
 func (r *RSACommon) signPSS(privateKey *rsa.PrivateKey, data []byte, hash crypto.Hash) ([]byte, error) {
 	h := hash.New()
-	h.Write(data)
+	if _, err := h.Write(data); nil != err {
+		return nil, err
+	}
 	hashed := h.Sum(nil)
 	return rsa.SignPSS(rand.Reader, privateKey, hash, hashed, nil)
 }
