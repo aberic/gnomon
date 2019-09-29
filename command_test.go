@@ -17,23 +17,23 @@ package gnomon
 import "testing"
 
 func TestCommandCommon_ExecCommand(t *testing.T) {
-	if line, strArr, err := Command().ExecCommand("ls", "-l"); err != nil {
+	if line, cmd, strArr, err := Command().ExecCommand("ls", "-l"); err != nil {
 		t.Skip(err)
 	} else {
-		t.Log("line =", line, ", strArr =", strArr)
+		t.Log("line =", line, ", strArr =", strArr, ", pid =", cmd.Process.Pid)
 	}
 
-	_, _, err := Command().ExecCommand("lss", "-l")
+	_, _, _, err := Command().ExecCommand("lss", "-l")
 	t.Skip(err)
 }
 
 func TestCommandCommon_ExecCommandTail(t *testing.T) {
-	if line, strArr, err := Command().ExecCommandTail("ls", "-l"); err != nil {
+	if line, cmd, strArr, err := Command().ExecCommandTail("ls", "-l"); err != nil {
 		t.Skip(err)
 	} else {
-		t.Log("line =", line, ", strArr =", strArr)
+		t.Log("line =", line, ", strArr =", strArr, ", pid =", cmd.Process.Pid)
 	}
 
-	_, _, err := Command().ExecCommandTail("lss", "-l")
+	_, _, _, err := Command().ExecCommandTail("lss", "-l")
 	t.Skip(err)
 }

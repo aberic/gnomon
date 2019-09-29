@@ -33,21 +33,18 @@ type CommandCommon struct{}
 //
 // 命令后续参数以字符串数组的方式传入
 //
-// 返回值
+// line 执行命令后输出总行数
 //
-// int 执行命令后输出总行数
+// cmd cmd对象
 //
-// []string 执行命令后输出内容按行放入字符串数组
-func (c *CommandCommon) ExecCommand(commandName string, params ...string) (int, []string, error) {
+// contentArray 执行命令后输出内容按行放入字符串数组
+func (c *CommandCommon) ExecCommand(commandName string, params ...string) (line int, cmd *exec.Cmd, contentArray []string, err error) {
 	var (
-		err          error
-		stdout       io.ReadCloser
-		stderr       io.ReadCloser
-		bytesErr     []byte
-		line         int
-		contentArray []string
+		stdout   io.ReadCloser
+		stderr   io.ReadCloser
+		bytesErr []byte
 	)
-	cmd := exec.Command(commandName, params...)
+	cmd = exec.Command(commandName, params...)
 	//显示运行的命令
 	Log().Debug("ExecCommand", Log().Field("cmd", strings.Join([]string{commandName, strings.Join(cmd.Args[1:], " ")}, " ")))
 	if stdout, err = cmd.StdoutPipe(); err != nil {
@@ -89,24 +86,29 @@ func (c *CommandCommon) ExecCommand(commandName string, params ...string) (int, 
 		if err = cmd.Wait(); nil != err {
 			goto ERR
 		}
-		return line, contentArray, nil
+		return line, cmd, contentArray, nil
 	}
 ERR:
 	Log().Error("ExecCommand", Log().Err(err))
-	return 0, nil, err
+	return 0, nil, nil, err
 }
 
 // ExecCommandTail 实时打印执行脚本过程中的命令
-func (c *CommandCommon) ExecCommandTail(commandName string, params ...string) (int, []string, error) {
+//
+// 命令后续参数以字符串数组的方式传入
+//
+// line 执行命令后输出总行数
+//
+// cmd cmd对象
+//
+// contentArray 执行命令后输出内容按行放入字符串数组
+func (c *CommandCommon) ExecCommandTail(commandName string, params ...string) (line int, cmd *exec.Cmd, contentArray []string, err error) {
 	var (
-		err          error
-		stdout       io.ReadCloser
-		stderr       io.ReadCloser
-		bytesErr     []byte
-		line         int
-		contentArray []string
+		stdout   io.ReadCloser
+		stderr   io.ReadCloser
+		bytesErr []byte
 	)
-	cmd := exec.Command(commandName, params...)
+	cmd = exec.Command(commandName, params...)
 	//显示运行的命令
 	Log().Debug("ExecCommandTail", Log().Field("cmd", strings.Join([]string{commandName, strings.Join(cmd.Args[1:], " ")}, " ")))
 	if stdout, err = cmd.StdoutPipe(); err != nil {
@@ -143,9 +145,9 @@ func (c *CommandCommon) ExecCommandTail(commandName string, params ...string) (i
 		if err = cmd.Wait(); nil != err {
 			goto ERR
 		}
-		return line, contentArray, nil
+		return line, cmd, contentArray, nil
 	}
 ERR:
 	Log().Error("ExecCommand", Log().Err(err))
-	return 0, nil, err
+	return 0, nil, nil, err
 }

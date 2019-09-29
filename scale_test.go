@@ -252,6 +252,18 @@ func TestScaleDDuo(t *testing.T) {
 	ui64Str := Scale().Uint64ToDDuoString(ui64)
 	Log().Debug("ui64", Log().Field("92873890910928019", ui64Str))
 	Log().Debug("ui64", Log().Field("92873890910928019", Scale().DDuoStringToUint64(ui64Str)))
+
+	ui64 = 18446744073709551615
+	ui64Str = Scale().Uint64ToDDuoString(ui64)
+	Log().Debug("ui64", Log().Field("18446744073709551615", ui64Str))
+	Log().Debug("ui64", Log().Field("18446744073709551615", Scale().DDuoStringToUint64(ui64Str)))
+
+	for i := 0; i < 100000; i++ {
+		ui64Str = Scale().Uint64ToDDuoString(ui64)
+		Scale().DDuoStringToUint64(ui64Str)
+		//Log().Debug("ui64", Log().Field("18446744073709551615", ui64Str))
+		//Log().Debug("ui64", Log().Field("18446744073709551615", Scale().DDuoStringToUint64(ui64Str)))
+	}
 }
 
 func TestScaleLen(t *testing.T) {
