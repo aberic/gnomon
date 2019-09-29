@@ -151,3 +151,72 @@ ERR:
 	Log().Error("ExecCommand", Log().Err(err))
 	return 0, nil, nil, err
 }
+
+type CommandAsync struct {
+	command *exec.Cmd
+	tail    string
+	err     error
+}
+
+// ExecCommandAsync 异步执行cmd命令
+//
+// commandAsync CommandAsync通道对象
+//
+// commandName 命令执行文件名
+//
+// 命令后续参数以字符串数组的方式传入
+func (c *CommandCommon) ExecCommandAsync(commandAsync chan *CommandAsync, commandName string, params ...string) {
+	var (
+		stdout   io.ReadCloser
+		stderr   io.ReadCloser
+		bytesErr []byte
+		err      error
+	)
+	ca := &CommandAsync{}
+	cmd := exec.Command(commandName, params...)
+	ca.command = cmd
+	commandAsync <- ca
+	//显示运行的命令
+	Log().Debug("ExecCommandAsync", Log().Field("cmd", strings.Join([]string{commandName, strings.Join(cmd.Args[1:], " ")}, " ")))
+	if stdout, err = cmd.StdoutPipe(); err != nil {
+		goto ERR
+	} else {
+		if stderr, err = cmd.StderrPipe(); err != nil {
+			goto ERR
+		}
+		// Start开始执行c包含的命令，但并不会等待该命令完成即返回。Wait方法会返回命令的返回状态码并在命令返回后释放相关的资源。
+		if err = cmd.Start(); nil != err {
+			goto ERR
+		}
+
+		if bytesErr, err = ioutil.ReadAll(stderr); err != nil {
+			goto ERR
+		} else if len(bytesErr) != 0 {
+			err = errors.New(string(bytesErr))
+			goto ERR
+		}
+
+		reader := bufio.NewReader(stdout)
+
+		//实时循环读取输出流中的一行内容
+		for {
+			lineStr, err2 := reader.ReadString('\n')
+			if err2 != nil || io.EOF == err2 {
+				ca.tail = lineStr
+				commandAsync <- ca
+				break
+			}
+			ca.tail = lineStr
+			commandAsync <- ca
+		}
+		ca.tail = "OFF"
+		commandAsync <- ca
+		if err = cmd.Wait(); nil != err {
+			goto ERR
+		}
+	}
+ERR:
+	Log().Error("ExecCommandAsync", Log().Err(err))
+	ca.err = err
+	commandAsync <- ca
+}
