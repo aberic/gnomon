@@ -152,6 +152,7 @@ ERR:
 	return 0, nil, nil, err
 }
 
+// CommandAsync 异步命令执行归属通道对象
 type CommandAsync struct {
 	command *exec.Cmd
 	tail    string

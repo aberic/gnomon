@@ -43,36 +43,37 @@ func TestCommandCommon_ExecCommandAsync(t *testing.T) {
 	var keep bool
 	go Command().ExecCommandAsync(commandAsync, "ls", "-l")
 	keep = true
-	for keep {
-		select {
-		case ca := <-commandAsync:
-			if nil != ca.err {
-				t.Skip(ca.err)
-				keep = false
-			}
-			if ca.tail == "OFF" {
-				keep = false
-				t.Log("command over")
-			}
-			t.Log("tail", ca.tail)
+	for {
+		ca := <-commandAsync
+		if nil != ca.err {
+			t.Skip(ca.err)
+			keep = false
+		}
+		if ca.tail == "OFF" {
+			keep = false
+			t.Log("command over")
+		}
+		t.Log("tail", ca.tail)
+		if !keep {
+			break
 		}
 	}
 
 	go Command().ExecCommandAsync(commandAsync, "lls", "-l")
 	keep = true
-	for keep {
-		select {
-		case ca := <-commandAsync:
-			if nil != ca.err {
-				t.Skip(ca.err)
-				keep = false
-				break
-			}
-			if ca.tail == "OFF" {
-				keep = false
-				t.Log("command over")
-			}
-			t.Log("tail", ca.tail)
+	for {
+		ca := <-commandAsync
+		if nil != ca.err {
+			t.Skip(ca.err)
+			keep = false
+		}
+		if ca.tail == "OFF" {
+			keep = false
+			t.Log("command over")
+		}
+		t.Log("tail", ca.tail)
+		if !keep {
+			break
 		}
 	}
 }
