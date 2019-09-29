@@ -45,15 +45,15 @@ func TestCommandCommon_ExecCommandAsync(t *testing.T) {
 	keep = true
 	for {
 		ca := <-commandAsync
-		if nil != ca.err {
-			t.Skip(ca.err)
+		if nil != ca.Err {
+			t.Skip(ca.Err)
 			keep = false
 		}
-		if ca.tail == "OFF" {
+		if ca.Tail == "OFF" {
 			keep = false
 			t.Log("command over")
 		}
-		t.Log("tail", ca.tail)
+		t.Log("tail", ca.Tail)
 		if !keep {
 			break
 		}
@@ -63,15 +63,15 @@ func TestCommandCommon_ExecCommandAsync(t *testing.T) {
 	keep = true
 	for {
 		ca := <-commandAsync
-		if nil != ca.err {
-			t.Skip(ca.err)
+		if nil != ca.Err {
+			t.Skip(ca.Err)
 			keep = false
 		}
-		if ca.tail == "OFF" {
+		if ca.Tail == "OFF" {
 			keep = false
 			t.Log("command over")
 		}
-		t.Log("tail", ca.tail)
+		t.Log("tail", ca.Tail)
 		if !keep {
 			break
 		}

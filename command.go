@@ -154,9 +154,9 @@ ERR:
 
 // CommandAsync 异步命令执行归属通道对象
 type CommandAsync struct {
-	command *exec.Cmd
-	tail    string
-	err     error
+	Command *exec.Cmd
+	Tail    string
+	Err     error
 }
 
 // ExecCommandAsync 异步执行cmd命令
@@ -175,7 +175,7 @@ func (c *CommandCommon) ExecCommandAsync(commandAsync chan *CommandAsync, comman
 	)
 	ca := &CommandAsync{}
 	cmd := exec.Command(commandName, params...)
-	ca.command = cmd
+	ca.Command = cmd
 	commandAsync <- ca
 	//显示运行的命令
 	Log().Debug("ExecCommandAsync", Log().Field("cmd", strings.Join([]string{commandName, strings.Join(cmd.Args[1:], " ")}, " ")))
@@ -203,14 +203,14 @@ func (c *CommandCommon) ExecCommandAsync(commandAsync chan *CommandAsync, comman
 		for {
 			lineStr, err2 := reader.ReadString('\n')
 			if err2 != nil || io.EOF == err2 {
-				ca.tail = lineStr
+				ca.Tail = lineStr
 				commandAsync <- ca
 				break
 			}
-			ca.tail = lineStr
+			ca.Tail = lineStr
 			commandAsync <- ca
 		}
-		ca.tail = "OFF"
+		ca.Tail = "OFF"
 		commandAsync <- ca
 		if err = cmd.Wait(); nil != err {
 			goto ERR
@@ -218,6 +218,6 @@ func (c *CommandCommon) ExecCommandAsync(commandAsync chan *CommandAsync, comman
 	}
 ERR:
 	Log().Error("ExecCommandAsync", Log().Err(err))
-	ca.err = err
+	ca.Err = err
 	commandAsync <- ca
 }
