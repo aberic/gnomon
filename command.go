@@ -93,6 +93,67 @@ ERR:
 	return 0, nil, nil, err
 }
 
+// ExecCommandSilent 执行cmd命令
+//
+// commandName 命令执行文件名
+//
+// 命令后续参数以字符串数组的方式传入
+//
+// line 执行命令后输出总行数
+//
+// cmd cmd对象
+//
+// contentArray 执行命令后输出内容按行放入字符串数组
+func (c *CommandCommon) ExecCommandSilent(commandName string, params ...string) (line int, cmd *exec.Cmd, contentArray []string, err error) {
+	var (
+		stdout   io.ReadCloser
+		stderr   io.ReadCloser
+		bytesErr []byte
+	)
+	cmd = exec.Command(commandName, params...)
+	//显示运行的命令
+	Log().Debug("ExecCommand", Log().Field("cmd", strings.Join([]string{commandName, strings.Join(cmd.Args[1:], " ")}, " ")))
+	if stdout, err = cmd.StdoutPipe(); err != nil {
+		goto ERR
+	} else {
+		if stderr, err = cmd.StderrPipe(); err != nil {
+			goto ERR
+		}
+		// Start开始执行c包含的命令，但并不会等待该命令完成即返回。Wait方法会返回命令的返回状态码并在命令返回后释放相关的资源。
+		if err = cmd.Start(); nil != err {
+			goto ERR
+		}
+
+		if bytesErr, err = ioutil.ReadAll(stderr); err != nil {
+			goto ERR
+		} else if len(bytesErr) != 0 {
+			err = errors.New("stderr is not nil: " + string(bytesErr))
+			goto ERR
+		}
+
+		reader := bufio.NewReader(stdout)
+
+		//实时循环读取输出流中的一行内容
+		for {
+			lineStr, err2 := reader.ReadString('\n')
+			if err2 != nil || io.EOF == err2 {
+				contentArray = append(contentArray, lineStr)
+				break
+			}
+			line++
+			contentArray = append(contentArray, lineStr)
+		}
+
+		if err = cmd.Wait(); nil != err {
+			goto ERR
+		}
+		return line, cmd, contentArray, nil
+	}
+ERR:
+	Log().Error("ExecCommand", Log().Err(err))
+	return 0, nil, nil, err
+}
+
 // ExecCommandTail 实时打印执行脚本过程中的命令
 //
 // 命令后续参数以字符串数组的方式传入

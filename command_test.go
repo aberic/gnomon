@@ -27,6 +27,17 @@ func TestCommandCommon_ExecCommand(t *testing.T) {
 	t.Skip(err)
 }
 
+func TestCommandCommon_ExecCommandSilent(t *testing.T) {
+	if line, cmd, strArr, err := Command().ExecCommandSilent("ls", "-l"); err != nil {
+		t.Skip(err)
+	} else {
+		t.Log("line =", line, ", strArr =", strArr, ", pid =", cmd.Process.Pid)
+	}
+
+	_, _, _, err := Command().ExecCommandSilent("lss", "-l")
+	t.Skip(err)
+}
+
 func TestCommandCommon_ExecCommandTail(t *testing.T) {
 	if line, cmd, strArr, err := Command().ExecCommandTail("ls", "-l"); err != nil {
 		t.Skip(err)
