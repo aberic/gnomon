@@ -29,6 +29,7 @@ import (
 )
 
 var (
+	//pathcarsapksc1256  = "./tmp/example/ca/pksc1/256"
 	pathcarsapksc1512  = "./tmp/example/ca/pksc1/512"
 	pathcarsapksc11024 = "./tmp/example/ca/pksc1/1024"
 	//pathcarsapksc12048 = "./tmp/example/ca/pksc1/2048"
@@ -41,6 +42,9 @@ var (
 	pathcaeccpemp256 = "./tmp/example/ca/pemp256"
 	pathcaeccpemp384 = "./tmp/example/ca/pemp384"
 	pathcaeccpemp521 = "./tmp/example/ca/pemp521"
+
+	pathcarsapksc1fabric2048 = "./tmp/example/ca/fabric/pksc1/2048"
+	pathcaeccpempfabric384   = "./tmp/example/ca/fabric/pemp384"
 
 	parentCert *x509.Certificate
 	priData    []byte
@@ -120,6 +124,72 @@ func TestCACommon_GenerateRSAPKCS1PrivateKeyFP(t *testing.T) {
 	}, "123456", CryptoRSA().PKSC1()); nil != errCA {
 		t.Error(errCA)
 	}
+}
+
+func TestCACommon_GenerateRSAPKCS1PrivateKeyFPFabricCA(t *testing.T) {
+	if priRSAKey, errCA = CryptoRSA().GeneratePriKey(2048, pathcarsapksc1fabric2048, caPriKeyFileName, CryptoRSA().PKSC1()); nil != errCA {
+		t.Error(errCA)
+	}
+	if _, errCA = CA().GenerateRSACertificateRequestFP(&CertRequestFP{
+		PrivateKeyFilePath:         filepath.Join(pathcarsapksc1fabric2048, caPriKeyFileName),
+		CertificateRequestFilePath: filepath.Join(pathcarsapksc1fabric2048, caCertificateRequestFileName),
+		SignatureAlgorithm:         x509.SHA256WithRSA,
+		Subject:                    CAMockSubject,
+		EmailAddresses:             []string{"test@test.com"},
+		IPAddresses:                []net.IP{net.ParseIP("localhost"), net.ParseIP("127.0.0.1")},
+	}, CryptoRSA().PKSC1()); nil != errCA {
+		t.Error(errCA)
+	}
+	if _, errCA = CA().GenerateCertificateSelf(&CertSelf{
+		CertificateFilePath:   filepath.Join(pathcarsapksc1fabric2048, caCertificateFileName),
+		Subject:               CAMockSubject,
+		PrivateKey:            priRSAKey,
+		PublicKey:             priRSAKey.Public(),
+		NotAfterDays:          time.Now().Add(5000 * 24 * time.Hour),
+		NotBeforeDays:         time.Now(),
+		BasicConstraintsValid: true,
+		IsCA:                  true,
+		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth}, //证书用途(客户端认证，数据加密)
+		KeyUsage:              x509.KeyUsageCertSign | x509.KeyUsageCRLSign | x509.KeyUsageDataEncipherment,
+		SignatureAlgorithm:    x509.SHA256WithRSA,
+	}); nil != errCA {
+		t.Error(errCA)
+	}
+
+	if errCA = CryptoECC().GeneratePemPriKey(pathcaeccpempfabric384, caPriKeyFileName, elliptic.P384()); nil != errCA {
+		t.Error(errCA)
+	}
+	priData, errECC = ioutil.ReadFile(filepath.Join(pathcaeccpempfabric384, caPriKeyFileName))
+	if nil != errECC {
+		t.Error(errECC)
+	}
+	if _, errCA = CA().GenerateECCCertificateRequest(&CertRequest{
+		PrivateKeyData:             priData,
+		CertificateRequestFilePath: filepath.Join(pathcaeccpempfabric384, caCertificateRequestFileName),
+		SignatureAlgorithm:         x509.ECDSAWithSHA256,
+		Subject:                    CAMockSubject,
+	}); nil != errCA {
+		t.Error(errCA)
+	}
+	if priKeyP384, errCA = CryptoECC().LoadPriPemFP(filepath.Join(pathcaeccpempfabric384, caPriKeyFileName)); nil != errCA {
+		t.Error(errCA)
+	}
+	if certData, errCA = CA().GenerateCertificateSelf(&CertSelf{
+		CertificateFilePath:   filepath.Join(pathcaeccpempfabric384, caCertificateFileName),
+		Subject:               CAMockSubject,
+		PrivateKey:            priKeyP384,
+		PublicKey:             priKeyP384.Public(),
+		NotAfterDays:          time.Now().Add(5000 * 24 * time.Hour),
+		NotBeforeDays:         time.Now(),
+		BasicConstraintsValid: true,
+		IsCA:                  true,
+		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth},
+		KeyUsage:              x509.KeyUsageCertSign | x509.KeyUsageCRLSign | x509.KeyUsageDataEncipherment,
+		SignatureAlgorithm:    x509.ECDSAWithSHA256,
+	}); nil != errCA {
+		t.Error(errCA)
+	}
+
 }
 
 func TestCACommon_GenerateRSAPKCS8PrivateKeyFP(t *testing.T) {

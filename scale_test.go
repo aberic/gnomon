@@ -196,7 +196,7 @@ func TestScaleDDuo(t *testing.T) {
 	ui16 = 65535
 	i32 = 99922299
 	ui32 = 88811188
-	i64 = 827639847923879
+	i64 = 9223372036854770018
 	ui64 = 92873890910928019
 
 	iStr := Scale().IntToDDuoString(i)

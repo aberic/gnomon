@@ -84,8 +84,6 @@ type LogCommon struct {
 //
 // maxAge 文件最多保存多少天
 //
-// compress 是否压缩
-//
 // utc CST & UTC 时间
 func (l *LogCommon) Init(logDir string, maxSize, maxAge int, utc bool) error {
 	l.Info("log service init")

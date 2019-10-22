@@ -32,7 +32,7 @@ import (
 )
 
 const (
-	privateECCKeyPemType = "ECC PRIVATE KEY"
+	privateECCKeyPemType = "PRIVATE KEY"
 	publicECCKeyPemType  = "PUBLIC KEY"
 )
 

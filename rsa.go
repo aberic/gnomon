@@ -34,7 +34,7 @@ const (
 	signPss              SignMode = "pss"
 	signPKCS1v15         SignMode = "pkcs#1 v1.5"
 	publicRSAKeyPemType           = "PUBLIC KEY"
-	privateRSAKeyPemType          = "RSA PRIVATE KEY"
+	privateRSAKeyPemType          = "PRIVATE KEY"
 )
 
 // PKSCType 私钥格式，默认提供PKCS1和PKCS8

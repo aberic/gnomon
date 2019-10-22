@@ -16,11 +16,13 @@
 package gnomon
 
 import (
+	"archive/zip"
 	"bufio"
 	"errors"
 	"io"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -241,4 +243,144 @@ func (f *FileCommon) LoopFiles(pathname string, s []string) ([]string, error) {
 		}
 	}
 	return s, nil
+}
+
+// Compress 压缩文件
+// files 文件数组，可以是不同dir下的文件或者文件夹
+// dest 压缩文件存放地址
+func (f *FileCommon) Compress(files []*os.File, dest string) error {
+	d, _ := os.Create(dest)
+	defer func() { _ = d.Close() }()
+	w := zip.NewWriter(d)
+	defer func() { _ = w.Close() }()
+	for _, file := range files {
+		err := f.compress(file, "", w)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (f *FileCommon) compress(file *os.File, prefix string, zw *zip.Writer) error {
+	var (
+		info   os.FileInfo
+		header *zip.FileHeader
+		writer io.Writer
+		err    error
+	)
+	defer func() { _ = file.Close() }()
+	info, err = file.Stat()
+	if err != nil {
+		return err
+	}
+	if info.IsDir() {
+		prefix = prefix + "/" + info.Name()
+		fileInfos, err := file.Readdir(-1)
+		if err != nil {
+			return err
+		}
+		for _, fi := range fileInfos {
+			fil, err := os.Open(file.Name() + "/" + fi.Name())
+			if err != nil {
+				return err
+			}
+			err = f.compress(fil, prefix, zw)
+			if err != nil {
+				return err
+			}
+		}
+	} else {
+		if header, err = zip.FileInfoHeader(info); nil != err {
+			return err
+		}
+		header.Name = prefix + "/" + header.Name
+		if writer, err = zw.CreateHeader(header); nil != err {
+			return err
+		}
+		_, err = io.Copy(writer, file)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// DeCompressTar 压缩文件
+// 压缩文件路径
+// 解压文件夹
+func (f *FileCommon) DeCompressTar(tarFile, dest string) error {
+	srcFile, err := os.Open(tarFile)
+	if err != nil {
+		Log().Error("DeCompressTar", Log().Err(err))
+		return err
+	}
+	defer func() { _ = srcFile.Close() }()
+	reader, err := zip.OpenReader(srcFile.Name())
+	if nil != err {
+		return err
+	}
+	return f.deCompress(reader, dest)
+}
+
+// DeCompressZip 解压
+func (f *FileCommon) DeCompressZip(zipFile, dest string) error {
+	var (
+		reader *zip.ReadCloser
+		err    error
+	)
+	if reader, err = zip.OpenReader(zipFile); nil != err {
+		Log().Error("DeCompressZip", Log().Err(err))
+		return err
+	}
+	return f.deCompress(reader, dest)
+}
+
+// deCompress 压缩文件
+func (f *FileCommon) deCompress(reader *zip.ReadCloser, dest string) error {
+	defer func() { _ = reader.Close() }()
+	for _, innerFile := range reader.File {
+		info := innerFile.FileInfo()
+		if info.IsDir() {
+			err := os.MkdirAll(innerFile.Name, os.ModePerm)
+			if err != nil {
+				Log().Error("deCompress1", Log().Err(err))
+				return err
+			}
+			continue
+		}
+		srcFile, err := innerFile.Open()
+		if err != nil {
+			continue
+		}
+		err = os.MkdirAll(dest, 0755)
+		if err != nil {
+			Log().Error("deCompress2", Log().Err(err))
+			return err
+		}
+		filePath := filepath.Join(dest, innerFile.Name)
+		if exist := f.PathExists(filePath); !exist {
+			lastIndex := strings.LastIndex(filePath, "/")
+			parentPath := filePath[0:lastIndex]
+			if err := os.MkdirAll(parentPath, os.ModePerm); nil != err {
+				Log().Error("deCompress3", Log().Err(err))
+				return err
+			}
+		}
+		newFile, err := os.Create(filePath)
+		if err != nil {
+			Log().Error("deCompress4", Log().Err(err))
+			_ = srcFile.Close()
+			continue
+		}
+		if _, err = io.Copy(newFile, srcFile); nil != err {
+			_ = newFile.Close()
+			_ = srcFile.Close()
+			Log().Error("deCompress5", Log().Err(err))
+			return err
+		}
+		_ = newFile.Close()
+		_ = srcFile.Close()
+	}
+	return nil
 }
