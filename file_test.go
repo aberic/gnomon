@@ -183,3 +183,12 @@ func TestFileCommon_LoopFiles_Fail(t *testing.T) {
 	_, err := File().LoopFiles("./tmp/logger", nil)
 	t.Skip(err)
 }
+
+func TestFileCommon_Copy(t *testing.T) {
+	if _, err := File().Append("./tmp/copy/1.txt", []byte("hello"), true); nil != err {
+		t.Error(err)
+	}
+	if _, err := File().Copy("./tmp/copy/1.txt", "./tmp/copy/2.txt"); nil != err {
+		t.Error(err)
+	}
+}

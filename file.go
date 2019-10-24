@@ -390,20 +390,18 @@ func (f *FileCommon) deCompress(reader *zip.ReadCloser, dest string) error {
 // srcFilePath 源文件路径
 //
 // dstFilePath 目标文件路径
-func (f *FileCommon) Copy(srcFilePath string, dstFilePath string) (written int64, err error) {
+func (f *FileCommon) Copy(srcFilePath, dstFilePath string) (written int64, err error) {
 	srcFile, err := os.Open(srcFilePath)
 	if err != nil {
 		Log().Error("Copy", Log().Err(err))
 	}
 	defer func() { _ = srcFile.Close() }()
-	reader := bufio.NewReader(srcFile)
 
 	dstFile, err := os.OpenFile(dstFilePath, os.O_WRONLY|os.O_CREATE, 0777)
 	if err != nil {
 		Log().Error("Copy", Log().Err(err))
 		return
 	}
-	writer := bufio.NewWriter(dstFile)
 	defer func() { _ = dstFile.Close() }()
-	return io.Copy(writer, reader)
+	return io.Copy(dstFile, srcFile)
 }
