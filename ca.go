@@ -182,7 +182,7 @@ func (ca *CACommon) GenerateCertificateSelf(cert *CertSelf) (certData []byte, er
 		KeyUsage:              cert.KeyUsage,
 		SubjectKeyId:          []byte{1, 2, 3},
 	}
-	certData, err = x509.CreateCertificate(rand.Reader, template, template, cert.PublicKey, cert.PrivateKey)
+	certData, err = x509.CreateCertificate(rand.Reader, template, template, cert.PublicKey, cert.ParentPrivateKey)
 	if err != nil {
 		return nil, err
 	}
@@ -220,7 +220,7 @@ func (ca *CACommon) GenerateCertificate(cert *Cert) (certData []byte, err error)
 		KeyUsage:              cert.KeyUsage,
 		SubjectKeyId:          []byte{1, 2, 3},
 	}
-	certData, err = x509.CreateCertificate(rand.Reader, template, cert.ParentCert, cert.PublicKey, cert.PrivateKey)
+	certData, err = x509.CreateCertificate(rand.Reader, template, cert.ParentCert, cert.PublicKey, cert.ParentPrivateKey)
 	if err != nil {
 		return nil, err
 	}
@@ -246,7 +246,7 @@ func (ca *CACommon) GenerateCertificate(cert *Cert) (certData []byte, err error)
 type CertSelf struct {
 	CertificateFilePath         string                  // 签名后数字证书文件存储路径
 	Subject                     pkix.Name               // Subject 签名信息
-	PrivateKey, PublicKey       interface{}             // 公私钥
+	ParentPrivateKey, PublicKey interface{}             // 公私钥
 	BasicConstraintsValid       bool                    // 基本的有效性约束
 	IsCA                        bool                    // 是否是根证书
 	NotBeforeDays, NotAfterDays time.Time               // 在指定时间之后生效及之前失效
