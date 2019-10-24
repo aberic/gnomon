@@ -390,7 +390,7 @@ func (f *FileCommon) deCompress(reader *zip.ReadCloser, dest string) error {
 // dstFilePath 源文件路径
 //
 // srcFilePath 目标文件路径
-func Copy(dstFilePath string, srcFilePath string) (written int64, err error) {
+func (f *FileCommon) Copy(dstFilePath string, srcFilePath string) (written int64, err error) {
 	srcFile, err := os.Open(srcFilePath)
 	if err != nil {
 		Log().Error("Copy", Log().Err(err))
