@@ -143,7 +143,7 @@ func TestCACommon_GenerateRSAPKCS1PrivateKeyFPFabricCA(t *testing.T) {
 	if _, errCA = CA().GenerateCertificateSelf(&CertSelf{
 		CertificateFilePath:   filepath.Join(pathcarsapksc1fabric2048, caCertificateFileName),
 		Subject:               CAMockSubject,
-		PrivateKey:            priRSAKey,
+		ParentPrivateKey:      priRSAKey,
 		PublicKey:             priRSAKey.Public(),
 		NotAfterDays:          time.Now().Add(5000 * 24 * time.Hour),
 		NotBeforeDays:         time.Now(),
@@ -177,7 +177,7 @@ func TestCACommon_GenerateRSAPKCS1PrivateKeyFPFabricCA(t *testing.T) {
 	if certData, errCA = CA().GenerateCertificateSelf(&CertSelf{
 		CertificateFilePath:   filepath.Join(pathcaeccpempfabric384, caCertificateFileName),
 		Subject:               CAMockSubject,
-		PrivateKey:            priKeyP384,
+		ParentPrivateKey:      priKeyP384,
 		PublicKey:             priKeyP384.Public(),
 		NotAfterDays:          time.Now().Add(5000 * 24 * time.Hour),
 		NotBeforeDays:         time.Now(),
@@ -209,7 +209,7 @@ func TestCACommon_GenerateRSAPKCS8PrivateKeyFP(t *testing.T) {
 	if _, errCA = CA().GenerateCertificateSelf(&CertSelf{
 		CertificateFilePath:   filepath.Join(pathcarsapksc81024, caCertificateFileName),
 		Subject:               CAMockSubject,
-		PrivateKey:            priRSAKey,
+		ParentPrivateKey:      priRSAKey,
 		PublicKey:             priRSAKey.Public(),
 		NotAfterDays:          time.Now(),
 		NotBeforeDays:         time.Now().Add(5000 * 24 * time.Hour),
@@ -259,7 +259,7 @@ func TestCACommon_GenerateECCPrivateKey(t *testing.T) {
 	if _, errCA = CA().GenerateCertificateSelf(&CertSelf{
 		CertificateFilePath:   filepath.Join(pathcaeccpemp224, caCertificateFileName),
 		Subject:               CAMockSubject,
-		PrivateKey:            priKeyP224,
+		ParentPrivateKey:      priKeyP224,
 		PublicKey:             priKeyP224.Public(),
 		NotAfterDays:          time.Now(),
 		NotBeforeDays:         time.Now().Add(5000 * 24 * time.Hour),
@@ -291,7 +291,7 @@ func TestCACommon_GenerateECCPrivateKey(t *testing.T) {
 	if _, errCA = CA().GenerateCertificateSelf(&CertSelf{
 		CertificateFilePath:   filepath.Join(pathcaeccpemp256, caCertificateFileName),
 		Subject:               CAMockSubject,
-		PrivateKey:            priKeyP256,
+		ParentPrivateKey:      priKeyP256,
 		PublicKey:             priKeyP256.Public(),
 		NotAfterDays:          time.Now(),
 		NotBeforeDays:         time.Now().Add(5000 * 24 * time.Hour),
@@ -325,7 +325,7 @@ func TestCACommon_GenerateECCPrivateKey(t *testing.T) {
 	if certData, errCA = CA().GenerateCertificateSelf(&CertSelf{
 		CertificateFilePath:   filepath.Join(pathcaeccpemp384, caCertificateFileName),
 		Subject:               CAMockSubject,
-		PrivateKey:            priKeyP384,
+		ParentPrivateKey:      priKeyP384,
 		PublicKey:             priKeyP384.Public(),
 		NotAfterDays:          time.Now(),
 		NotBeforeDays:         time.Now().Add(5000 * 24 * time.Hour),
@@ -360,8 +360,30 @@ func TestCACommon_GenerateECCPrivateKey(t *testing.T) {
 		CertSelf: CertSelf{
 			CertificateFilePath:   filepath.Join(pathcaeccpemp521, caCertificateFileName),
 			Subject:               CAMockSubject,
-			PrivateKey:            priKeyP384,
-			PublicKey:             priKeyP384.Public(),
+			ParentPrivateKey:      priKeyP384,
+			PublicKey:             priKeyP521.Public(),
+			NotAfterDays:          time.Now(),
+			NotBeforeDays:         time.Now().Add(5000 * 24 * time.Hour),
+			BasicConstraintsValid: true,
+			IsCA:                  true,
+			ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth},
+			KeyUsage:              x509.KeyUsageCertSign | x509.KeyUsageCRLSign | x509.KeyUsageDataEncipherment,
+			SignatureAlgorithm:    x509.ECDSAWithSHA384,
+		},
+	}); nil != errCA {
+		t.Error(errCA)
+	}
+
+	if parentCert, errCA = CA().LoadCrtFromFP(filepath.Join(pathcaeccpemp384, caCertificateFileName)); nil != errCA {
+		t.Error(errCA)
+	}
+	if _, errCA = CA().GenerateCertificate(&Cert{
+		ParentCert: parentCert,
+		CertSelf: CertSelf{
+			CertificateFilePath:   filepath.Join(pathcaeccpemp521, caCertificateFileName),
+			Subject:               CAMockSubject,
+			ParentPrivateKey:      priKeyP384,
+			PublicKey:             priKeyP521.Public(),
 			NotAfterDays:          time.Now(),
 			NotBeforeDays:         time.Now().Add(5000 * 24 * time.Hour),
 			BasicConstraintsValid: true,

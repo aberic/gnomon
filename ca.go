@@ -23,6 +23,7 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/pem"
+	"io/ioutil"
 	"math/big"
 	rd "math/rand"
 	"net"
@@ -240,6 +241,16 @@ func (ca *CACommon) GenerateCertificate(cert *Cert) (certData []byte, err error)
 		return nil, err
 	}
 	return certData, nil
+}
+
+// LoadCrtFromFP 从文件中加载Crt对象
+func (ca *CACommon) LoadCrtFromFP(crtFilePath string) (certificate *x509.Certificate, err error) {
+	data, err := ioutil.ReadFile(crtFilePath)
+	if nil != err {
+		return nil, err
+	}
+	certData, _ := pem.Decode(data)
+	return x509.ParseCertificate(certData.Bytes)
 }
 
 // CertSelf 自签名数字证书对象
