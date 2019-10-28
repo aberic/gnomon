@@ -171,8 +171,7 @@ func TestFileCommon_LoopDirs_Fail(t *testing.T) {
 }
 
 func TestFileCommon_LoopFiles(t *testing.T) {
-	var s []string
-	if arr, err := File().LoopFiles("./tmp/log", s); nil != err {
+	if arr, err := File().LoopFiles("./tmp/log"); nil != err {
 		t.Skip(err)
 	} else {
 		t.Log(arr)
@@ -180,7 +179,7 @@ func TestFileCommon_LoopFiles(t *testing.T) {
 }
 
 func TestFileCommon_LoopFiles_Fail(t *testing.T) {
-	_, err := File().LoopFiles("./tmp/logger", nil)
+	_, err := File().LoopFiles("./tmp/logger")
 	t.Skip(err)
 }
 

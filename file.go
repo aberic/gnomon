@@ -22,6 +22,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 )
@@ -223,7 +224,8 @@ func (f *FileCommon) LoopDirs(pathname string) ([]string, error) {
 }
 
 // LoopFiles 遍历文件夹及子文件夹下的所有文件
-func (f *FileCommon) LoopFiles(pathname string, s []string) ([]string, error) {
+func (f *FileCommon) LoopFiles(pathname string) ([]string, error) {
+	var s []string
 	rd, err := ioutil.ReadDir(pathname)
 	if err != nil {
 		Log().Debug("read dir fail", Log().Err(err))
@@ -231,15 +233,40 @@ func (f *FileCommon) LoopFiles(pathname string, s []string) ([]string, error) {
 	}
 	for _, fi := range rd {
 		if fi.IsDir() {
-			fullDir := pathname + "/" + fi.Name()
-			s, err = f.LoopFiles(fullDir, s)
+			fullDir := path.Join(pathname, fi.Name())
+			sNew, err := f.LoopFiles(fullDir)
 			if err != nil {
 				Log().Debug("read dir fail", Log().Err(err))
 				return s, err
 			}
+			s = append(s, sNew...)
 		} else {
-			fullName := pathname + "/" + fi.Name()
+			fullName := filepath.Join(pathname, fi.Name())
 			s = append(s, fullName)
+		}
+	}
+	return s, nil
+}
+
+// LoopFileNames 遍历文件夹及子文件夹下的所有文件名
+func (f *FileCommon) LoopFileNames(pathname string) ([]string, error) {
+	var s []string
+	rd, err := ioutil.ReadDir(pathname)
+	if err != nil {
+		Log().Debug("read dir fail", Log().Err(err))
+		return s, err
+	}
+	for _, fi := range rd {
+		if fi.IsDir() {
+			fullDir := path.Join(pathname, fi.Name())
+			sNew, err := f.LoopFileNames(fullDir)
+			if err != nil {
+				Log().Error("read dir fail", Log().Err(err))
+				return s, err
+			}
+			s = append(s, sNew...)
+		} else {
+			s = append(s, fi.Name())
 		}
 	}
 	return s, nil
