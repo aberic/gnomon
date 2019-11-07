@@ -136,7 +136,7 @@ func (e *ECCCommon) GeneratePemKeyWithPass(path, priFileName, pubFileName, passw
 		return err
 	}
 
-	if err = e.SavePriPemWithPass(privateKey, passwd, filepath.Join(path, priFileName)); nil != err {
+	if err = e.SavePriPemWithPass(privateKey, passwd, path, priFileName); nil != err {
 		return err
 	}
 	if err = e.SavePubPem(filepath.Join(path, pubFileName), &privateKey.PublicKey); nil != err {
@@ -208,7 +208,7 @@ func (e *ECCCommon) GeneratePemPriKeyWithPass(path, priFileName, passwd string, 
 	if err != nil {
 		return err
 	}
-	if err = e.SavePriPemWithPass(privateKey, passwd, filepath.Join(path, priFileName)); nil != err {
+	if err = e.SavePriPemWithPass(privateKey, passwd, path, priFileName); nil != err {
 		return err
 	}
 	return nil
@@ -258,12 +258,12 @@ func (e *ECCCommon) LoadPri(file string, curve elliptic.Curve) (*ecdsa.PrivateKe
 }
 
 // SavePriPem 将私钥保存到给定文件
-func (e *ECCCommon) SavePriPem(privateKey *ecdsa.PrivateKey, file string) error {
-	return e.SavePriPemWithPass(privateKey, "", file)
+func (e *ECCCommon) SavePriPem(privateKey *ecdsa.PrivateKey, path, fileName string) error {
+	return e.SavePriPemWithPass(privateKey, "", path, fileName)
 }
 
 // SavePriPemWithPass 将私钥保存到给定文件
-func (e *ECCCommon) SavePriPemWithPass(privateKey *ecdsa.PrivateKey, passwd, file string) error {
+func (e *ECCCommon) SavePriPemWithPass(privateKey *ecdsa.PrivateKey, passwd, path, fileName string) error {
 	var (
 		fileIO *os.File
 		block  *pem.Block
@@ -283,7 +283,7 @@ func (e *ECCCommon) SavePriPemWithPass(privateKey *ecdsa.PrivateKey, passwd, fil
 		}
 	}
 	defer func() { _ = fileIO.Close() }()
-	if fileIO, err = os.OpenFile(file, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600); nil != err {
+	if fileIO, err = os.OpenFile(filepath.Join(path, fileName), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600); nil != err {
 		return err
 	}
 	// 将block的PEM编码写入fileIO
@@ -397,7 +397,26 @@ func (e *ECCCommon) SavePubPem(file string, publicKey *ecdsa.PublicKey) error {
 // LoadPubPem 从文件中加载公钥
 //
 // file 文件路径
-func (e *ECCCommon) LoadPubPem(file string) (*ecdsa.PublicKey, error) {
+func (e *ECCCommon) LoadPubPem(publicKey []byte) (*ecdsa.PublicKey, error) {
+	pemData, err := e.pemParse(publicKey, publicECCKeyPemType)
+	if err != nil {
+		return nil, err
+	}
+	keyInterface, err := x509.ParsePKIXPublicKey(pemData)
+	if err != nil {
+		return nil, err
+	}
+	pubKey, ok := keyInterface.(*ecdsa.PublicKey)
+	if !ok {
+		return nil, errors.New("could not cast parsed key to *rsa.PublicKey")
+	}
+	return pubKey, nil
+}
+
+// LoadPubPemFP 从文件中加载公钥
+//
+// file 文件路径
+func (e *ECCCommon) LoadPubPemFP(file string) (*ecdsa.PublicKey, error) {
 	pubData, err := ioutil.ReadFile(file)
 	if nil != err {
 		return nil, err

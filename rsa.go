@@ -106,12 +106,9 @@ func (r *RSACommon) GeneratePriKey(bits int, path, fileName string, pks PKSCType
 // alg der编码数据指定算法，如：x509.PEMCipher3DES
 //
 // pks 私钥格式，默认提供PKCS1和PKCS8，通过调用‘CryptoRSA().PKSC1()’和‘CryptoRSA().PKSC8()’方法赋值
-func (r *RSACommon) GeneratePriKeyWithPass(bits int, path, fileName string, passwd string, alg x509.PEMCipher, pks PKSCType) (*rsa.PrivateKey, error) {
+func (r *RSACommon) GeneratePriKeyWithPass(bits int, path, fileName, passwd string, alg x509.PEMCipher, pks PKSCType) (*rsa.PrivateKey, error) {
 	var (
 		privateKey *rsa.PrivateKey
-		derStream  []byte
-		block      *pem.Block
-		fileIO     *os.File
 		err        error
 	)
 	// 创建公私钥生成目录
@@ -124,30 +121,7 @@ func (r *RSACommon) GeneratePriKeyWithPass(bits int, path, fileName string, pass
 	if privateKey, err = rsa.GenerateKey(rand.Reader, bits); nil != err {
 		return nil, err
 	}
-	// 将私钥转换为ASN.1 DER编码的形式
-	switch pks {
-	default:
-		derStream = x509.MarshalPKCS1PrivateKey(privateKey)
-	case pksC8:
-		if derStream, err = x509.MarshalPKCS8PrivateKey(privateKey); nil != err {
-			return nil, err
-		}
-	}
-	// block表示PEM编码的结构
-	if String().IsEmpty(passwd) {
-		block = &pem.Block{Type: privateRSAKeyPemType, Bytes: derStream}
-	} else {
-		block, err = x509.EncryptPEMBlock(rand.Reader, privateRSAKeyPemType, derStream, []byte(passwd), alg)
-		if nil != err {
-			return nil, err
-		}
-	}
-	defer func() { _ = fileIO.Close() }()
-	if fileIO, err = os.Create(filepath.Join(path, fileName)); nil != err {
-		return nil, err
-	}
-	// 将block的PEM编码写入fileIO
-	if err = pem.Encode(fileIO, block); nil != err {
+	if err = r.SavePriPemWithPass(privateKey, path, fileName, passwd, alg, pks); nil != err {
 		return nil, err
 	}
 	return privateKey, nil
@@ -261,6 +235,56 @@ func (r *RSACommon) GeneratePubKeyFPWithPass(privateKeyFilePath, passwd, path, f
 		return err
 	}
 	return r.GeneratePubKeyBytesWithPass(bs, passwd, path, fileName, pks)
+}
+
+// SavePriPem 将私钥保存到给定文件
+//
+// alg der编码数据指定算法，如：x509.PEMCipher3DES
+//
+// pks 私钥格式，默认提供PKCS1和PKCS8，通过调用‘CryptoRSA().PKSC1()’和‘CryptoRSA().PKSC8()’方法赋值
+func (r *RSACommon) SavePriPem(privateKey *rsa.PrivateKey, path, fileName string, alg x509.PEMCipher, pks PKSCType) error {
+	return r.SavePriPemWithPass(privateKey, path, fileName, "", alg, pks)
+}
+
+// SavePriPemWithPass 将私钥保存到给定文件
+//
+// alg der编码数据指定算法，如：x509.PEMCipher3DES
+//
+// pks 私钥格式，默认提供PKCS1和PKCS8，通过调用‘CryptoRSA().PKSC1()’和‘CryptoRSA().PKSC8()’方法赋值
+func (r *RSACommon) SavePriPemWithPass(privateKey *rsa.PrivateKey, path, fileName, passwd string, alg x509.PEMCipher, pks PKSCType) error {
+	var (
+		derStream []byte
+		fileIO    *os.File
+		block     *pem.Block
+		err       error
+	)
+	// 将私钥转换为ASN.1 DER编码的形式
+	switch pks {
+	default:
+		derStream = x509.MarshalPKCS1PrivateKey(privateKey)
+	case pksC8:
+		if derStream, err = x509.MarshalPKCS8PrivateKey(privateKey); nil != err {
+			return err
+		}
+	}
+	// block表示PEM编码的结构
+	if String().IsEmpty(passwd) {
+		block = &pem.Block{Type: privateRSAKeyPemType, Bytes: derStream}
+	} else {
+		block, err = x509.EncryptPEMBlock(rand.Reader, privateRSAKeyPemType, derStream, []byte(passwd), alg)
+		if nil != err {
+			return err
+		}
+	}
+	defer func() { _ = fileIO.Close() }()
+	if fileIO, err = os.Create(filepath.Join(path, fileName)); nil != err {
+		return err
+	}
+	// 将block的PEM编码写入fileIO
+	if err = pem.Encode(fileIO, block); nil != err {
+		return err
+	}
+	return nil
 }
 
 // Encrypt 公钥加密

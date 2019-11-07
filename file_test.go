@@ -183,6 +183,11 @@ func TestFileCommon_LoopFiles_Fail(t *testing.T) {
 	t.Skip(err)
 }
 
+func TestFileCommon_LoopOneDirs(t *testing.T) {
+	array, err := File().LoopOneDirs("./tmp")
+	t.Skip(array, err)
+}
+
 func TestFileCommon_Copy(t *testing.T) {
 	if _, err := File().Append("./tmp/copy/1.txt", []byte("hello"), true); nil != err {
 		t.Error(err)

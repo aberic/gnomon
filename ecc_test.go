@@ -152,8 +152,8 @@ func TestECCCommon_GenerateKey(t *testing.T) {
 		t.Skip(errECC)
 	}
 
-	t.Log(CryptoECC().SavePriPem(priKeyP521, filepath.Join(patheccpemp521, "test.pem")))
-	t.Log(CryptoECC().SavePriPem(priKeyP521, filepath.Join("/etc/ecc", "test.pem")))
+	t.Log(CryptoECC().SavePriPem(priKeyP521, patheccpemp521, "test.pem"))
+	t.Log(CryptoECC().SavePriPem(priKeyP521, "/etc/ecc", "test.pem"))
 }
 
 func TestECCCommon_GenerateKey_FailPathPermissionDenied(t *testing.T) {
@@ -238,13 +238,13 @@ func TestECCCommon_LoadPub_Fail1(t *testing.T) {
 }
 
 func TestECCCommon_LoadPubPem_Fail1(t *testing.T) {
-	if _, errECC = CryptoECC().LoadPubPem("/etc/ecc"); nil != errECC {
+	if _, errECC = CryptoECC().LoadPubPemFP("/etc/ecc"); nil != errECC {
 		t.Log(errECC)
 	}
 }
 
 func TestECCCommon_LoadPubPem_Fail2(t *testing.T) {
-	if _, errECC = CryptoECC().LoadPubPem(filepath.Join(patheccs256, publicECCName)); nil != errECC {
+	if _, errECC = CryptoECC().LoadPubPemFP(filepath.Join(patheccs256, publicECCName)); nil != errECC {
 		t.Log(errECC)
 	}
 }
@@ -403,7 +403,7 @@ func TestCryptoECCPem_CryptFile(t *testing.T) {
 	t.Log("加密前：", contentECC)
 	t.Log("=================================")
 
-	if pubKeyP256, errECC = CryptoECC().LoadPubPem(filepath.Join(patheccpemp256, publicECCName)); nil != errECC {
+	if pubKeyP256, errECC = CryptoECC().LoadPubPemFP(filepath.Join(patheccpemp256, publicECCName)); nil != errECC {
 		t.Error(errECC)
 	}
 	pub = ecies.ImportECDSAPublic(pubKeyP256)
@@ -715,7 +715,7 @@ func TestCryptoECCPem_Sign_File(t *testing.T) {
 		t.Error(errECC)
 	}
 	t.Log("签名码P224", string(signECCResult))
-	if pubKeyP224, errECC = CryptoECC().LoadPubPem(filepath.Join(patheccpemp224, publicECCName)); nil != errECC {
+	if pubKeyP224, errECC = CryptoECC().LoadPubPemFP(filepath.Join(patheccpemp224, publicECCName)); nil != errECC {
 		t.Error(errECC)
 	}
 	if valid, errECC = CryptoECC().Verify(pubKeyP224, []byte(contentECC), signECCResult); nil != errECC {
@@ -738,7 +738,7 @@ func TestCryptoECCPem_Sign_File(t *testing.T) {
 		t.Error(errECC)
 	}
 	t.Log("签名码P256", string(signECCResult))
-	if pubKeyP256, errECC = CryptoECC().LoadPubPem(filepath.Join(patheccpemp256, publicECCName)); nil != errECC {
+	if pubKeyP256, errECC = CryptoECC().LoadPubPemFP(filepath.Join(patheccpemp256, publicECCName)); nil != errECC {
 		t.Error(errECC)
 	}
 	if valid, errECC = CryptoECC().Verify(pubKeyP256, []byte(contentECC), signECCResult); nil != errECC {
@@ -761,7 +761,7 @@ func TestCryptoECCPem_Sign_File(t *testing.T) {
 		t.Error(errECC)
 	}
 	t.Log("签名码P384", string(signECCResult))
-	if pubKeyP384, errECC = CryptoECC().LoadPubPem(filepath.Join(patheccpemp384, publicECCName)); nil != errECC {
+	if pubKeyP384, errECC = CryptoECC().LoadPubPemFP(filepath.Join(patheccpemp384, publicECCName)); nil != errECC {
 		t.Error(errECC)
 	}
 	if valid, errECC = CryptoECC().Verify(pubKeyP384, []byte(contentECC), signECCResult); nil != errECC {
@@ -784,7 +784,7 @@ func TestCryptoECCPem_Sign_File(t *testing.T) {
 		t.Error(errECC)
 	}
 	t.Log("签名码P521", string(signECCResult))
-	if pubKeyP521, errECC = CryptoECC().LoadPubPem(filepath.Join(patheccpemp521, publicECCName)); nil != errECC {
+	if pubKeyP521, errECC = CryptoECC().LoadPubPemFP(filepath.Join(patheccpemp521, publicECCName)); nil != errECC {
 		t.Error(errECC)
 	}
 	if valid, errECC = CryptoECC().Verify(pubKeyP521, []byte(contentECC), signECCResult); nil != errECC {

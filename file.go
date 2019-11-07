@@ -223,6 +223,22 @@ func (f *FileCommon) LoopDirs(pathname string) ([]string, error) {
 	return s, nil
 }
 
+// LoopOneDirs 遍历文件夹下一层的所有子文件夹
+func (f *FileCommon) LoopOneDirs(pathname string) ([]string, error) {
+	var s []string
+	rd, err := ioutil.ReadDir(pathname)
+	if err != nil {
+		Log().Debug("read dir fail", Log().Err(err))
+		return s, err
+	}
+	for _, fi := range rd {
+		if fi.IsDir() {
+			s = append(s, fi.Name())
+		}
+	}
+	return s, nil
+}
+
 // LoopFiles 遍历文件夹及子文件夹下的所有文件
 func (f *FileCommon) LoopFiles(pathname string) ([]string, error) {
 	var s []string
