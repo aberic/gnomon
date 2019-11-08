@@ -277,6 +277,11 @@ func (r *RSACommon) SavePriPemWithPass(privateKey *rsa.PrivateKey, path, fileNam
 		}
 	}
 	defer func() { _ = fileIO.Close() }()
+	if !File().PathExists(path) {
+		if err = os.MkdirAll(path, 0755); nil != err {
+			return err
+		}
+	}
 	if fileIO, err = os.Create(filepath.Join(path, fileName)); nil != err {
 		return err
 	}

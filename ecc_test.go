@@ -156,6 +156,13 @@ func TestECCCommon_GenerateKey(t *testing.T) {
 	t.Log(CryptoECC().SavePriPem(priKeyP521, "/etc/ecc", "test.pem"))
 }
 
+func TestLog(t *testing.T) {
+	if priKeyP521, errECC = CryptoECC().LoadPriPemFP(filepath.Join(patheccpemp256, privateECCName)); nil != errECC {
+		t.Error(errECC)
+	}
+	t.Log(CryptoECC().SavePriPem(priKeyP521, patheccpemp521, "test.pem"))
+}
+
 func TestECCCommon_GenerateKey_FailPathPermissionDenied(t *testing.T) {
 	if errECC = CryptoECC().GenerateKey("/etc/test", privateECCName, publicECCName, crypto.S256()); nil != errECC {
 		t.Skip(errECC)

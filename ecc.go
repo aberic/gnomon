@@ -283,6 +283,11 @@ func (e *ECCCommon) SavePriPemWithPass(privateKey *ecdsa.PrivateKey, passwd, pat
 		}
 	}
 	defer func() { _ = fileIO.Close() }()
+	if !File().PathExists(path) {
+		if err = os.MkdirAll(path, 0755); nil != err {
+			return err
+		}
+	}
 	if fileIO, err = os.OpenFile(filepath.Join(path, fileName), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600); nil != err {
 		return err
 	}
