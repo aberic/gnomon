@@ -167,6 +167,15 @@ func (ca *CACommon) GenerateCertificateRequest(cert *CertRequestModel) (csr []by
 	return csrData, nil
 }
 
+func (ca *CACommon) LoadCsrPemFromFP(csrFilePath string) (cert *x509.CertificateRequest, err error) {
+	data, err := ioutil.ReadFile(csrFilePath)
+	if nil != err {
+		return nil, err
+	}
+	csrData, _ := pem.Decode(data)
+	return x509.ParseCertificateRequest(csrData.Bytes)
+}
+
 // GenerateCertificateSelf 对签名请求进行处理并生成自签名数字证书
 //
 // cert 签名数字证书对象
