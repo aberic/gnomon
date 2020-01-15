@@ -138,3 +138,10 @@ func (s *StringCommon) PrefixSupplementZero(str string, offset int) string {
 	}
 	return str
 }
+
+func (s *StringCommon) SubString(res string, start, end int) string {
+	if start > end || start < 0 || end > len(res) {
+		return ""
+	}
+	return res[start:end]
+}

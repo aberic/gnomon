@@ -19,6 +19,7 @@ package gnomon
 
 import (
 	"crypto/elliptic"
+	"crypto/rsa"
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"io/ioutil"
@@ -122,6 +123,61 @@ func TestCACommon_GenerateRSAPKCS1PrivateKeyFP(t *testing.T) {
 		SignatureAlgorithm:         x509.SHA384WithRSAPSS,
 		Subject:                    CAMockSubject,
 	}, "123456", CryptoRSA().PKSC1()); nil != errCA {
+		t.Error(errCA)
+	}
+}
+
+func TestRootCA(t *testing.T) {
+	var (
+		priKey *rsa.PrivateKey
+		err    error
+	)
+
+	if priKey, err = CryptoRSA().LoadPriFP("./tmp/icbc/icbc.key.pem", pksC1); nil != err {
+		t.Fatal(err)
+	}
+
+	if _, errCA = CA().GenerateCertificateSelf(&CertSelf{
+		CertificateFilePath: filepath.Join("./tmp/icbc", "icbc.crt"),
+		Subject: pkix.Name{
+			Country:            []string{"CN"},
+			Organization:       []string{"ICBC"},
+			OrganizationalUnit: []string{"ICBC GYKJ"},
+			Locality:           []string{"Beijing"},
+			Province:           []string{"Beijing"},
+			CommonName:         "localhost",
+		},
+		ParentPrivateKey:      priKey,
+		PublicKey:             priKey.Public(),
+		NotAfterDays:          time.Now().Add(5000 * 24 * time.Hour),
+		NotBeforeDays:         time.Now(),
+		BasicConstraintsValid: true,
+		IsCA:                  true,
+		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth}, //证书用途(客户端认证，数据加密)
+		KeyUsage:              x509.KeyUsageCertSign | x509.KeyUsageCRLSign | x509.KeyUsageDataEncipherment,
+		SignatureAlgorithm:    x509.SHA256WithRSA,
+	}); nil != errCA {
+		t.Error(errCA)
+	}
+}
+
+func TestChildCA(t *testing.T) {
+	if _, errCA = CA().GenerateCertificate(&Cert{
+		ParentCert: parentCert,
+		CertSelf: CertSelf{
+			CertificateFilePath:   filepath.Join(pathcaeccpemp521, caCertificateFileName),
+			Subject:               CAMockSubject,
+			ParentPrivateKey:      priKeyP384,
+			PublicKey:             priKeyP521.Public(),
+			NotAfterDays:          time.Now(),
+			NotBeforeDays:         time.Now().Add(5000 * 24 * time.Hour),
+			BasicConstraintsValid: true,
+			IsCA:                  true,
+			ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth},
+			KeyUsage:              x509.KeyUsageCertSign | x509.KeyUsageCRLSign | x509.KeyUsageDataEncipherment,
+			SignatureAlgorithm:    x509.ECDSAWithSHA384,
+		},
+	}); nil != errCA {
 		t.Error(errCA)
 	}
 }

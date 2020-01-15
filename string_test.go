@@ -64,3 +64,7 @@ func TestStringCommon_PrefixSupplementZero(t *testing.T) {
 	Log().Debug("ui64", Log().Field("92873890910928019", String().PrefixSupplementZero("92873890910928019", 50)))
 	Log().Debug("ui64", Log().Field("92873890910928019", String().PrefixSupplementZero("92873890910928019", 60)))
 }
+
+func TestStringCommon_SubString(t *testing.T) {
+	t.Log(String().SubString("110xxxxxxx", 0, 3))
+}
