@@ -68,3 +68,7 @@ func TestStringCommon_PrefixSupplementZero(t *testing.T) {
 func TestStringCommon_SubString(t *testing.T) {
 	t.Log(String().SubString("110xxxxxxx", 0, 3))
 }
+
+func TestStringCommon_StringBuilder(t *testing.T) {
+	t.Log(String().StringBuilder("a", "b"))
+}

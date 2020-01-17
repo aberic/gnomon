@@ -145,3 +145,7 @@ func (s *StringCommon) SubString(res string, start, end int) string {
 	}
 	return res[start:end]
 }
+
+func (s *StringCommon) StringBuilder(arrString ...string) string {
+	return strings.Join(arrString, "")
+}
