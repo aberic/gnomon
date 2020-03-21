@@ -281,6 +281,11 @@ func (l *LogCommon) Err(err error) *Field {
 	return &Field{key: "error", value: nil}
 }
 
+// Err 自定义输出错误
+func (l *LogCommon) Errs(msg string) *Field {
+	return &Field{key: "error", value: msg}
+}
+
 // logStandard 将日志输出到控制台
 //
 // file 日志触发所在文件地址
