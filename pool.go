@@ -1,0 +1,142 @@
+/*
+ * Copyright (c) 2019. aberic - All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+package gnomon
+
+import (
+	"errors"
+	"io"
+	"sync"
+	"time"
+)
+
+// PoolCommon io.Closer连接池工具
+type PoolCommon struct{}
+
+// conn 连接单体接口
+type conn interface {
+	io.Closer // 实现io.Closer接口的对象都可以使用该连接池
+}
+
+// factory 创建连接的方法
+type factory func() (conn, error)
+
+func (pc *PoolCommon) New(minOpen, maxOpen int, maxLifetime time.Duration, factory factory) (*Pond, error) {
+	if maxOpen <= 0 || minOpen > maxOpen {
+		return nil, errors.New("invalid params")
+	}
+	p := &Pond{
+		maxOpen:     maxOpen,
+		minOpen:     minOpen,
+		maxLifetime: maxLifetime,
+		factory:     factory,
+		conn:        make(chan conn, maxOpen),
+	}
+
+	for i := 0; i < minOpen; i++ {
+		connect, err := factory()
+		if err != nil {
+			continue
+		}
+		p.numOpen++
+		p.conn <- connect
+	}
+	return p, nil
+}
+
+// Pond 连接池对象
+type Pond struct {
+	sync.Mutex
+	conn        chan conn
+	maxOpen     int  // 池中最大资源数
+	numOpen     int  // 当前池中资源数
+	minOpen     int  // 池中最少资源数
+	closed      bool // 池是否已关闭
+	maxLifetime time.Duration
+	factory     factory // 创建连接的方法
+}
+
+func (p *Pond) getOrCreate() (conn, error) {
+	//select {
+	//case connect := <-p.Pond:
+	//	return connect, nil
+	//default:
+	//}
+	defer p.Unlock()
+	p.Lock()
+	if p.numOpen >= p.maxOpen {
+		return <-p.conn, nil
+	}
+	// 新建连接
+	connect, err := p.factory()
+	if err != nil {
+		return nil, err
+	}
+	p.numOpen++
+	return connect, nil
+}
+
+// acquire 获取资源
+func (p *Pond) Acquire() (conn, error) {
+	if p.closed {
+		return nil, errors.New("Pond close")
+	}
+	for {
+		connect, err := p.getOrCreate()
+		if err != nil {
+			return nil, err
+		}
+		//// 如果设置了超时且当前连接的活跃时间+超时时间早于现在，则当前连接已过期
+		//if p.maxLifetime > 0 && connect.lastActiveTime().Add(p.maxLifetime).Before(time.Now()) {
+		//	_ = p.close(connect)
+		//	continue
+		//}
+		return connect, nil
+	}
+}
+
+// release 释放单个资源到连接池
+func (p *Pond) Release(conn conn) error {
+	if p.closed {
+		return errors.New("Pond close")
+	}
+	p.conn <- conn
+	return nil
+}
+
+// close 关闭单个资源
+func (p *Pond) Close(conn conn) error {
+	p.Lock()
+	_ = conn.Close()
+	p.numOpen--
+	p.Unlock()
+	return nil
+}
+
+// shutdown 关闭连接池，释放所有资源
+func (p *Pond) Shutdown() error {
+	if p.closed {
+		return errors.New("Pond close")
+	}
+	p.Lock()
+	close(p.conn)
+	for connect := range p.conn {
+		_ = connect.Close()
+		p.numOpen--
+	}
+	p.closed = true
+	p.Unlock()
+	return nil
+}

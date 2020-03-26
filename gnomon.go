@@ -38,6 +38,7 @@ var (
 	lc          *LogCommon
 	scc         *ScaleCommon
 	tc          *TimeCommon
+	pc          *PoolCommon
 	onceByte    sync.Once
 	onceCommand sync.Once
 	onceEnv     sync.Once
@@ -54,6 +55,7 @@ var (
 	onceLog     sync.Once
 	onceScale   sync.Once
 	onceTime    sync.Once
+	oncePool    sync.Once
 )
 
 // Byte 字节工具
@@ -182,4 +184,12 @@ func Time() *TimeCommon {
 		tc = &TimeCommon{}
 	})
 	return tc
+}
+
+// Pool 连接池工具
+func Pool() *PoolCommon {
+	oncePool.Do(func() {
+		pc = &PoolCommon{}
+	})
+	return pc
 }
