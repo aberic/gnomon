@@ -25,13 +25,13 @@ import (
 // PoolCommon io.Closer连接池工具
 type PoolCommon struct{}
 
-// conn 连接单体接口
-type conn interface {
+// Conn 连接单体接口
+type Conn interface {
 	io.Closer // 实现io.Closer接口的对象都可以使用该连接池
 }
 
 // factory 创建连接的方法
-type factory func() (conn, error)
+type factory func() (Conn, error)
 
 func (pc *PoolCommon) New(minOpen, maxOpen int, maxLifetime time.Duration, factory factory) (*Pond, error) {
 	if maxOpen <= 0 || minOpen > maxOpen {
@@ -42,7 +42,7 @@ func (pc *PoolCommon) New(minOpen, maxOpen int, maxLifetime time.Duration, facto
 		minOpen:     minOpen,
 		maxLifetime: maxLifetime,
 		factory:     factory,
-		conn:        make(chan conn, maxOpen),
+		conn:        make(chan Conn, maxOpen),
 	}
 
 	for i := 0; i < minOpen; i++ {
@@ -59,7 +59,7 @@ func (pc *PoolCommon) New(minOpen, maxOpen int, maxLifetime time.Duration, facto
 // Pond 连接池对象
 type Pond struct {
 	sync.Mutex
-	conn        chan conn
+	conn        chan Conn
 	maxOpen     int  // 池中最大资源数
 	numOpen     int  // 当前池中资源数
 	minOpen     int  // 池中最少资源数
@@ -68,7 +68,7 @@ type Pond struct {
 	factory     factory // 创建连接的方法
 }
 
-func (p *Pond) getOrCreate() (conn, error) {
+func (p *Pond) getOrCreate() (Conn, error) {
 	//select {
 	//case connect := <-p.Pond:
 	//	return connect, nil
@@ -89,7 +89,7 @@ func (p *Pond) getOrCreate() (conn, error) {
 }
 
 // acquire 获取资源
-func (p *Pond) Acquire() (conn, error) {
+func (p *Pond) Acquire() (Conn, error) {
 	if p.closed {
 		return nil, errors.New("Pond close")
 	}
@@ -108,7 +108,7 @@ func (p *Pond) Acquire() (conn, error) {
 }
 
 // release 释放单个资源到连接池
-func (p *Pond) Release(conn conn) error {
+func (p *Pond) Release(conn Conn) error {
 	if p.closed {
 		return errors.New("Pond close")
 	}
@@ -117,7 +117,7 @@ func (p *Pond) Release(conn conn) error {
 }
 
 // close 关闭单个资源
-func (p *Pond) Close(conn conn) error {
+func (p *Pond) Close(conn Conn) error {
 	p.Lock()
 	_ = conn.Close()
 	p.numOpen--
