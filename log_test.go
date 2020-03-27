@@ -22,7 +22,7 @@ import (
 	"time"
 )
 
-var logDir = "./tmp/log"
+var logDir = "tmp/log"
 
 func logDo() {
 	Log().Debug("test", Log().Field("1", "2"), Log().Field("2", 3), Log().Field("3", true))
@@ -33,13 +33,14 @@ func logDo() {
 }
 
 func TestLogCommon_Fail(t *testing.T) {
-	t.Log(Log().Init("/etc/log", 1, 1, false))
+	t.Log(Log().Init(logDir, 1, 1, false))
 }
 
 func TestLogCommon_Debug(t *testing.T) {
-	_ = Log().Init("", 1, 1, false)
+	_ = Log().Init(logDir, 1, 1, false)
 	Log().Set(Log().DebugLevel(), false)
 	logDo()
+	time.Sleep(3 * time.Second)
 }
 
 func TestLogCommon_Info(t *testing.T) {
@@ -47,12 +48,14 @@ func TestLogCommon_Info(t *testing.T) {
 	_ = Log().Init(logDir, 1, 1, true)
 	Log().Set(Log().InfoLevel(), false)
 	logDo()
+	time.Sleep(3 * time.Second)
 }
 
 func TestLogCommon_Warn(t *testing.T) {
 	_ = Log().Init(logDir, 1, 1, true)
 	Log().Set(Log().WarnLevel(), false)
 	logDo()
+	time.Sleep(3 * time.Second)
 }
 
 func TestLogCommon_Error(t *testing.T) {
@@ -65,19 +68,21 @@ func TestLogCommon_Panic(t *testing.T) {
 	_ = Log().Init(logDir, 1, 1, false)
 	Log().Set(Log().PanicLevel(), false)
 	logDo()
+	time.Sleep(3 * time.Second)
 }
 
 func TestLogCommon_Fatal(t *testing.T) {
 	_ = Log().Init(logDir, 1, 1, false)
 	Log().Set(Log().FatalLevel(), false)
 	logDo()
+	time.Sleep(3 * time.Second)
 }
 
 func TestLogCommon_Fatal_BigStorage(t *testing.T) {
 	_ = Log().Init(logDir, 1, 1, false)
 	Log().Set(debugLevel, true)
 	for i := 0; i < 100000; i++ {
-		go Log().Debug("test", Log().Field("i", i), Log().Field("str", "str"), Log().Field("3", true))
+		go logDo()
 	}
-	time.Sleep(2 * time.Second)
+	time.Sleep(10 * time.Second)
 }

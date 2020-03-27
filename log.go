@@ -63,17 +63,16 @@ const (
 
 // LogCommon 日志工具
 type LogCommon struct {
-	logDir           string           // logDir 日志文件目录
-	maxSizeByte      int64            // maxSizeByte 每个日志文件保存的最大尺寸 单位：byte
-	maxAge           int              // maxAge 文件最多保存多少天
-	files            map[Level]*filed // files 日志文件输入io对象集合
-	level            Level            // level 日志级别
-	production       bool             // 生产环境，该模式下控制台不会输出任何日志
-	utc              bool             // CST & UTC 时间
-	date             string           // date 当前日志文件后缀日期
-	mkRootDirSuccess bool             // mkRootDirSuccess 是否成功初始化log对象
-	job              *cron.Cron       // job 日志定时清理任务
-	once             sync.Once        // once log对象只会被初始化一次
+	logDir      string           // logDir 日志文件目录
+	maxSizeByte int64            // maxSizeByte 每个日志文件保存的最大尺寸 单位：byte
+	maxAge      int              // maxAge 文件最多保存多少天
+	files       map[Level]*filed // files 日志文件输入io对象集合
+	level       Level            // level 日志级别
+	production  bool             // 生产环境，该模式下控制台不会输出任何日志
+	utc         bool             // CST & UTC 时间
+	date        string           // date 当前日志文件后缀日期
+	job         *cron.Cron       // job 日志定时清理任务
+	once        sync.Once        // once log对象只会被初始化一次
 }
 
 // Init log初始化
@@ -90,14 +89,13 @@ func (l *LogCommon) Init(logDir string, maxSize, maxAge int, utc bool) error {
 	var errInit error
 	l.once.Do(func() {
 		if String().IsEmpty(logDir) {
-			logDir = "./tmp/log"
+			logDir = String().StringBuilder(os.TempDir(), "/log")
 		}
 		if err := os.MkdirAll(logDir, os.ModePerm); nil != err {
 			l.Error("log service init error", Log().Err(err))
 			errInit = err
 			return
 		}
-		l.mkRootDirSuccess = true
 		l.logDir = logDir
 		l.utc = utc
 		l.maxSizeByte = int64(maxSize * 1024 * 1024)
@@ -359,11 +357,16 @@ func (l *LogCommon) logStandard(file, levelName, msg string, line int, ok bool, 
 				os.Exit(1)
 			}
 		}
+		if nil == l.files {
+			return
+		}
+		go l.logFile(timeString, fileString, stackString, levelName, logCommand, level)
+	} else {
+		if nil == l.files {
+			return
+		}
+		go l.logFileProduction(timeString, fileString, stackString, levelName, msg, level, fields...)
 	}
-	if nil == l.files {
-		return
-	}
-	go l.logFile(timeString, fileString, stackString, levelName, msg, level, fields...)
 }
 
 // logFile 将日志内容输入文件中存储
@@ -381,7 +384,53 @@ func (l *LogCommon) logStandard(file, levelName, msg string, line int, ok bool, 
 // level 日志级别
 //
 // fields 日志输出对象子集
-func (l *LogCommon) logFile(timeString, fileString, stackString, levelName, msg string, level Level, fields ...*Field) {
+func (l *LogCommon) logFile(timeString, fileString, stackString, levelName string, logCommand map[string]interface{}, level Level) {
+	var (
+		mapJSON     []byte
+		printString string
+		err         error
+		fd          *filed
+	)
+	logCommand["level"] = strings.ToLower(levelName)
+	logCommand["time"] = timeString
+	logCommand["file"] = fileString
+	if mapJSON, err = json.Marshal(logCommand); nil != err {
+		l.Error("json Marshal error", Log().Err(err))
+		return
+	}
+	switch levelName {
+	case logNameError, logNamePanic, logNameFatal:
+		if String().IsEmpty(stackString) {
+			stackString = string(debug.Stack())
+		}
+		printString = strings.Join([]string{string(mapJSON), stackString}, "\n")
+	default:
+		printString = strings.Join([]string{string(mapJSON), "\n"}, "")
+	}
+	if fd, err = l.useFiled(level, printString); nil == err {
+		fd.tasks <- printString
+	}
+	if fd, err = l.useFiled(allLevel, printString); nil == err {
+		fd.tasks <- printString
+	}
+}
+
+// logFileProduction 将日志内容输入文件中存储
+//
+// timeString 日志时间
+//
+// fileString 日志触发所在文件所在行信息
+//
+// stackString 日志堆栈信息
+//
+// levelName 日志级别名称
+//
+// msg 日志默认输出信息
+//
+// level 日志级别
+//
+// fields 日志输出对象子集
+func (l *LogCommon) logFileProduction(timeString, fileString, stackString, levelName, msg string, level Level, fields ...*Field) {
 	var (
 		mapJSON     []byte
 		printString string
@@ -544,10 +593,10 @@ func (l *LogCommon) logFileName(name, index string) string {
 
 // filed 日志文件操作对象
 type filed struct {
-	fileIndex string // fileIndex 日志文件相同日期编号，根据文件新建规则确定
-	file      *os.File
-	tasks     chan string // 任务队列，默认1000个缓存
-	lock      sync.Mutex  // lock 每次做io开销的安全锁
+	fileIndex string       // fileIndex 日志文件相同日期编号，根据文件新建规则确定
+	file      *os.File     // 日志文件对象
+	tasks     chan string  // 任务队列，默认1000个缓存
+	lock      sync.RWMutex // lock 每次做io开销的安全锁
 }
 
 // running 循环执行文件写入，默认60秒超时
@@ -556,10 +605,12 @@ func (f *filed) running() {
 	for {
 		select {
 		case task := <-f.tasks:
+			f.lock.RLock()
 			to.Reset(time.Second)
 			if _, err := f.file.WriteString(task); nil != err {
 				panic(err)
 			}
+			f.lock.RUnlock()
 		case <-to.C:
 			_ = f.file.Close()
 			f.file = nil

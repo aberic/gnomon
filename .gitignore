@@ -26,3 +26,4 @@ gen### Go template
 /overalls.coverprofile
 /coverage.txt
 /tmp/
+!/tmp/
