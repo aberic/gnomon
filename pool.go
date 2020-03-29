@@ -22,6 +22,11 @@ import (
 	"time"
 )
 
+var (
+	errInvalidParams = errors.New("invalid pond params")
+	errPoolClosed    = errors.New("pond closed")
+)
+
 // PoolCommon io.Closer连接池工具
 type PoolCommon struct{}
 
@@ -33,9 +38,18 @@ type Conn interface {
 // factory 创建连接的方法
 type factory func() (Conn, error)
 
+// New 新建一个支持所有实现 io.Closer 接口的连接池
+//
+// minOpen 池中最少资源数
+//
+// maxOpen 池中最大资源数
+//
+// maxLifetime
+//
+// factory
 func (pc *PoolCommon) New(minOpen, maxOpen int, maxLifetime time.Duration, factory factory) (*Pond, error) {
 	if maxOpen <= 0 || minOpen > maxOpen {
-		return nil, errors.New("invalid params")
+		return nil, errInvalidParams
 	}
 	p := &Pond{
 		maxOpen:     maxOpen,
@@ -91,7 +105,7 @@ func (p *Pond) getOrCreate() (Conn, error) {
 // acquire 获取资源
 func (p *Pond) Acquire() (Conn, error) {
 	if p.closed {
-		return nil, errors.New("Pond close")
+		return nil, errPoolClosed
 	}
 	for {
 		connect, err := p.getOrCreate()
@@ -110,25 +124,24 @@ func (p *Pond) Acquire() (Conn, error) {
 // release 释放单个资源到连接池
 func (p *Pond) Release(conn Conn) error {
 	if p.closed {
-		return errors.New("Pond close")
+		return errPoolClosed
 	}
 	p.conn <- conn
 	return nil
 }
 
 // close 关闭单个资源
-func (p *Pond) Close(conn Conn) error {
+func (p *Pond) Close(conn Conn) {
 	p.Lock()
 	_ = conn.Close()
 	p.numOpen--
 	p.Unlock()
-	return nil
 }
 
 // shutdown 关闭连接池，释放所有资源
 func (p *Pond) Shutdown() error {
 	if p.closed {
-		return errors.New("Pond close")
+		return errPoolClosed
 	}
 	p.Lock()
 	close(p.conn)
