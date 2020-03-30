@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/peer"
 	"net"
 	"strconv"
@@ -37,11 +38,17 @@ func (g *GRPCCommon) RequestPool(pool *Pond, business Business) (interface{}, er
 		conn *grpc.ClientConn
 		err  error
 	)
-	// 创建一个grpc连接器
-	if c, err = pool.Acquire(); nil != err {
-		return nil, err
+	for {
+		// 创建一个grpc连接器
+		if c, err = pool.Acquire(); nil != err {
+			return nil, err
+		}
+		conn = c.(*grpc.ClientConn)
+		if conn.GetState() == connectivity.Ready {
+			break
+		}
+		pool.Close(c)
 	}
-	conn = c.(*grpc.ClientConn)
 	return business(conn)
 }
 
