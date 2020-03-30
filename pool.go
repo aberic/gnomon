@@ -64,7 +64,7 @@ func (pc *PoolCommon) New(minOpen, maxOpen int, maxLifetime time.Duration, facto
 		if err != nil {
 			continue
 		}
-		p.numOpen++
+		p.nowOpen++
 		p.conn <- connect
 	}
 	return p, nil
@@ -75,7 +75,7 @@ type Pond struct {
 	sync.Mutex
 	conn        chan Conn
 	maxOpen     int  // 池中最大资源数
-	numOpen     int  // 当前池中资源数
+	nowOpen     int  // 当前池中资源数
 	minOpen     int  // 池中最少资源数
 	closed      bool // 池是否已关闭
 	maxLifetime time.Duration
@@ -90,7 +90,7 @@ func (p *Pond) getOrCreate() (Conn, error) {
 	//}
 	defer p.Unlock()
 	p.Lock()
-	if p.numOpen >= p.maxOpen {
+	if p.nowOpen >= p.maxOpen {
 		return <-p.conn, nil
 	}
 	// 新建连接
@@ -98,7 +98,7 @@ func (p *Pond) getOrCreate() (Conn, error) {
 	if err != nil {
 		return nil, err
 	}
-	p.numOpen++
+	p.nowOpen++
 	return connect, nil
 }
 
@@ -134,7 +134,7 @@ func (p *Pond) Release(conn Conn) error {
 func (p *Pond) Close(conn Conn) {
 	p.Lock()
 	_ = conn.Close()
-	p.numOpen--
+	p.nowOpen--
 	p.Unlock()
 }
 
@@ -147,7 +147,7 @@ func (p *Pond) Shutdown() error {
 	close(p.conn)
 	for connect := range p.conn {
 		_ = connect.Close()
-		p.numOpen--
+		p.nowOpen--
 	}
 	p.closed = true
 	p.Unlock()

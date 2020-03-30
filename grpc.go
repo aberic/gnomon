@@ -44,11 +44,13 @@ func (g *GRPCCommon) RequestPool(pool *Pond, business Business) (interface{}, er
 			return nil, err
 		}
 		conn = c.(*grpc.ClientConn)
-		if conn.GetState() == connectivity.Ready {
+		if conn.GetState() != connectivity.Shutdown && conn.GetState() != connectivity.TransientFailure {
 			break
 		}
 		pool.Close(c)
 	}
+	// 请求完毕后释放连接
+	defer func() { _ = pool.Release(c) }()
 	return business(conn)
 }
 
