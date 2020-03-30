@@ -39,6 +39,7 @@ var (
 	scc         *ScaleCommon
 	tc          *TimeCommon
 	pc          *PoolCommon
+	gc          *GRPCCommon
 	onceByte    sync.Once
 	onceCommand sync.Once
 	onceEnv     sync.Once
@@ -56,6 +57,7 @@ var (
 	onceScale   sync.Once
 	onceTime    sync.Once
 	oncePool    sync.Once
+	onceGRPC    sync.Once
 )
 
 // Byte 字节工具
@@ -192,4 +194,12 @@ func Pool() *PoolCommon {
 		pc = &PoolCommon{}
 	})
 	return pc
+}
+
+// GRPC gRPC工具
+func GRPC() *GRPCCommon {
+	onceGRPC.Do(func() {
+		gc = &GRPCCommon{}
+	})
+	return gc
 }
