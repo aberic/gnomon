@@ -22,44 +22,46 @@ import (
 )
 
 var (
-	bc          *ByteCommon
-	cc          *CommandCommon
-	ec          *EnvCommon
-	fc          *FileCommon
-	ic          *IPCommon
-	jc          *JWTCommon
-	sc          *StringCommon
-	hc          *HashCommon
-	rc          *RSACommon
-	ac          *AESCommon
-	dc          *DESCommon
-	ecc         *ECCCommon
-	cac         *CACommon
-	lc          *LogCommon
-	scc         *ScaleCommon
-	tc          *TimeCommon
-	pc          *PoolCommon
-	gc          *GRPCCommon
-	ghc         *GHTTPCommon
-	onceByte    sync.Once
-	onceCommand sync.Once
-	onceEnv     sync.Once
-	onceFile    sync.Once
-	onceIP      sync.Once
-	onceJwt     sync.Once
-	onceString  sync.Once
-	onceHash    sync.Once
-	onceRSA     sync.Once
-	onceAES     sync.Once
-	onceDES     sync.Once
-	onceECC     sync.Once
-	onceCAC     sync.Once
-	onceLog     sync.Once
-	onceScale   sync.Once
-	onceTime    sync.Once
-	oncePool    sync.Once
-	onceGRPC    sync.Once
-	onceGHTTP   sync.Once
+	bc             *ByteCommon
+	cc             *CommandCommon
+	ec             *EnvCommon
+	fc             *FileCommon
+	ic             *IPCommon
+	jc             *JWTCommon
+	sc             *StringCommon
+	hc             *HashCommon
+	rc             *RSACommon
+	ac             *AESCommon
+	dc             *DESCommon
+	ecc            *ECCCommon
+	cac            *CACommon
+	lc             *LogCommon
+	scc            *ScaleCommon
+	tc             *TimeCommon
+	pc             *PoolCommon
+	gc             *GRPCCommon
+	ghc            *GHTTPCommon
+	hpc            *HttpClientCommon
+	onceByte       sync.Once
+	onceCommand    sync.Once
+	onceEnv        sync.Once
+	onceFile       sync.Once
+	onceIP         sync.Once
+	onceJwt        sync.Once
+	onceString     sync.Once
+	onceHash       sync.Once
+	onceRSA        sync.Once
+	onceAES        sync.Once
+	onceDES        sync.Once
+	onceECC        sync.Once
+	onceCAC        sync.Once
+	onceLog        sync.Once
+	onceScale      sync.Once
+	onceTime       sync.Once
+	oncePool       sync.Once
+	onceGRPC       sync.Once
+	onceGHTTP      sync.Once
+	onceHTTPClient sync.Once
 )
 
 // Byte 字节工具
@@ -212,4 +214,12 @@ func Grope() *GHTTPCommon {
 		ghc = &GHTTPCommon{}
 	})
 	return ghc
+}
+
+// HttpClient Http工具
+func HttpClient() *HttpClientCommon {
+	onceHTTPClient.Do(func() {
+		hpc = &HttpClientCommon{}
+	})
+	return hpc
 }

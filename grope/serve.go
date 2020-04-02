@@ -60,7 +60,7 @@ func (ghs *GHttpServe) doMethod(w http.ResponseWriter, r *http.Request) {
 		patterned = strings.Join([]string{patterned, param}, "/")
 		if router, exist := ghr.methodMap[r.Method]; exist { // 判断router中是否存在当前请求方法
 			if route, ok := router.routes[patterned]; ok { // 判断当前url是否存在route中
-				if r.Method != http.MethodGet && r.Method != http.MethodHead && r.Method != http.MethodOptions {
+				if r.Method != http.MethodGet && r.Method != http.MethodHead && r.Method != http.MethodOptions && r.Method != http.MethodDelete {
 					if err := json.NewDecoder(r.Body).Decode(route.model); nil != err {
 						http.Error(w, err.Error(), http.StatusInternalServerError)
 						return
