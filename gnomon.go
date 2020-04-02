@@ -40,7 +40,7 @@ var (
 	tc          *TimeCommon
 	pc          *PoolCommon
 	gc          *GRPCCommon
-	hpc         *HTTPCommon
+	ghc         *GHTTPCommon
 	onceByte    sync.Once
 	onceCommand sync.Once
 	onceEnv     sync.Once
@@ -59,7 +59,7 @@ var (
 	onceTime    sync.Once
 	oncePool    sync.Once
 	onceGRPC    sync.Once
-	onceHTTP    sync.Once
+	onceGHTTP   sync.Once
 )
 
 // Byte 字节工具
@@ -206,10 +206,10 @@ func GRPC() *GRPCCommon {
 	return gc
 }
 
-// HTTP Http工具
-func HTTP() *HTTPCommon {
-	onceHTTP.Do(func() {
-		hpc = &HTTPCommon{}
+// Grope Http工具
+func Grope() *GHTTPCommon {
+	onceGHTTP.Do(func() {
+		ghc = &GHTTPCommon{}
 	})
-	return hpc
+	return ghc
 }
