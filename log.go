@@ -98,7 +98,13 @@ func (l *LogCommon) Init(logDir string, maxSize, maxAge int, utc bool) error {
 		}
 		l.logDir = logDir
 		l.utc = utc
+		if maxSize < 1 {
+			maxSize = 1
+		}
 		l.maxSizeByte = int64(maxSize * 1024 * 1024)
+		if maxAge < 1 {
+			maxAge = 1
+		}
 		l.maxAge = maxAge
 		l.level = debugLevel
 		l.production = false
@@ -159,7 +165,12 @@ func (l *LogCommon) checkMaxAge() {
 //
 // production 是否生产环境，在生产环境下控制台不会输出任何日志
 func (l *LogCommon) Set(level Level, production bool) {
-	l.level = level
+	switch level {
+	default:
+		l.level = debugLevel
+	case debugLevel, infoLevel, warnLevel, errorLevel, panicLevel, fatalLevel:
+		l.level = level
+	}
 	l.production = production
 }
 
