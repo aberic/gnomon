@@ -42,6 +42,7 @@ var (
 	gc             *GRPCCommon
 	ghc            *GHTTPCommon
 	hpc            *HttpClientCommon
+	sql            *SQLCommon
 	onceByte       sync.Once
 	onceCommand    sync.Once
 	onceEnv        sync.Once
@@ -62,6 +63,7 @@ var (
 	onceGRPC       sync.Once
 	onceGHTTP      sync.Once
 	onceHTTPClient sync.Once
+	onceSQL        sync.Once
 )
 
 // Byte 字节工具
@@ -222,4 +224,12 @@ func HttpClient() *HttpClientCommon {
 		hpc = &HttpClientCommon{}
 	})
 	return hpc
+}
+
+// SQL 获取 SQL 单例
+func SQL() *SQLCommon {
+	onceSQL.Do(func() {
+		sql = &SQLCommon{}
+	})
+	return sql
 }
