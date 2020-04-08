@@ -206,7 +206,7 @@ func (l *LogCommon) FatalLevel() Level {
 }
 
 // Debug 输出指定级别日志
-func (l *LogCommon) Debug(msg string, fields ...*Field) {
+func (l *LogCommon) Debug(msg string, fields ...FieldInter) {
 	if l.level > debugLevel {
 		return
 	}
@@ -218,7 +218,7 @@ func (l *LogCommon) Debug(msg string, fields ...*Field) {
 }
 
 // Info 输出指定级别日志
-func (l *LogCommon) Info(msg string, fields ...*Field) {
+func (l *LogCommon) Info(msg string, fields ...FieldInter) {
 	if l.level > infoLevel {
 		return
 	}
@@ -230,7 +230,7 @@ func (l *LogCommon) Info(msg string, fields ...*Field) {
 }
 
 // Warn 输出指定级别日志
-func (l *LogCommon) Warn(msg string, fields ...*Field) {
+func (l *LogCommon) Warn(msg string, fields ...FieldInter) {
 	if l.level > warnLevel {
 		return
 	}
@@ -242,7 +242,7 @@ func (l *LogCommon) Warn(msg string, fields ...*Field) {
 }
 
 // Error 输出指定级别日志
-func (l *LogCommon) Error(msg string, fields ...*Field) {
+func (l *LogCommon) Error(msg string, fields ...FieldInter) {
 	if l.level > errorLevel {
 		return
 	}
@@ -254,7 +254,7 @@ func (l *LogCommon) Error(msg string, fields ...*Field) {
 }
 
 // Panic 输出指定级别日志
-func (l *LogCommon) Panic(msg string, fields ...*Field) {
+func (l *LogCommon) Panic(msg string, fields ...FieldInter) {
 	if l.level > panicLevel {
 		return
 	}
@@ -266,7 +266,7 @@ func (l *LogCommon) Panic(msg string, fields ...*Field) {
 }
 
 // Fatal 输出指定级别日志
-func (l *LogCommon) Fatal(msg string, fields ...*Field) {
+func (l *LogCommon) Fatal(msg string, fields ...FieldInter) {
 	if l.level > fatalLevel {
 		return
 	}
@@ -310,7 +310,7 @@ func (l *LogCommon) Errs(msg string) *Field {
 // level 日志级别
 //
 // fields 日志输出对象子集
-func (l *LogCommon) logStandard(file, levelName, msg string, line int, ok bool, level Level, fields ...*Field) {
+func (l *LogCommon) logStandard(file, levelName, msg string, line int, ok bool, level Level, fields ...FieldInter) {
 	var (
 		fileString  string
 		timeString  string
@@ -343,7 +343,7 @@ func (l *LogCommon) logStandard(file, levelName, msg string, line int, ok bool, 
 			if nil == field {
 				continue
 			}
-			logCommand[field.key] = field.value
+			logCommand[field.GetKey()] = field.GetValue()
 		}
 		if commandJSON, err = json.Marshal(logCommand); nil != err {
 			l.Error("json Marshal error", Log().Err(err))
@@ -441,7 +441,7 @@ func (l *LogCommon) logFile(timeString, fileString, stackString, levelName strin
 // level 日志级别
 //
 // fields 日志输出对象子集
-func (l *LogCommon) logFileProduction(timeString, fileString, stackString, levelName, msg string, level Level, fields ...*Field) {
+func (l *LogCommon) logFileProduction(timeString, fileString, stackString, levelName, msg string, level Level, fields ...FieldInter) {
 	var (
 		mapJSON     []byte
 		printString string
@@ -457,7 +457,7 @@ func (l *LogCommon) logFileProduction(timeString, fileString, stackString, level
 		if nil == field {
 			continue
 		}
-		logMap[field.key] = field.value
+		logMap[field.GetKey()] = field.GetValue()
 	}
 	if mapJSON, err = json.Marshal(logMap); nil != err {
 		l.Error("json Marshal error", Log().Err(err))
@@ -630,8 +630,21 @@ func (f *filed) running() {
 	}
 }
 
+type FieldInter interface {
+	GetKey() string
+	GetValue() interface{}
+}
+
 // Field 日志输出子集对象
 type Field struct {
 	key   string
 	value interface{}
+}
+
+func (f *Field) GetKey() string {
+	return f.key
+}
+
+func (f *Field) GetValue() interface{} {
+	return f.value
 }
