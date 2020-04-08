@@ -30,11 +30,17 @@ type SQLCommon struct {
 	DBPass string   // dbPass 数据库用户密码
 	DBName string   // dbName 数据库名称
 	// LogMode set log mode, `true` for detailed logs, `false` for no log, default, will only print error logs
-	LogModeEnable bool
-	MaxIdleConns  int
-	MaxOpenConns  int
-	scheduled     *time.Timer   // 定时任务
-	stop          chan struct{} // 释放当前角色chan
+	LogModeEnable   bool
+	MaxIdleConnects int
+	MaxOpenConnects int
+	scheduled       *time.Timer   // 定时任务
+	stop            chan struct{} // 释放当前角色chan
+}
+
+func (s *SQLCommon) DisConnect() {
+	if nil != s.scheduled {
+		s.stop <- struct{}{}
+	}
 }
 
 // Connect 链接数据库服务
@@ -62,8 +68,10 @@ func (s *SQLCommon) Connect(dbURL, dbUser, dbPass, dbName string, logModeEnable 
 		s.DBPass = dbPass
 		s.DBName = dbName
 		s.LogModeEnable = logModeEnable
-		s.MaxIdleConns = maxIdleConns
-		s.MaxOpenConns = maxOpenConns
+		s.MaxIdleConnects = maxIdleConns
+		s.MaxOpenConnects = maxOpenConns
+		s.scheduled = time.NewTimer(time.Millisecond * time.Duration(10))
+		s.stop = make(chan struct{}, 1)
 		Log().Info("init DB Manager")
 		dbValue := strings.Join([]string{s.DBUser, ":", s.DBPass, "@tcp(", s.DBUrl, ")/", s.DBName,
 			"?charset=utf8&parseTime=True&loc=Local"}, "")
@@ -87,7 +95,7 @@ func (s *SQLCommon) Connect(dbURL, dbUser, dbPass, dbName string, logModeEnable 
 }
 
 func (s *SQLCommon) reConnect() error {
-	return s.Connect(s.DBUrl, s.DBUser, s.DBPass, s.DBName, s.LogModeEnable, s.MaxIdleConns, s.MaxOpenConns)
+	return s.Connect(s.DBUrl, s.DBUser, s.DBPass, s.DBName, s.LogModeEnable, s.MaxIdleConnects, s.MaxOpenConnects)
 }
 
 // Exec 执行自定义 SQL
@@ -134,6 +142,7 @@ func (s *SQLCommon) dbKeepAlive(db *gorm.DB) {
 			}
 			s.scheduled.Reset(time.Second * time.Duration(10))
 		case <-s.stop:
+			s.scheduled = nil
 			return
 		}
 	}
