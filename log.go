@@ -279,20 +279,20 @@ func (l *LogCommon) Fatal(msg string, fields ...FieldInter) {
 
 // Field 自定义输出KV对象
 func (l *LogCommon) Field(key string, value interface{}) *Field {
-	return &Field{key: key, value: value}
+	return &Field{Key: key, Value: value}
 }
 
 // Err 自定义输出错误
 func (l *LogCommon) Err(err error) *Field {
 	if nil != err {
-		return &Field{key: "error", value: err.Error()}
+		return &Field{Key: "error", Value: err.Error()}
 	}
-	return &Field{key: "error", value: nil}
+	return &Field{Key: "error", Value: nil}
 }
 
 // Err 自定义输出错误
 func (l *LogCommon) Errs(msg string) *Field {
-	return &Field{key: "error", value: msg}
+	return &Field{Key: "error", Value: msg}
 }
 
 // logStandard 将日志输出到控制台
@@ -637,14 +637,14 @@ type FieldInter interface {
 
 // Field 日志输出子集对象
 type Field struct {
-	key   string
-	value interface{}
+	Key   string
+	Value interface{}
 }
 
 func (f *Field) GetKey() string {
-	return f.key
+	return f.Key
 }
 
 func (f *Field) GetValue() interface{} {
-	return f.value
+	return f.Value
 }
