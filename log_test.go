@@ -30,6 +30,11 @@ func logDo() {
 	Log().Info("test", Log().Field("1", "2"), Log().Field("2", 3), Log().Field("3", true))
 	Log().Warn("test", Log().Field("1", "2"), Log().Field("2", 3), Log().Field("3", true))
 	Log().Error("test", Log().Field("1", "2"), Log().Field("2", 3), Log().Field("3", true), Log().Err(errors.New("yes")))
+	Log().DebugSkip(1, "test", Log().Field("1", "2"), Log().Field("2", 3), Log().Field("3", true))
+	Log().DebugSkip(1, "test", nil)
+	Log().InfoSkip(1, "test", Log().Field("1", "2"), Log().Field("2", 3), Log().Field("3", true))
+	Log().WarnSkip(1, "test", Log().Field("1", "2"), Log().Field("2", 3), Log().Field("3", true))
+	Log().ErrorSkip(1, "test", Log().Field("1", "2"), Log().Field("2", 3), Log().Field("3", true), Log().Err(errors.New("yes")))
 }
 
 func TestLogCommon_Fail(t *testing.T) {

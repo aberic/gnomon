@@ -207,71 +207,113 @@ func (l *LogCommon) FatalLevel() Level {
 
 // Debug 输出指定级别日志
 func (l *LogCommon) Debug(msg string, fields ...FieldInter) {
+	l.DebugSkip(2, msg, fields...)
+}
+
+// Info 输出指定级别日志
+func (l *LogCommon) Info(msg string, fields ...FieldInter) {
+	l.InfoSkip(2, msg, fields...)
+}
+
+// Warn 输出指定级别日志
+func (l *LogCommon) Warn(msg string, fields ...FieldInter) {
+	l.WarnSkip(2, msg, fields...)
+}
+
+// Error 输出指定级别日志
+func (l *LogCommon) Error(msg string, fields ...FieldInter) {
+	l.ErrorSkip(2, msg, fields...)
+}
+
+// Panic 输出指定级别日志
+func (l *LogCommon) Panic(msg string, fields ...FieldInter) {
+	l.PanicSkip(2, msg, fields...)
+}
+
+// Fatal 输出指定级别日志
+func (l *LogCommon) Fatal(msg string, fields ...FieldInter) {
+	l.FatalSkip(2, msg, fields...)
+}
+
+// Debug 输出指定级别日志
+//
+// skip 如果经封装调用该方法，默认2，否则默认1
+func (l *LogCommon) DebugSkip(skip int, msg string, fields ...FieldInter) {
 	if l.level > debugLevel {
 		return
 	}
-	if _, file, line, ok := runtime.Caller(1); ok {
-		l.logStandard(file, logNameDebug, msg, line, ok, debugLevel, fields...)
+	if _, file, line, ok := runtime.Caller(skip); ok {
+		l.logStandard(file, logNameDebug, msg, line, debugLevel, fields...)
 	} else {
 		l.Warn("log recovery fail")
 	}
 }
 
 // Info 输出指定级别日志
-func (l *LogCommon) Info(msg string, fields ...FieldInter) {
+//
+// skip 如果调用该方法，默认2
+func (l *LogCommon) InfoSkip(skip int, msg string, fields ...FieldInter) {
 	if l.level > infoLevel {
 		return
 	}
-	if _, file, line, ok := runtime.Caller(1); ok {
-		l.logStandard(file, logNameInfo, msg, line, ok, infoLevel, fields...)
+	if _, file, line, ok := runtime.Caller(skip); ok {
+		l.logStandard(file, logNameInfo, msg, line, infoLevel, fields...)
 	} else {
 		l.Warn("log recovery fail")
 	}
 }
 
 // Warn 输出指定级别日志
-func (l *LogCommon) Warn(msg string, fields ...FieldInter) {
+//
+// skip 如果调用该方法，默认2
+func (l *LogCommon) WarnSkip(skip int, msg string, fields ...FieldInter) {
 	if l.level > warnLevel {
 		return
 	}
-	if _, file, line, ok := runtime.Caller(1); ok {
-		l.logStandard(file, logNameWarn, msg, line, ok, warnLevel, fields...)
+	if _, file, line, ok := runtime.Caller(skip); ok {
+		l.logStandard(file, logNameWarn, msg, line, warnLevel, fields...)
 	} else {
 		l.Warn("log recovery fail")
 	}
 }
 
 // Error 输出指定级别日志
-func (l *LogCommon) Error(msg string, fields ...FieldInter) {
+//
+// skip 如果调用该方法，默认2
+func (l *LogCommon) ErrorSkip(skip int, msg string, fields ...FieldInter) {
 	if l.level > errorLevel {
 		return
 	}
-	if _, file, line, ok := runtime.Caller(1); ok {
-		l.logStandard(file, logNameError, msg, line, ok, errorLevel, fields...)
+	if _, file, line, ok := runtime.Caller(skip); ok {
+		l.logStandard(file, logNameError, msg, line, errorLevel, fields...)
 	} else {
 		l.Warn("log recovery fail")
 	}
 }
 
 // Panic 输出指定级别日志
-func (l *LogCommon) Panic(msg string, fields ...FieldInter) {
+//
+// skip 如果调用该方法，默认2
+func (l *LogCommon) PanicSkip(skip int, msg string, fields ...FieldInter) {
 	if l.level > panicLevel {
 		return
 	}
-	if _, file, line, ok := runtime.Caller(1); ok {
-		l.logStandard(file, logNamePanic, msg, line, ok, panicLevel, fields...)
+	if _, file, line, ok := runtime.Caller(skip); ok {
+		l.logStandard(file, logNamePanic, msg, line, panicLevel, fields...)
 	} else {
 		l.Warn("log recovery fail")
 	}
 }
 
 // Fatal 输出指定级别日志
-func (l *LogCommon) Fatal(msg string, fields ...FieldInter) {
+//
+// skip 如果调用该方法，默认2
+func (l *LogCommon) FatalSkip(skip int, msg string, fields ...FieldInter) {
 	if l.level > fatalLevel {
 		return
 	}
-	if _, file, line, ok := runtime.Caller(1); ok {
-		l.logStandard(file, logNameFatal, msg, line, ok, fatalLevel, fields...)
+	if _, file, line, ok := runtime.Caller(skip); ok {
+		l.logStandard(file, logNameFatal, msg, line, fatalLevel, fields...)
 	} else {
 		l.Warn("log recovery fail")
 	}
@@ -310,7 +352,7 @@ func (l *LogCommon) Errs(msg string) *Field {
 // level 日志级别
 //
 // fields 日志输出对象子集
-func (l *LogCommon) logStandard(file, levelName, msg string, line int, ok bool, level Level, fields ...FieldInter) {
+func (l *LogCommon) logStandard(file, levelName, msg string, line int, level Level, fields ...FieldInter) {
 	var (
 		fileString  string
 		timeString  string
