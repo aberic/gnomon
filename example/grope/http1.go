@@ -44,6 +44,8 @@ func router1(hs *grope.GHttpServe) {
 	route := hs.Group("/one")
 	route.Post("/test1", &TestOne{}, one1)
 	route.Post("/test2/:a/:b", &TestOne{}, one2)
+	route.PostForm("/test3/:a/:b", map[string]interface{}{}, one3)
+	route.PostForm("/test4/:a/:b", map[string]interface{}{}, one4)
 }
 
 func one1(_ http.ResponseWriter, r *http.Request, reqModel interface{}, _ map[string]string) (respModel interface{}, custom bool) {
@@ -60,6 +62,32 @@ func one2(_ http.ResponseWriter, r *http.Request, reqModel interface{}, paramMap
 	ones := reqModel.(*TestOne)
 	gnomon.Log().Info("one", gnomon.Log().Field("one", &ones), gnomon.Log().Field("url", r.URL.String()),
 		gnomon.Log().Field("a", paramMaps["a"]), gnomon.Log().Field("b", paramMaps["b"]))
+	return &TestTwo{
+		Two:   "2",
+		Twos:  false,
+		TwoGo: 2,
+	}, false
+}
+
+func one3(_ http.ResponseWriter, r *http.Request, reqModel interface{}, paramMaps map[string]string) (respModel interface{}, custom bool) {
+	ones := reqModel.(map[string]interface{})
+	gnomon.Log().Info("one", gnomon.Log().Field("one", &ones), gnomon.Log().Field("url", r.URL.String()),
+		gnomon.Log().Field("a", paramMaps["a"]), gnomon.Log().Field("b", paramMaps["b"]))
+	return &TestTwo{
+		Two:   "2",
+		Twos:  false,
+		TwoGo: 2,
+	}, false
+}
+
+func one4(_ http.ResponseWriter, r *http.Request, reqModel interface{}, paramMaps map[string]string) (respModel interface{}, custom bool) {
+	ones := reqModel.(map[string]interface{})
+	gnomon.Log().Info("one", gnomon.Log().Field("u", ones["u"]), gnomon.Log().Field("v", ones["v"]), gnomon.Log().Field("url", r.URL.String()),
+		gnomon.Log().Field("a", paramMaps["a"]), gnomon.Log().Field("b", paramMaps["b"]))
+
+	file := ones["file1"].(*grope.FormFile)
+	gnomon.File().Append("tmp/httpFileTest/"+file.FileName, file.Data, true)
+
 	return &TestTwo{
 		Two:   "2",
 		Twos:  false,

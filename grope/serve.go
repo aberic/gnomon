@@ -16,6 +16,8 @@ package grope
 
 import (
 	"encoding/json"
+	"io"
+	"io/ioutil"
 	"net/http"
 	"strings"
 )
@@ -60,11 +62,9 @@ func (ghs *GHttpServe) doMethod(w http.ResponseWriter, r *http.Request) {
 		patterned = strings.Join([]string{patterned, param}, "/")
 		if router, exist := ghr.methodMap[r.Method]; exist { // 判断router中是否存在当前请求方法
 			if route, ok := router.routes[patterned]; ok { // 判断当前url是否存在route中
-				if r.Method != http.MethodGet && r.Method != http.MethodHead && r.Method != http.MethodOptions && r.Method != http.MethodDelete {
-					if err := json.NewDecoder(r.Body).Decode(route.model); nil != err {
-						http.Error(w, err.Error(), http.StatusInternalServerError)
-						return
-					}
+				if err := ghs.parseReqMethod(r, route); nil != err {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+					return
 				}
 				var (
 					offset   = 0
@@ -76,20 +76,94 @@ func (ghs *GHttpServe) doMethod(w http.ResponseWriter, r *http.Request) {
 						offset++
 					}
 				}
-				if respModel, custom := route.handler(w, r, route.model, paramMap); !custom {
-					if bytes, err := json.Marshal(respModel); nil != err {
-						http.Error(w, err.Error(), http.StatusInternalServerError)
-						return
-					} else {
-						if _, err := w.Write(bytes); nil != err {
-							http.Error(w, err.Error(), http.StatusInternalServerError)
-						}
-						return
-					}
+				if err := ghs.parseHandler(w, r, route, paramMap); nil != err {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+					return
 				}
 				return
 			}
 		}
 	}
 	http.NotFound(w, r)
+}
+
+// parseReqMethod 解析请求方法
+func (ghs *GHttpServe) parseReqMethod(r *http.Request, route *route) error {
+	if r.Method != http.MethodGet && r.Method != http.MethodHead && r.Method != http.MethodOptions && r.Method != http.MethodDelete {
+		if err := ghs.parseReqModel(r, route); nil != err {
+			return err
+		}
+	}
+	return nil
+}
+
+// parseReqModel 解析请求参数
+func (ghs *GHttpServe) parseReqModel(r *http.Request, route *route) error {
+	contentType := r.Header.Get("Content-Type")
+	switch contentType {
+	case "application/json":
+		return json.NewDecoder(r.Body).Decode(route.model)
+	case "application/x-www-form-urlencoded":
+		if err := r.ParseForm(); nil != err { //解析参数，默认是不会解析的
+			return err
+		}
+		filedMap := make(map[string]interface{})
+		for k, v := range r.Form {
+			filedMap[k] = strings.Join(v, "")
+		}
+		route.model = filedMap
+	default:
+		if strings.Contains(contentType, "multipart/form-data") {
+			if reader, err := r.MultipartReader(); nil != err {
+				return err
+			} else {
+				filedMap := make(map[string]interface{})
+				for {
+					part, err := reader.NextPart()
+					if err == io.EOF {
+						break
+					}
+					if part == nil {
+						return err
+					}
+					if part.FileName() == "" { // this is FormData
+						if data, err := ioutil.ReadAll(part); nil != err {
+							return err
+						} else {
+							filedMap[part.FormName()] = string(data)
+						}
+					} else { // This is FileData
+						if bytes, err := ioutil.ReadAll(part); nil != err {
+							return err
+						} else {
+							filedMap[part.FormName()] = &FormFile{
+								FileName: part.FileName(),
+								Data:     bytes,
+							}
+						}
+					}
+					func() { _ = part.Close() }()
+				}
+				route.model = filedMap
+			}
+		}
+	}
+	return nil
+}
+
+type FormFile struct {
+	FileName string // file name
+	Data     []byte // file bytes content
+}
+
+// parseHandler 解析请求处理方法
+func (ghs *GHttpServe) parseHandler(w http.ResponseWriter, r *http.Request, route *route, paramMap map[string]string) error {
+	if respModel, custom := route.handler(w, r, route.model, paramMap); !custom {
+		if bytes, err := json.Marshal(respModel); nil != err {
+			return err
+		} else if _, err := w.Write(bytes); nil != err {
+			return err
+		}
+	}
+	return nil
 }
