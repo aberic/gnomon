@@ -18,8 +18,14 @@ import (
 	"bytes"
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/json"
+	"io"
 	"io/ioutil"
+	"mime/multipart"
 	"net/http"
+	"os"
+	"path/filepath"
+	"strings"
 	"sync"
 )
 
@@ -27,43 +33,61 @@ import (
 type HttpClientCommon struct{}
 
 func (hc *HttpClientCommon) Get(url string) (resp *http.Response, err error) {
-	return hc.request(http.MethodGet, url, nil)
+	return hc.GetTLS(url, "", "", "")
 }
 
-func (hc *HttpClientCommon) Post(url string, data []byte) (resp *http.Response, err error) {
-	return hc.request(http.MethodPost, url, data)
+// Post
+//
+// content-type=application/json
+func (hc *HttpClientCommon) Post(url string, model interface{}) (resp *http.Response, err error) {
+	return hc.PostTLS(url, model, "", "", "")
 }
 
-func (hc *HttpClientCommon) Put(url string, data []byte) (resp *http.Response, err error) {
-	return hc.request(http.MethodPut, url, data)
+// Put
+//
+// content-type=application/json
+func (hc *HttpClientCommon) Put(url string, model interface{}) (resp *http.Response, err error) {
+	return hc.PutTLS(url, model, "", "", "")
 }
 
-func (hc *HttpClientCommon) Patch(url string, data []byte) (resp *http.Response, err error) {
-	return hc.request(http.MethodPatch, url, data)
+// Patch
+//
+// content-type=application/json
+func (hc *HttpClientCommon) Patch(url string, model interface{}) (resp *http.Response, err error) {
+	return hc.PatchTLS(url, model, "", "", "")
 }
 
 func (hc *HttpClientCommon) Delete(url string) (resp *http.Response, err error) {
-	return hc.request(http.MethodDelete, url, nil)
+	return hc.DeleteTLS(url, "", "", "")
 }
 
 func (hc *HttpClientCommon) Do(req *http.Request) (resp *http.Response, err error) {
-	return getClient().Do(req)
+	return hc.DoTLS(req, "", "", "")
 }
 
 func (hc *HttpClientCommon) GetTLS(url string, caCrtFilePath, certFilePath, keyFilePath string) (resp *http.Response, err error) {
 	return hc.requestTLS(http.MethodGet, url, nil, caCrtFilePath, certFilePath, keyFilePath)
 }
 
-func (hc *HttpClientCommon) PostTLS(url string, data []byte, caCrtFilePath, certFilePath, keyFilePath string) (resp *http.Response, err error) {
-	return hc.requestTLS(http.MethodPost, url, data, caCrtFilePath, certFilePath, keyFilePath)
+// PostTLS
+//
+// content-type=application/json
+func (hc *HttpClientCommon) PostTLS(url string, model interface{}, caCrtFilePath, certFilePath, keyFilePath string) (resp *http.Response, err error) {
+	return hc.requestJson(http.MethodPost, url, model, caCrtFilePath, certFilePath, keyFilePath)
 }
 
-func (hc *HttpClientCommon) PutTLS(url string, data []byte, caCrtFilePath, certFilePath, keyFilePath string) (resp *http.Response, err error) {
-	return hc.requestTLS(http.MethodPut, url, data, caCrtFilePath, certFilePath, keyFilePath)
+// PutTLS
+//
+// content-type=application/json
+func (hc *HttpClientCommon) PutTLS(url string, model interface{}, caCrtFilePath, certFilePath, keyFilePath string) (resp *http.Response, err error) {
+	return hc.requestJson(http.MethodPut, url, model, caCrtFilePath, certFilePath, keyFilePath)
 }
 
-func (hc *HttpClientCommon) PatchTLS(url string, data []byte, caCrtFilePath, certFilePath, keyFilePath string) (resp *http.Response, err error) {
-	return hc.requestTLS(http.MethodPatch, url, data, caCrtFilePath, certFilePath, keyFilePath)
+// PatchTLS
+//
+// content-type=application/json
+func (hc *HttpClientCommon) PatchTLS(url string, model interface{}, caCrtFilePath, certFilePath, keyFilePath string) (resp *http.Response, err error) {
+	return hc.requestJson(http.MethodPatch, url, model, caCrtFilePath, certFilePath, keyFilePath)
 }
 
 func (hc *HttpClientCommon) DeleteTLS(url string, caCrtFilePath, certFilePath, keyFilePath string) (resp *http.Response, err error) {
@@ -71,29 +95,127 @@ func (hc *HttpClientCommon) DeleteTLS(url string, caCrtFilePath, certFilePath, k
 }
 
 func (hc *HttpClientCommon) DoTLS(req *http.Request, caCrtFilePath, certFilePath, keyFilePath string) (resp *http.Response, err error) {
-	return getClient().Do(req)
+	return hc.requestTLSDo(req, caCrtFilePath, certFilePath, keyFilePath)
 }
 
-func (hc *HttpClientCommon) request(method, url string, data []byte) (resp *http.Response, err error) {
-	var req *http.Request
+// PostForm
+//
+// paramMap form普通参数
+//
+// fileMap form附件key及附件路径
+func (hc *HttpClientCommon) PostForm(url string, paramMap map[string]string, fileMap map[string]string) (resp *http.Response, err error) {
+	return hc.PostFormTLS(url, paramMap, fileMap, "", "", "")
+}
+
+// PutForm
+//
+// paramMap form普通参数
+//
+// fileMap form附件key及附件路径
+func (hc *HttpClientCommon) PutForm(url string, paramMap map[string]string, fileMap map[string]string) (resp *http.Response, err error) {
+	return hc.PutFormTLS(url, paramMap, fileMap, "", "", "")
+}
+
+// PatchForm
+//
+// paramMap form普通参数
+//
+// fileMap form附件key及附件路径
+func (hc *HttpClientCommon) PatchForm(url string, paramMap map[string]string, fileMap map[string]string) (resp *http.Response, err error) {
+	return hc.PatchFormTLS(url, paramMap, fileMap, "", "", "")
+}
+
+// PostFormTLS
+//
+// paramMap form普通参数
+//
+// fileMap form附件key及附件路径
+func (hc *HttpClientCommon) PostFormTLS(url string, paramMap map[string]string, fileMap map[string]string, caCrtFilePath, certFilePath, keyFilePath string) (resp *http.Response, err error) {
+	return hc.requestForm(http.MethodPost, url, paramMap, fileMap, caCrtFilePath, certFilePath, keyFilePath)
+}
+
+// PutFormTLS
+//
+// paramMap form普通参数
+//
+// fileMap form附件key及附件路径
+func (hc *HttpClientCommon) PutFormTLS(url string, paramMap map[string]string, fileMap map[string]string, caCrtFilePath, certFilePath, keyFilePath string) (resp *http.Response, err error) {
+	return hc.requestForm(http.MethodPut, url, paramMap, fileMap, caCrtFilePath, certFilePath, keyFilePath)
+}
+
+// PatchFormTLS
+//
+// paramMap form普通参数
+//
+// fileMap form附件key及附件路径
+func (hc *HttpClientCommon) PatchFormTLS(url string, paramMap map[string]string, fileMap map[string]string, caCrtFilePath, certFilePath, keyFilePath string) (resp *http.Response, err error) {
+	return hc.requestForm(http.MethodPatch, url, paramMap, fileMap, caCrtFilePath, certFilePath, keyFilePath)
+}
+
+func (hc *HttpClientCommon) requestJson(method, url string, model interface{}, caCrtFilePath, certFilePath, keyFilePath string) (resp *http.Response, err error) {
+	var (
+		data []byte
+		req  *http.Request
+	)
+	if data, err = json.Marshal(model); err != nil {
+		return nil, err
+	}
 	if req, err = http.NewRequest(method, url, bytes.NewReader(data)); nil != err {
 		return
 	}
-	switch method {
-	case http.MethodPost, http.MethodPut, http.MethodPatch:
-		req.Header.Set("content-type", "application/json")
-	}
-	return getClient().Do(req)
+	req.Header.Set("content-type", "application/json")
+	return hc.requestTLSDo(req, caCrtFilePath, certFilePath, keyFilePath)
 }
 
-func (hc *HttpClientCommon) requestTLS(method, url string, data []byte, caCrtFilePath, certFilePath, keyFilePath string) (resp *http.Response, err error) {
-	var req *http.Request
-	if req, err = http.NewRequest(method, url, bytes.NewReader(data)); nil != err {
+// requestForm
+//
+// paramMap form普通参数
+//
+// fileMap form附件key及附件路径
+func (hc *HttpClientCommon) requestForm(method, url string, paramMap map[string]string, fileMap map[string]string, caCrtFilePath, certFilePath, keyFilePath string) (resp *http.Response, err error) {
+	var (
+		req        *http.Request
+		bodyBuffer = &bytes.Buffer{}
+		bodyWriter = multipart.NewWriter(bodyBuffer)
+	)
+	for key, value := range paramMap {
+		if err = bodyWriter.WriteField(key, value); nil != err {
+			return nil, err
+		}
+	}
+	for key, value := range fileMap {
+		var (
+			fileSplitArr []string
+			fileWriter   io.Writer
+			file         *os.File
+		)
+		fileSplitArr = strings.Split(value, string(filepath.Separator))
+		if fileWriter, err = bodyWriter.CreateFormFile(key, fileSplitArr[len(fileSplitArr)-1]); nil != err {
+			return nil, err
+		}
+		if file, err = os.Open(value); nil != err {
+			return nil, err
+		}
+		if _, err = io.Copy(fileWriter, file); nil != err {
+			return nil, err
+		}
+		func() { _ = file.Close() }()
+	}
+	contentType := bodyWriter.FormDataContentType()
+	if err = bodyWriter.Close(); nil != err {
+		return nil, err
+	}
+	if req, err = http.NewRequest(method, url, bodyBuffer); nil != err {
 		return
 	}
-	switch method {
-	case http.MethodPost, http.MethodPut, http.MethodPatch:
-		req.Header.Set("content-type", "application/json")
+	req.Header.Set("Content-Type", contentType)
+	return hc.requestTLSDo(req, caCrtFilePath, certFilePath, keyFilePath)
+}
+
+func (hc *HttpClientCommon) requestTLS(method, url string, body io.Reader, caCrtFilePath, certFilePath, keyFilePath string) (resp *http.Response, err error) {
+	var req *http.Request
+	if req, err = http.NewRequest(method, url, body); nil != err {
+		return
 	}
 	return hc.requestTLSDo(req, caCrtFilePath, certFilePath, keyFilePath)
 }
@@ -110,26 +232,17 @@ func (hc *HttpClientCommon) requestTLSDo(req *http.Request, caCrtFilePath, certF
 }
 
 var (
-	client        *http.Client
-	onceClient    sync.Once
-	tlsClients    map[string]*http.Client
-	tlsClientLock sync.Mutex
+	clients    = map[string]*http.Client{}
+	clientLock sync.Mutex
 )
 
-func getClient() *http.Client {
-	onceClient.Do(func() {
-		client = &http.Client{}
-	})
-	return client
-}
-
 func getTLSClient(tlsClientKey, caCrtFilePath, certFilePath, keyFilePath string) (*http.Client, error) {
-	if tlsClient, exist := tlsClients[tlsClientKey]; exist {
+	if tlsClient, exist := clients[tlsClientKey]; exist {
 		return tlsClient, nil
 	}
-	defer tlsClientLock.Unlock()
-	tlsClientLock.Lock()
-	if tlsClient, exist := tlsClients[tlsClientKey]; exist {
+	defer clientLock.Unlock()
+	clientLock.Lock()
+	if tlsClient, exist := clients[tlsClientKey]; exist {
 		return tlsClient, nil
 	}
 	var (
@@ -139,15 +252,16 @@ func getTLSClient(tlsClientKey, caCrtFilePath, certFilePath, keyFilePath string)
 	if tlsClient.Transport, err = getTlsTransport(caCrtFilePath, certFilePath, keyFilePath); nil != err {
 		return nil, err
 	}
-	tlsClients[tlsClientKey] = tlsClient
+	clients[tlsClientKey] = tlsClient
 	return tlsClient, nil
 }
 
 func getTlsTransport(caCrtFilePath, certFilePath, keyFilePath string) (transport *http.Transport, err error) {
 	var (
-		pool       = x509.NewCertPool()
-		caCrtBytes []byte
-		cert       tls.Certificate
+		pool               = x509.NewCertPool()
+		caCrtBytes         []byte
+		cert               tls.Certificate
+		insecureSkipVerify = false // 是否验证服务端整数，即双向认证
 	)
 	if String().IsNotEmpty(caCrtFilePath) {
 		// 对方验证我方整数合法性
@@ -157,6 +271,7 @@ func getTlsTransport(caCrtFilePath, certFilePath, keyFilePath string) (transport
 		pool.AppendCertsFromPEM(caCrtBytes)
 	}
 	if String().IsNotEmpty(certFilePath) && String().IsNotEmpty(keyFilePath) {
+		insecureSkipVerify = true
 		// 我方验证对方整数合法性
 		if cert, err = tls.LoadX509KeyPair(certFilePath, keyFilePath); nil != err {
 			return
@@ -164,7 +279,7 @@ func getTlsTransport(caCrtFilePath, certFilePath, keyFilePath string) (transport
 		transport = &http.Transport{
 			TLSClientConfig: &tls.Config{
 				RootCAs:            pool,
-				InsecureSkipVerify: true,
+				InsecureSkipVerify: insecureSkipVerify,
 				Certificates:       []tls.Certificate{cert},
 			},
 		}
@@ -172,7 +287,7 @@ func getTlsTransport(caCrtFilePath, certFilePath, keyFilePath string) (transport
 		transport = &http.Transport{
 			TLSClientConfig: &tls.Config{
 				RootCAs:            pool,
-				InsecureSkipVerify: true,
+				InsecureSkipVerify: insecureSkipVerify,
 			},
 		}
 	}

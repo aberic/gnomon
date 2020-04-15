@@ -19,8 +19,66 @@ import (
 	"testing"
 )
 
+type TestOne struct {
+	One   string `json:"one"`
+	Ones  bool   `json:"ones"`
+	OneGo int    `json:"one_go"`
+}
+
 func TestHttpClientCommon_Get(t *testing.T) {
-	if resp, err := HttpClient().Get("http://www.baidu.com"); nil != err {
+	if resp, err := HttpClient().Get("http://localhost:8888/two/test2/0/hello/word"); nil != err {
+		t.Error(err)
+	} else {
+		defer func() { _ = resp.Body.Close() }()
+		if bytes, err := ioutil.ReadAll(resp.Body); err != nil {
+			t.Error("unable to read response body:", err.Error())
+		} else {
+			t.Log(string(bytes))
+		}
+	}
+}
+
+func TestHttpClientCommon_Post(t *testing.T) {
+	if resp, err := HttpClient().Post("http://localhost:8888/one/test1", &TestOne{
+		One:   "1",
+		Ones:  true,
+		OneGo: 1,
+	}); nil != err {
+		t.Error(err)
+	} else {
+		defer func() { _ = resp.Body.Close() }()
+		if bytes, err := ioutil.ReadAll(resp.Body); err != nil {
+			t.Error("unable to read response body:", err.Error())
+		} else {
+			t.Log(string(bytes))
+		}
+	}
+}
+
+func TestHttpClientCommon_PostForm(t *testing.T) {
+	paramMap := map[string]string{}
+	paramMap["xxx"] = "111"
+	paramMap["yyy"] = "222"
+	if resp, err := HttpClient().PostForm("http://localhost:8888/one/test3/x/y", paramMap, nil); nil != err {
+		t.Error(err)
+	} else {
+		defer func() { _ = resp.Body.Close() }()
+		if bytes, err := ioutil.ReadAll(resp.Body); err != nil {
+			t.Error("unable to read response body:", err.Error())
+		} else {
+			t.Log(string(bytes))
+		}
+	}
+}
+
+func TestHttpClientCommon_PostForm1(t *testing.T) {
+	paramMap := map[string]string{}
+	paramMap["aaa"] = "333"
+	paramMap["bbb"] = "444"
+	fileMap := map[string]string{}
+	fileMap["wk"] = "/Users/aberic/Downloads/plantuml4idea.zip"
+	fileMap["kw"] = "/Users/aberic/Documents/1400115281_report_pb.dump"
+	if resp, err := HttpClient().PostForm("http://localhost:8888/one/test5/a/b", paramMap, fileMap); nil != err {
 		t.Error(err)
 	} else {
 		defer func() { _ = resp.Body.Close() }()
