@@ -15,6 +15,7 @@
 package main
 
 import (
+	"errors"
 	"github.com/aberic/gnomon"
 	"github.com/aberic/gnomon/grope"
 	"net/http"
@@ -36,23 +37,44 @@ func main() {
 	httpServe := gnomon.Grope().NewHttpServe()
 	router1(httpServe)
 	router2(httpServe)
-	//gnomon.Grope().ListenAndServe(":8888", httpServe)
-	gnomon.Grope().ListenAndServeTLS(
-		httpServe,
-		":8888",
-		"./example/ca/server/rootCA.crt",
-		"./example/ca/server/rootCA.key",
-		"./example/ca/client/rootCA.crt")
+	gnomon.Grope().ListenAndServe(":8888", httpServe)
+	//gnomon.Grope().ListenAndServeTLS(
+	//	httpServe,
+	//	":8888",
+	//	"./example/ca/server/rootCA.crt",
+	//	"./example/ca/server/rootCA.key",
+	//	"./example/ca/client/rootCA.crt")
+}
+
+func doFilter1(w http.ResponseWriter, r *http.Request) (bool, int, error) {
+	if r.Header.Get("name") == "name1" {
+		return false, 0, nil
+	} else if r.Header.Get("name") == "name2" {
+		return false, http.StatusBadGateway, errors.New("filter name error")
+	}
+	_, _ = w.Write([]byte("filter custom name error"))
+	return true, http.StatusBadGateway, errors.New("filter name error")
+}
+
+func doFilter2(w http.ResponseWriter, r *http.Request) (bool, int, error) {
+	if r.Header.Get("pass") == "pass1" {
+		return false, 0, nil
+	} else if r.Header.Get("pass") == "pass2" {
+		return false, http.StatusBadGateway, errors.New("filter pass error")
+	}
+	_, _ = w.Write([]byte("filter custom pass error"))
+	return true, http.StatusBadGateway, errors.New("filter pass error")
 }
 
 func router1(hs *grope.GHttpServe) {
 	// 仓库相关路由设置
-	route := hs.Group("/one")
+	route := hs.Group("/one", doFilter1)
 	route.Post("/test1", &TestOne{}, one1)
 	route.Post("/test2/:a/:b", &TestOne{}, one2)
 	route.PostForm("/test3/:a/:b", map[string]interface{}{}, one3)
 	route.PostForm("/test4/:a/:b", map[string]interface{}{}, one4)
 	route.PostForm("/test5/:a/:b", map[string]interface{}{}, one5)
+	route.Get("/test6", &TestOne{}, one1, doFilter2)
 }
 
 func one1(_ http.ResponseWriter, r *http.Request, reqModel interface{}, _ map[string]string) (respModel interface{}, custom bool) {

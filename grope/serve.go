@@ -34,18 +34,20 @@ type GHttpServe struct {
 // Group 设置路由根路径
 //
 // pattern 路由根路径，如“/test”
-func (ghs *GHttpServe) Group(pattern string) *GHttpRouter {
-	ghr := &GHttpRouter{methodMap: map[string]*router{}}
+//
+// filters 待实现拦截器/过滤器方法数组
+func (ghs *GHttpServe) Group(pattern string, filters ...Filter) *GHttpRouter {
+	ghr := &GHttpRouter{methodMap: map[string]*router{}, filters: filters}
 	ghs.routerMap[pattern] = ghr
 	return ghr
 }
 
 func (ghs *GHttpServe) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	ghs.doMethod(w, r)
+	ghs.doServe(w, r)
 }
 
 // doMethod 处理请求具体方法
-func (ghs *GHttpServe) doMethod(w http.ResponseWriter, r *http.Request) {
+func (ghs *GHttpServe) doServe(w http.ResponseWriter, r *http.Request) {
 	var (
 		groupPattern string // 项目根路径
 		patterned    string // 处理后的url
@@ -62,6 +64,15 @@ func (ghs *GHttpServe) doMethod(w http.ResponseWriter, r *http.Request) {
 		patterned = strings.Join([]string{patterned, param}, "/")
 		if router, exist := ghr.methodMap[r.Method]; exist { // 判断router中是否存在当前请求方法
 			if route, ok := router.routes[patterned]; ok { // 判断当前url是否存在route中
+				for _, filter := range route.filters { // 过滤无效请求
+					if custom, code, err := filter(w, r); nil != err {
+						if custom {
+							return
+						}
+						http.Error(w, err.Error(), code)
+						return
+					}
+				}
 				if err := ghs.parseReqMethod(r, route); nil != err {
 					http.Error(w, err.Error(), http.StatusInternalServerError)
 					return

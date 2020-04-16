@@ -36,6 +36,19 @@ import (
 // return custom 是否自行处理返回结果，如果自行处理，则本次返回不再执行默认操作
 type Handler func(writer http.ResponseWriter, request *http.Request, reqModel interface{}, paramMap map[string]string) (respModel interface{}, custom bool)
 
+// Filter 待实现拦截器/过滤器方法，group方法将优于request方法验证
+//
+// writer 原生 net/http 结构
+//
+// request 原生 net/http 结构
+//
+// return custom 是否自行处理返回结果，如果自行处理，则本次返回不再执行默认操作
+//
+// return code http错误码，如：http.StatusInternalServerError
+//
+// return err 具体err信息
+type Filter func(writer http.ResponseWriter, request *http.Request) (custom bool, code int, err error)
+
 type router struct {
 	routes map[string]*route
 }
@@ -45,11 +58,13 @@ type route struct {
 	model    interface{}    // 期望接收的结构，如“&Test{}”，最终在Handler方法中得以调用
 	handler  Handler        // 待实现接收请求方法
 	paramMap map[int]string // url泛型下标对应字符串集合
+	filters  []Filter       // 过滤器/拦截器数组
 }
 
 // GHttpRouter Http服务路由结构
 type GHttpRouter struct {
 	methodMap map[string]*router // 路由子项目集
+	filters   []Filter           // 过滤器/拦截器数组
 	lock      sync.RWMutex
 }
 
@@ -128,7 +143,9 @@ func (ghr *GHttpRouter) execUrl(pattern string) (patterned string, paramMap map[
 // model 期望接收的结构，如“&Test{}”，最终在Handler方法中得以调用
 //
 // handler 待实现接收请求方法
-func (ghr *GHttpRouter) repo(method, pattern string, model interface{}, handler Handler) {
+//
+// filters 待实现拦截器/过滤器方法数组
+func (ghr *GHttpRouter) repo(method, pattern string, model interface{}, handler Handler, filters ...Filter) {
 	if pattern[0] != '/' {
 		panic("path must begin with '/'")
 	}
@@ -148,10 +165,11 @@ func (ghr *GHttpRouter) repo(method, pattern string, model interface{}, handler 
 		rtr = &router{map[string]*route{}}
 		ghr.methodMap[method] = rtr
 	}
+	newFilters := append(ghr.filters, filters...)
 	if _, exist := rtr.routes[patterned]; exist {
 		panic("already have the same url")
 	}
-	rtr.routes[patterned] = &route{model: model, handler: handler, paramMap: paramMap}
+	rtr.routes[patterned] = &route{model: model, handler: handler, paramMap: paramMap, filters: newFilters}
 }
 
 // Get 发起一个 Get 请求接收项目
@@ -164,8 +182,10 @@ func (ghr *GHttpRouter) repo(method, pattern string, model interface{}, handler 
 // model 期望接收的结构，如“&Test{}”，最终在Handler方法中得以调用
 //
 // handler 待实现接收请求方法
-func (ghr *GHttpRouter) Get(pattern string, model interface{}, handler Handler) {
-	go ghr.repo(http.MethodGet, pattern, model, handler)
+//
+// filters 待实现拦截器/过滤器方法数组
+func (ghr *GHttpRouter) Get(pattern string, model interface{}, handler Handler, filters ...Filter) {
+	go ghr.repo(http.MethodGet, pattern, model, handler, filters...)
 }
 
 // Head 发起一个 Head 请求接收项目
@@ -179,8 +199,10 @@ func (ghr *GHttpRouter) Get(pattern string, model interface{}, handler Handler) 
 // model 期望接收的结构，如“&Test{}”，最终在Handler方法中得以调用
 //
 // handler 待实现接收请求方法
-func (ghr *GHttpRouter) Head(pattern string, model interface{}, handler Handler) {
-	go ghr.repo(http.MethodHead, pattern, model, handler)
+//
+// filters 待实现拦截器/过滤器方法数组
+func (ghr *GHttpRouter) Head(pattern string, model interface{}, handler Handler, filters ...Filter) {
+	go ghr.repo(http.MethodHead, pattern, model, handler, filters...)
 }
 
 // Post 发起一个 Post 请求接收项目
@@ -193,8 +215,10 @@ func (ghr *GHttpRouter) Head(pattern string, model interface{}, handler Handler)
 // model 期望接收的结构，如“&Test{}”，最终在Handler方法中得以调用
 //
 // handler 待实现接收请求方法
-func (ghr *GHttpRouter) Post(pattern string, model interface{}, handler Handler) {
-	go ghr.repo(http.MethodPost, pattern, model, handler)
+//
+// filters 待实现拦截器/过滤器方法数组
+func (ghr *GHttpRouter) Post(pattern string, model interface{}, handler Handler, filters ...Filter) {
+	go ghr.repo(http.MethodPost, pattern, model, handler, filters...)
 }
 
 // Put 发起一个 Put 请求接收项目
@@ -206,8 +230,10 @@ func (ghr *GHttpRouter) Post(pattern string, model interface{}, handler Handler)
 // model 期望接收的结构，如“&Test{}”，最终在Handler方法中得以调用
 //
 // handler 待实现接收请求方法
-func (ghr *GHttpRouter) Put(pattern string, model interface{}, handler Handler) {
-	go ghr.repo(http.MethodPut, pattern, model, handler)
+//
+// filters 待实现拦截器/过滤器方法数组
+func (ghr *GHttpRouter) Put(pattern string, model interface{}, handler Handler, filters ...Filter) {
+	go ghr.repo(http.MethodPut, pattern, model, handler, filters...)
 }
 
 // Patch 发起一个 Patch 请求接收项目
@@ -221,8 +247,10 @@ func (ghr *GHttpRouter) Put(pattern string, model interface{}, handler Handler) 
 // model 期望接收的结构，如“&Test{}”，最终在Handler方法中得以调用
 //
 // handler 待实现接收请求方法
-func (ghr *GHttpRouter) Patch(pattern string, model interface{}, handler Handler) {
-	go ghr.repo(http.MethodPatch, pattern, model, handler)
+//
+// filters 待实现拦截器/过滤器方法数组
+func (ghr *GHttpRouter) Patch(pattern string, model interface{}, handler Handler, filters ...Filter) {
+	go ghr.repo(http.MethodPatch, pattern, model, handler, filters...)
 }
 
 // Delete 发起一个 Delete 请求接收项目
@@ -235,8 +263,10 @@ func (ghr *GHttpRouter) Patch(pattern string, model interface{}, handler Handler
 // model 期望接收的结构，如“&Test{}”，最终在Handler方法中得以调用
 //
 // handler 待实现接收请求方法
-func (ghr *GHttpRouter) Delete(pattern string, model interface{}, handler Handler) {
-	go ghr.repo(http.MethodDelete, pattern, model, handler)
+//
+// filters 待实现拦截器/过滤器方法数组
+func (ghr *GHttpRouter) Delete(pattern string, model interface{}, handler Handler, filters ...Filter) {
+	go ghr.repo(http.MethodDelete, pattern, model, handler, filters...)
 }
 
 // Connect 发起一个 Connect 请求接收项目
@@ -248,8 +278,10 @@ func (ghr *GHttpRouter) Delete(pattern string, model interface{}, handler Handle
 // model 期望接收的结构，如“&Test{}”，最终在Handler方法中得以调用
 //
 // handler 待实现接收请求方法
-func (ghr *GHttpRouter) Connect(pattern string, model interface{}, handler Handler) {
-	go ghr.repo(http.MethodConnect, pattern, model, handler)
+//
+// filters 待实现拦截器/过滤器方法数组
+func (ghr *GHttpRouter) Connect(pattern string, model interface{}, handler Handler, filters ...Filter) {
+	go ghr.repo(http.MethodConnect, pattern, model, handler, filters...)
 }
 
 // Options 发起一个 Options 请求接收项目
@@ -263,8 +295,10 @@ func (ghr *GHttpRouter) Connect(pattern string, model interface{}, handler Handl
 // model 期望接收的结构，如“&Test{}”，最终在Handler方法中得以调用
 //
 // handler 待实现接收请求方法
-func (ghr *GHttpRouter) Options(pattern string, model interface{}, handler Handler) {
-	go ghr.repo(http.MethodOptions, pattern, model, handler)
+//
+// filters 待实现拦截器/过滤器方法数组
+func (ghr *GHttpRouter) Options(pattern string, model interface{}, handler Handler, filters ...Filter) {
+	go ghr.repo(http.MethodOptions, pattern, model, handler, filters...)
 }
 
 // Trace 发起一个 Trace 请求接收项目
@@ -276,8 +310,10 @@ func (ghr *GHttpRouter) Options(pattern string, model interface{}, handler Handl
 // model 期望接收的结构，如“&Test{}”，最终在Handler方法中得以调用
 //
 // handler 待实现接收请求方法
-func (ghr *GHttpRouter) Trace(pattern string, model interface{}, handler Handler) {
-	go ghr.repo(http.MethodTrace, pattern, model, handler)
+//
+// filters 待实现拦截器/过滤器方法数组
+func (ghr *GHttpRouter) Trace(pattern string, model interface{}, handler Handler, filters ...Filter) {
+	go ghr.repo(http.MethodTrace, pattern, model, handler, filters...)
 }
 
 // GetForm 发起一个 PostForm 请求接收项目
@@ -290,8 +326,10 @@ func (ghr *GHttpRouter) Trace(pattern string, model interface{}, handler Handler
 // fieldMap 如果需要，这里是期望接收的kv集合
 //
 // handler 待实现接收请求方法
-func (ghr *GHttpRouter) GetForm(pattern string, fieldMap map[string]string, handler Handler) {
-	go ghr.repo(http.MethodGet, pattern, fieldMap, handler)
+//
+// filters 待实现拦截器/过滤器方法数组
+func (ghr *GHttpRouter) GetForm(pattern string, fieldMap map[string]string, handler Handler, filters ...Filter) {
+	go ghr.repo(http.MethodGet, pattern, fieldMap, handler, filters...)
 }
 
 // PostForm 发起一个 PostForm 请求接收项目
@@ -304,6 +342,8 @@ func (ghr *GHttpRouter) GetForm(pattern string, fieldMap map[string]string, hand
 // fieldMap 如果需要，这里是期望接收的kv集合
 //
 // handler 待实现接收请求方法
-func (ghr *GHttpRouter) PostForm(pattern string, fieldMap map[string]interface{}, handler Handler) {
-	go ghr.repo(http.MethodPost, pattern, fieldMap, handler)
+//
+// filters 待实现拦截器/过滤器方法数组
+func (ghr *GHttpRouter) PostForm(pattern string, fieldMap map[string]interface{}, handler Handler, filters ...Filter) {
+	go ghr.repo(http.MethodPost, pattern, fieldMap, handler, filters...)
 }
