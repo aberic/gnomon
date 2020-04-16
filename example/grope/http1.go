@@ -36,7 +36,13 @@ func main() {
 	httpServe := gnomon.Grope().NewHttpServe()
 	router1(httpServe)
 	router2(httpServe)
-	gnomon.Grope().ListenAndServe(":8888", httpServe)
+	//gnomon.Grope().ListenAndServe(":8888", httpServe)
+	gnomon.Grope().ListenAndServeTLS(
+		httpServe,
+		":8888",
+		"./example/ca/server/rootCA.crt",
+		"./example/ca/server/rootCA.key",
+		"./example/ca/client/rootCA.crt")
 }
 
 func router1(hs *grope.GHttpServe) {
@@ -99,7 +105,7 @@ func one4(_ http.ResponseWriter, r *http.Request, reqModel interface{}, paramMap
 func one5(_ http.ResponseWriter, r *http.Request, reqModel interface{}, paramMaps map[string]string) (respModel interface{}, custom bool) {
 	ones := reqModel.(map[string]interface{})
 	gnomon.Log().Info("one", gnomon.Log().Field("u", ones["u"]), gnomon.Log().Field("v", ones["v"]), gnomon.Log().Field("url", r.URL.String()),
-		gnomon.Log().Field("a", paramMaps["a"]), gnomon.Log().Field("b", paramMaps["b"]))
+		gnomon.Log().Field("aaa", paramMaps["aaa"]), gnomon.Log().Field("bbb", paramMaps["bbb"]))
 
 	file1 := ones["wk"].(*grope.FormFile)
 	file2 := ones["kw"].(*grope.FormFile)

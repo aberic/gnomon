@@ -21,7 +21,6 @@ gen### Go template
 *.out
 
 /log/
-/example/
 /profile.coverprofile
 /overalls.coverprofile
 /coverage.txt

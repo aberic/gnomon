@@ -38,11 +38,51 @@ func TestHttpClientCommon_Get(t *testing.T) {
 	}
 }
 
+func TestHttpClientCommon_GetTLS(t *testing.T) {
+	if resp, err := HttpClient().GetTLS("https://localhost:8888/two/test2/0/hello/word", &HttpTLSConfig{
+		CACrtFilePath:      "./example/ca/server/rootCA.crt",
+		CertFilePath:       "./example/ca/client/rootCA.crt",
+		KeyFilePath:        "./example/ca/client/rootCA.key",
+		InsecureSkipVerify: false,
+	}); nil != err {
+		t.Error(err)
+	} else {
+		defer func() { _ = resp.Body.Close() }()
+		if bytes, err := ioutil.ReadAll(resp.Body); err != nil {
+			t.Error("unable to read response body:", err.Error())
+		} else {
+			t.Log(string(bytes))
+		}
+	}
+}
+
 func TestHttpClientCommon_Post(t *testing.T) {
 	if resp, err := HttpClient().Post("http://localhost:8888/one/test1", &TestOne{
 		One:   "1",
 		Ones:  true,
 		OneGo: 1,
+	}); nil != err {
+		t.Error(err)
+	} else {
+		defer func() { _ = resp.Body.Close() }()
+		if bytes, err := ioutil.ReadAll(resp.Body); err != nil {
+			t.Error("unable to read response body:", err.Error())
+		} else {
+			t.Log(string(bytes))
+		}
+	}
+}
+
+func TestHttpClientCommon_PostTLS(t *testing.T) {
+	if resp, err := HttpClient().PostTLS("https://localhost:8888/one/test1", &TestOne{
+		One:   "1",
+		Ones:  true,
+		OneGo: 1,
+	}, &HttpTLSConfig{
+		CACrtFilePath:      "./example/ca/server/rootCA.crt",
+		CertFilePath:       "./example/ca/client/rootCA.crt",
+		KeyFilePath:        "./example/ca/client/rootCA.key",
+		InsecureSkipVerify: false,
 	}); nil != err {
 		t.Error(err)
 	} else {
