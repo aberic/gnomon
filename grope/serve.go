@@ -20,14 +20,21 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"sync"
+)
+
+var (
+	patterns    []string
+	patternLock sync.Mutex
 )
 
 // NewGHttpServe 新建一个Http服务
-func NewGHttpServe() *GHttpServe {
-	return &GHttpServe{routerMap: map[string]*GHttpRouter{}}
+func NewGHttpServe(filters ...Filter) *GHttpServe {
+	return &GHttpServe{filters: filters, routerMap: map[string]*GHttpRouter{}}
 }
 
 type GHttpServe struct {
+	filters   []Filter // 过滤器/拦截器数组
 	routerMap map[string]*GHttpRouter
 }
 
@@ -37,7 +44,8 @@ type GHttpServe struct {
 //
 // filters 待实现拦截器/过滤器方法数组
 func (ghs *GHttpServe) Group(pattern string, filters ...Filter) *GHttpRouter {
-	ghr := &GHttpRouter{methodMap: map[string]*router{}, filters: filters}
+	filters = append(ghs.filters, filters...)
+	ghr := &GHttpRouter{groupPattern: pattern, methodMap: map[string]*router{}, filters: filters}
 	ghs.routerMap[pattern] = ghr
 	return ghr
 }
@@ -49,16 +57,28 @@ func (ghs *GHttpServe) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // doMethod 处理请求具体方法
 func (ghs *GHttpServe) doServe(w http.ResponseWriter, r *http.Request) {
 	var (
+		// 项目路径，如“/demo/:id/:name”，与路由根路径相结合，最终会通过类似“http://127.0.0.1:8080/test/demo/1/g”方式进行访问
+		pattern      = r.URL.String()
+		ps           = strings.Split(pattern, "/")[1:]
+		offset       = 0
+		ghr          *GHttpRouter
 		groupPattern string // 项目根路径
 		patterned    string // 处理后的url
 	)
-	// 项目路径，如“/demo/:id/:name”，与路由根路径相结合，最终会通过类似“http://127.0.0.1:8080/test/demo/1/g”方式进行访问
-	pattern := r.URL.String()
-	ps := strings.Split(pattern, "/")
-	groupPattern = strings.Join([]string{"/", ps[1]}, "")
-	ghr := ghs.routerMap[groupPattern]
+	for position, p := range ps {
+		var exist bool
+		groupPattern = strings.Join([]string{groupPattern, "/", p}, "")
+		if ghr, exist = ghs.routerMap[groupPattern]; exist {
+			offset = position
+			break
+		}
+	}
+	if nil == ghr {
+		http.NotFound(w, r)
+		return
+	}
 	for position, param := range ps {
-		if position == 0 || position == 1 {
+		if position <= offset {
 			continue
 		}
 		patterned = strings.Join([]string{patterned, param}, "/")

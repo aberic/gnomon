@@ -29,8 +29,8 @@ import (
 type GHTTPCommon struct{}
 
 // NewHttpServe 新建一个Http服务
-func (ghc *GHTTPCommon) NewHttpServe() *grope.GHttpServe {
-	return grope.NewGHttpServe()
+func (ghc *GHTTPCommon) NewHttpServe(filters ...grope.Filter) *grope.GHttpServe {
+	return grope.NewGHttpServe(filters...)
 }
 
 // ListenAndServe 启动监听
@@ -76,9 +76,4 @@ func (ghc *GHTTPCommon) ListenAndServeTLS(gs *grope.GHttpServe, Addr, certFilePa
 			log.Panic(http.Serve(listener, gs))
 		}
 	}
-
-	//err := http.ListenAndServeTLS(Addr, certFile, keyFile, gs) //设置监听的端口
-	//if err != nil {
-	//	log.Panic("ListenAndServe: ", err)
-	//}
 }

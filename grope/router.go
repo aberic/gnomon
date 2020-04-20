@@ -16,6 +16,7 @@ package grope
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"strings"
 	"sync"
@@ -63,41 +64,10 @@ type route struct {
 
 // GHttpRouter Http服务路由结构
 type GHttpRouter struct {
-	methodMap map[string]*router // 路由子项目集
-	filters   []Filter           // 过滤器/拦截器数组
-	lock      sync.RWMutex
-}
-
-// execUrl 特殊处理Url
-//
-// pattern 项目路径，如“/demo/:id/:name”，与路由根路径相结合，最终会通过类似“http://127.0.0.1:8080/test/demo/1/g”方式进行访问
-//
-// return patterned 处理后的url
-//
-// return paramMap url泛型下标对应字符串集合
-//
-// return err 处理错误内容
-func (ghr *GHttpRouter) execUrl(pattern string) (patterned string, paramMap map[int]string, err error) {
-	patterned = ""
-	paramMap = map[int]string{}
-	ps := strings.Split(pattern, "/")
-	index := 0
-	for position, param := range ps {
-		if position == 0 {
-			continue
-		}
-		if strings.HasPrefix(param, ":") {
-			paramMap[index] = strings.Split(param, ":")[1]
-			index++
-		} else {
-			if index > 0 {
-				err = errors.New("custom url must continue until the end")
-				return
-			}
-			patterned = strings.Join([]string{patterned, param}, "/")
-		}
-	}
-	return
+	groupPattern string             // 跟路由名
+	methodMap    map[string]*router // 路由子项目集
+	filters      []Filter           // 过滤器/拦截器数组
+	lock         sync.RWMutex
 }
 
 // repo 发起一个接收项目，请求方法复用 net/http “http.MethodGet”等
@@ -159,17 +129,57 @@ func (ghr *GHttpRouter) repo(method, pattern string, model interface{}, handler 
 	if patterned, paramMap, err = ghr.execUrl(pattern); nil != err {
 		panic(err.Error())
 	}
-	defer ghr.lock.Unlock()
 	ghr.lock.Lock()
 	if rtr, exist = ghr.methodMap[method]; !exist {
 		rtr = &router{map[string]*route{}}
 		ghr.methodMap[method] = rtr
 	}
-	newFilters := append(ghr.filters, filters...)
+	filters = append(ghr.filters, filters...)
 	if _, exist := rtr.routes[patterned]; exist {
-		panic("already have the same url")
+		panic(fmt.Sprintf("already have the same url, with method:%s and patterned:%s in group with pattern:%s",
+			method, patterned, ghr.groupPattern))
 	}
-	rtr.routes[patterned] = &route{model: model, handler: handler, paramMap: paramMap, filters: newFilters}
+	rtr.routes[patterned] = &route{model: model, handler: handler, paramMap: paramMap, filters: filters}
+	ghr.lock.Unlock()
+
+	assemblyPattern := strings.Join([]string{ghr.groupPattern, patterned}, "")
+	defer patternLock.Unlock()
+	patternLock.Lock()
+	for _, p := range patterns {
+		if strings.Contains(assemblyPattern, p) || strings.Contains(p, assemblyPattern) {
+			panic(fmt.Sprintf("already have the same url, with assemblyPattern:%s and p:%s", assemblyPattern, p))
+		}
+	}
+	patterns = append(patterns, assemblyPattern)
+}
+
+// execUrl 特殊处理Url
+//
+// pattern 项目路径，如“/demo/:id/:name”，与路由根路径相结合，最终会通过类似“http://127.0.0.1:8080/test/demo/1/g”方式进行访问
+//
+// return patterned 处理后的url
+//
+// return paramMap url泛型下标对应字符串集合
+//
+// return err 处理错误内容
+func (ghr *GHttpRouter) execUrl(pattern string) (patterned string, paramMap map[int]string, err error) {
+	patterned = ""
+	paramMap = map[int]string{}
+	ps := strings.Split(pattern, "/")[1:]
+	index := 0
+	for _, param := range ps {
+		if strings.HasPrefix(param, ":") {
+			paramMap[index] = strings.Split(param, ":")[1]
+			index++
+		} else {
+			if index > 0 {
+				err = errors.New("custom url must continue until the end")
+				return
+			}
+			patterned = strings.Join([]string{patterned, param}, "/")
+		}
+	}
+	return
 }
 
 // Get 发起一个 Get 请求接收项目

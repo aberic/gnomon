@@ -68,7 +68,7 @@ func doFilter2(w http.ResponseWriter, r *http.Request) (bool, int, error) {
 
 func router1(hs *grope.GHttpServe) {
 	// 仓库相关路由设置
-	route := hs.Group("/one", doFilter1)
+	route := hs.Group("/one/get", doFilter1)
 	route.Post("/test1", &TestOne{}, one1)
 	route.Post("/test2/:a/:b", &TestOne{}, one2)
 	route.PostForm("/test3/:a/:b", map[string]interface{}{}, one3)

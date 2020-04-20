@@ -15,6 +15,7 @@
 package gnomon
 
 import (
+	"strings"
 	"testing"
 )
 
@@ -71,4 +72,9 @@ func TestStringCommon_SubString(t *testing.T) {
 
 func TestStringCommon_StringBuilder(t *testing.T) {
 	t.Log(String().StringBuilder("a", "b"))
+}
+
+func TestSlice(t *testing.T) {
+	var url = "/test/a/b/c/d"
+	t.Log(strings.Split(url, "/")[1:])
 }
