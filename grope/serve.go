@@ -223,6 +223,7 @@ type FormFile struct {
 // parseHandler 解析请求处理方法
 func (ghs *GHttpServe) parseHandler(w http.ResponseWriter, r *http.Request, route *route, valueMap map[string]string, paramMap map[string]string) error {
 	if respModel, custom := route.handler(w, r, route.model, valueMap, paramMap); !custom {
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		if bytes, err := json.Marshal(respModel); nil != err {
 			return err
 		} else if _, err := w.Write(bytes); nil != err {
