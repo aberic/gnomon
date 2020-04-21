@@ -53,6 +53,10 @@ func TestStringCommon_ToString(t *testing.T) {
 	t.Log(String().ToString(nil))
 }
 
+func TestStringCommon_SingleValue(t *testing.T) {
+	t.Log(String().SingleValue("ksjdf/////lksjdf/////lkjlksdf/////lkjl/lkjasldj kjnkj ///", "/"))
+}
+
 func TestStringCommon_SingleSpace(t *testing.T) {
 	t.Log(String().SingleSpace("ksjdf     lksjdf  lkjlksdf        lkjl   lkjasldj kjnkj     "))
 }
@@ -77,4 +81,11 @@ func TestStringCommon_StringBuilder(t *testing.T) {
 func TestSlice(t *testing.T) {
 	var url = "/test/a/b/c/d"
 	t.Log(strings.Split(url, "/")[1:])
+}
+
+func TestUrl(t *testing.T) {
+	var url1 = "http://127.0.0.1:8080/test/demo/1/g?name=hello&pass=work"
+	var url2 = "http://127.0.0.1:8080/test/demo/1/g"
+	t.Log(strings.Split(url1, "?"))
+	t.Log(strings.Split(url2, "?"))
 }

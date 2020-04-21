@@ -24,12 +24,13 @@ import (
 )
 
 var (
-	patterns    []string
+	patternMap  map[string][]string // method下所属url集合
 	patternLock sync.Mutex
 )
 
 // NewGHttpServe 新建一个Http服务
 func NewGHttpServe(filters ...Filter) *GHttpServe {
+	patternMap = map[string][]string{}
 	return &GHttpServe{filters: filters, routerMap: map[string]*GHttpRouter{}}
 }
 
@@ -57,14 +58,13 @@ func (ghs *GHttpServe) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // doMethod 处理请求具体方法
 func (ghs *GHttpServe) doServe(w http.ResponseWriter, r *http.Request) {
 	var (
-		// 项目路径，如“/demo/:id/:name”，与路由根路径相结合，最终会通过类似“http://127.0.0.1:8080/test/demo/1/g”方式进行访问
-		pattern      = r.URL.String()
-		ps           = strings.Split(pattern, "/")[1:]
 		offset       = 0
 		ghr          *GHttpRouter
 		groupPattern string // 项目根路径
 		patterned    string // 处理后的url
 	)
+	pattern, paramMap := ghs.parseUrlParams(r)
+	ps := strings.Split(pattern, "/")[1:]
 	for position, p := range ps {
 		var exist bool
 		groupPattern = strings.Join([]string{groupPattern, "/", p}, "")
@@ -99,15 +99,15 @@ func (ghs *GHttpServe) doServe(w http.ResponseWriter, r *http.Request) {
 				}
 				var (
 					offset   = 0
-					paramMap = map[string]string{}
+					valueMap = map[string]string{}
 				)
 				for index, p := range ps {
 					if index > position {
-						paramMap[route.paramMap[offset]] = p
+						valueMap[route.paramMap[offset]] = p
 						offset++
 					}
 				}
-				if err := ghs.parseHandler(w, r, route, paramMap); nil != err {
+				if err := ghs.parseHandler(w, r, route, valueMap, paramMap); nil != err {
 					http.Error(w, err.Error(), http.StatusInternalServerError)
 					return
 				}
@@ -116,6 +116,39 @@ func (ghs *GHttpServe) doServe(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	http.NotFound(w, r)
+}
+
+func (ghs *GHttpServe) parseUrlParams(r *http.Request) (pattern string, paramMap map[string]string) {
+	var (
+		// 项目路径，如“/demo/:id/:name”，与路由根路径相结合，最终会通过类似“http://127.0.0.1:8080/test/demo/1/g?name=hello&pass=work”方式进行访问
+		p  = ghs.singleSeparator(r.URL.String())
+		ps = strings.Split(p, "?")
+	)
+	if len(ps) != 2 {
+		pattern = p
+	} else {
+		paramMap = ghs.execUrlParams(ps[1])
+		if len(paramMap) == 0 {
+			pattern = p
+		} else {
+			pattern = ps[0]
+		}
+	}
+	return
+}
+
+func (ghs *GHttpServe) execUrlParams(paramStr string) map[string]string {
+	paramMap := map[string]string{}
+	paramPair := strings.Split(paramStr, "&")
+	for _, pair := range paramPair {
+		valuePair := strings.Split(pair, "=")
+		if len(valuePair) == 1 {
+			return map[string]string{}
+		} else {
+			paramMap[valuePair[0]] = valuePair[1]
+		}
+	}
+	return paramMap
 }
 
 // parseReqMethod 解析请求方法
@@ -188,8 +221,8 @@ type FormFile struct {
 }
 
 // parseHandler 解析请求处理方法
-func (ghs *GHttpServe) parseHandler(w http.ResponseWriter, r *http.Request, route *route, paramMap map[string]string) error {
-	if respModel, custom := route.handler(w, r, route.model, paramMap); !custom {
+func (ghs *GHttpServe) parseHandler(w http.ResponseWriter, r *http.Request, route *route, valueMap map[string]string, paramMap map[string]string) error {
+	if respModel, custom := route.handler(w, r, route.model, valueMap, paramMap); !custom {
 		if bytes, err := json.Marshal(respModel); nil != err {
 			return err
 		} else if _, err := w.Write(bytes); nil != err {
@@ -197,4 +230,16 @@ func (ghs *GHttpServe) parseHandler(w http.ResponseWriter, r *http.Request, rout
 		}
 	}
 	return nil
+}
+
+// singleSeparator 将字符串内所有连续/替换为单个/
+func (ghs *GHttpServe) singleSeparator(res string) string {
+	for skip := false; !skip; {
+		resNew := strings.Replace(res, "//", "/", -1)
+		if res == resNew {
+			skip = true
+		}
+		res = resNew
+	}
+	return res
 }

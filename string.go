@@ -111,16 +111,22 @@ func (s *StringCommon) ToString(i interface{}) string {
 	return out.String()
 }
 
-// SingleSpace 将字符串内所有连续空格替换为单个空格
-func (s *StringCommon) SingleSpace(res string) string {
+// SingleValue 将字符串内所有连续value替换为单个value
+func (s *StringCommon) SingleValue(res string, value string) string {
+	doubleValue := s.StringBuilder(value, value)
 	for skip := false; !skip; {
-		resNew := strings.Replace(res, "  ", " ", -1)
+		resNew := strings.Replace(res, doubleValue, value, -1)
 		if res == resNew {
 			skip = true
 		}
 		res = resNew
 	}
 	return res
+}
+
+// SingleSpace 将字符串内所有连续空格替换为单个空格
+func (s *StringCommon) SingleSpace(res string) string {
+	return s.SingleValue(res, " ")
 }
 
 // PrefixSupplementZero 当字符串长度不满足时，将字符串前几位补充0

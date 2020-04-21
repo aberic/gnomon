@@ -30,12 +30,14 @@ import (
 //
 // reqModel 如果需要，这里是期望接收的结构，如Test，通过reqModel.(*Test)转换
 //
-// paramMap 如果需要，这里是与url请求中对应的参数集合，如“/demo/:id/”，则通过 paramMap[id] 获取url中的值
+// valueMap 如果需要，这里是与url请求中对应的参数集合，如“/demo/:id/”，则通过 paramMap[id] 获取url中的值
+//
+// paramMap 如果需要，这里是请求params
 //
 // return respModel 自行返回的结构
 //
 // return custom 是否自行处理返回结果，如果自行处理，则本次返回不再执行默认操作
-type Handler func(writer http.ResponseWriter, request *http.Request, reqModel interface{}, paramMap map[string]string) (respModel interface{}, custom bool)
+type Handler func(writer http.ResponseWriter, request *http.Request, reqModel interface{}, valueMap map[string]string, paramMap map[string]string) (respModel interface{}, custom bool)
 
 // Filter 待实现拦截器/过滤器方法，group方法将优于request方法验证
 //
@@ -145,12 +147,16 @@ func (ghr *GHttpRouter) repo(method, pattern string, model interface{}, handler 
 	assemblyPattern := strings.Join([]string{ghr.groupPattern, patterned}, "")
 	defer patternLock.Unlock()
 	patternLock.Lock()
-	for _, p := range patterns {
-		if strings.Contains(assemblyPattern, p) || strings.Contains(p, assemblyPattern) {
-			panic(fmt.Sprintf("already have the same url, with assemblyPattern:%s and p:%s", assemblyPattern, p))
+	if patterns, exist := patternMap[method]; exist {
+		for _, p := range patterns {
+			if strings.Contains(assemblyPattern, p) || strings.Contains(p, assemblyPattern) {
+				panic(fmt.Sprintf("already have the same url, with assemblyPattern:%s and p:%s", assemblyPattern, p))
+			}
 		}
+		patternMap[method] = append(patternMap[method], assemblyPattern)
+	} else {
+		patternMap[method] = []string{assemblyPattern}
 	}
-	patterns = append(patterns, assemblyPattern)
 }
 
 // execUrl 特殊处理Url
