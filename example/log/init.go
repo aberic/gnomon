@@ -94,25 +94,25 @@ func Errs(msg string) *Param {
 }
 
 func Debug(msg string, fields ...gnomon.FieldInter) {
-	gnomon.Log().Debug(msg, fields...)
+	gnomon.Log().DebugSkip(2, msg, fields...)
 }
 
 func Info(msg string, fields ...gnomon.FieldInter) {
-	gnomon.Log().Info(msg, fields...)
+	gnomon.Log().InfoSkip(2, msg, fields...)
 }
 
 func Warn(msg string, fields ...gnomon.FieldInter) {
-	gnomon.Log().Warn(msg, fields...)
+	gnomon.Log().WarnSkip(2, msg, fields...)
 }
 
 func Error(msg string, fields ...gnomon.FieldInter) {
-	gnomon.Log().Error(msg, fields...)
+	gnomon.Log().ErrorSkip(2, msg, fields...)
 }
 
 func Panic(msg string, fields ...gnomon.FieldInter) {
-	gnomon.Log().Panic(msg, fields...)
+	gnomon.Log().PanicSkip(2, msg, fields...)
 }
 
 func Fatal(msg string, fields ...gnomon.FieldInter) {
-	gnomon.Log().Fatal(msg, fields...)
+	gnomon.Log().FatalSkip(2, msg, fields...)
 }

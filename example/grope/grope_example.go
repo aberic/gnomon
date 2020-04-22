@@ -15,9 +15,10 @@
 package main
 
 import (
-	"errors"
 	"github.com/aberic/gnomon"
+	"github.com/aberic/gnomon/example/log"
 	"github.com/aberic/gnomon/grope"
+	"github.com/aberic/gnomon/grope/tune"
 	"net/http"
 )
 
@@ -46,123 +47,130 @@ func main() {
 	//	"./example/ca/client/rootCA.crt")
 }
 
-func doFilter1(w http.ResponseWriter, r *http.Request) (bool, int, error) {
-	if r.Header.Get("name") == "name1" {
-		return false, 0, nil
-	} else if r.Header.Get("name") == "name2" {
-		return false, http.StatusBadGateway, errors.New("filter name error")
+func doFilter1(ctx *grope.Context) {
+	if ctx.HeaderGet("name") != "name" {
+		log.Info("doFilter1", log.Field("resp", ctx.ResponseText(http.StatusForbidden, "test")))
 	}
-	_, _ = w.Write([]byte("filter custom name error"))
-	return true, http.StatusBadGateway, errors.New("filter name error")
 }
 
-func doFilter2(w http.ResponseWriter, r *http.Request) (bool, int, error) {
-	if r.Header.Get("pass") == "pass1" {
-		return false, 0, nil
-	} else if r.Header.Get("pass") == "pass2" {
-		return false, http.StatusBadGateway, errors.New("filter pass error")
+func doFilter2(ctx *grope.Context) {
+	if ctx.HeaderGet("pass") != "pass" {
+		log.Info("doFilter2", log.Field("resp", ctx.ResponseText(http.StatusForbidden, "test")))
 	}
-	_, _ = w.Write([]byte("filter custom pass error"))
-	return true, http.StatusBadGateway, errors.New("filter pass error")
 }
 
 func router1(hs *grope.GHttpServe) {
 	// 仓库相关路由设置
-	route := hs.Group("/one/get")
-	route.Post("/test1", &TestOne{}, one1)
-	route.Put("/test1", &TestOne{}, one1)
-	route.Post("/test2/:a/:b", &TestOne{}, one2)
-	route.PostForm("/test3/:a/:b", map[string]interface{}{}, one3)
-	route.PostForm("/test4/:a/:b", map[string]interface{}{}, one4)
-	route.PostForm("/test5/:a/:b", map[string]interface{}{}, one5)
-	route.Get("/test6", &TestOne{}, one1, doFilter2)
+	route := hs.Group("/one/test")
+	route.Post("/test1", one1)
+	route.Put("/test1", one1)
+	route.Post("/test2/:a/:b", one2)
+	route.Post("/test3/:a/:b", one3)
+	route.Post("/test4/:a/:b", one4)
+	route.Post("/test5/:a/:b", one5)
 }
 
-func one1(_ http.ResponseWriter, r *http.Request, reqModel interface{}, _ map[string]string, paramMap map[string]string) (respModel interface{}, custom bool) {
-	ones := reqModel.(*TestOne)
-	gnomon.Log().Info("one", gnomon.Log().Field("one", &ones), gnomon.Log().Field("url", r.URL.String()), gnomon.Log().Field("paramMap", paramMap))
-	return &TestTwo{
+func one1(ctx *grope.Context) {
+	ones, _ := ctx.ReceiveJson(&TestOne{})
+	log.Info("one", log.Field("one", &ones),
+		log.Field("url", ctx.Request().URL.String()), log.Field("paramMap", ctx.Params()))
+	log.Info("one1", log.Field("resp", ctx.ResponseJson(http.StatusOK, &TestTwo{
 		Two:   "2",
 		Twos:  false,
 		TwoGo: 2,
-	}, false
+	})))
 }
 
-func one2(_ http.ResponseWriter, r *http.Request, reqModel interface{}, valueMaps map[string]string, _ map[string]string) (respModel interface{}, custom bool) {
-	ones := reqModel.(*TestOne)
-	gnomon.Log().Info("one", gnomon.Log().Field("one", &ones), gnomon.Log().Field("url", r.URL.String()),
-		gnomon.Log().Field("a", valueMaps["a"]), gnomon.Log().Field("b", valueMaps["b"]))
-	return &TestTwo{
+func one2(ctx *grope.Context) {
+	ones, _ := ctx.ReceiveJson(&TestOne{})
+	log.Info("one", log.Field("one", &ones),
+		log.Field("url", ctx.Request().URL.String()),
+		log.Field("a", ctx.Values()["a"]), log.Field("b", ctx.Values()["b"]))
+	log.Info("one1", log.Field("resp", ctx.ResponseJson(http.StatusOK, &TestTwo{
 		Two:   "2",
 		Twos:  false,
 		TwoGo: 2,
-	}, false
+	})))
 }
 
-func one3(_ http.ResponseWriter, r *http.Request, reqModel interface{}, valueMaps map[string]string, _ map[string]string) (respModel interface{}, custom bool) {
-	ones := reqModel.(map[string]interface{})
-	gnomon.Log().Info("one", gnomon.Log().Field("one", &ones), gnomon.Log().Field("url", r.URL.String()),
-		gnomon.Log().Field("a", valueMaps["a"]), gnomon.Log().Field("b", valueMaps["b"]))
-	return &TestTwo{
+func one3(ctx *grope.Context) {
+	ones, err := ctx.ReceiveForm()
+	if nil != err {
+		log.Error("one3", log.Err(err))
+	}
+	log.Info("one", log.Field("one", &ones),
+		log.Field("url", ctx.Request().URL.String()),
+		log.Field("a", ctx.Values()["a"]), log.Field("b", ctx.Values()["b"]))
+	log.Info("one1", log.Field("resp", ctx.ResponseJson(http.StatusOK, &TestTwo{
 		Two:   "2",
 		Twos:  false,
 		TwoGo: 2,
-	}, false
+	})))
 }
 
-func one4(_ http.ResponseWriter, r *http.Request, reqModel interface{}, valueMaps map[string]string, _ map[string]string) (respModel interface{}, custom bool) {
-	ones := reqModel.(map[string]interface{})
-	gnomon.Log().Info("one", gnomon.Log().Field("u", ones["u"]), gnomon.Log().Field("v", ones["v"]), gnomon.Log().Field("url", r.URL.String()),
-		gnomon.Log().Field("a", valueMaps["a"]), gnomon.Log().Field("b", valueMaps["b"]))
-
-	file := ones["file1"].(*grope.FormFile)
+func one4(ctx *grope.Context) {
+	ones, _ := ctx.ReceiveMultipartForm()
+	log.Info("one", log.Field("u", ones["u"]), log.Field("v", ones["v"]),
+		log.Field("url", ctx.Request().URL.String()),
+		log.Field("a", ctx.Values()["a"]), log.Field("b", ctx.Values()["b"]))
+	file := ones["file1"].(*tune.FormFile)
 	gnomon.File().Append("tmp/httpFileTest/"+file.FileName, file.Data, true)
-
-	return &TestTwo{
+	log.Info("one1", log.Field("resp", ctx.ResponseJson(http.StatusOK, &TestTwo{
 		Two:   "2",
 		Twos:  false,
 		TwoGo: 2,
-	}, false
+	})))
 }
 
-func one5(_ http.ResponseWriter, r *http.Request, reqModel interface{}, valueMaps map[string]string, _ map[string]string) (respModel interface{}, custom bool) {
-	ones := reqModel.(map[string]interface{})
-	gnomon.Log().Info("one", gnomon.Log().Field("u", ones["u"]), gnomon.Log().Field("v", ones["v"]), gnomon.Log().Field("url", r.URL.String()),
-		gnomon.Log().Field("aaa", valueMaps["aaa"]), gnomon.Log().Field("bbb", valueMaps["bbb"]))
+func one5(ctx *grope.Context) {
+	ones, _ := ctx.ReceiveMultipartForm()
+	log.Info("one", log.Field("u", ones["u"]), log.Field("v", ones["v"]),
+		log.Field("url", ctx.Request().URL.String()),
+		log.Field("a", ctx.Values()["a"]), log.Field("b", ctx.Values()["b"]))
 
-	file1 := ones["wk"].(*grope.FormFile)
-	file2 := ones["kw"].(*grope.FormFile)
+	file1 := ones["wk"].(*tune.FormFile)
+	file2 := ones["kw"].(*tune.FormFile)
 	gnomon.File().Append("tmp/httpFileTest/"+file1.FileName, file1.Data, true)
 	gnomon.File().Append("tmp/httpFileTest/"+file2.FileName, file2.Data, true)
-
-	return &TestTwo{
+	log.Info("one1", log.Field("resp", ctx.ResponseJson(http.StatusOK, &TestTwo{
 		Two:   "2",
 		Twos:  false,
 		TwoGo: 2,
-	}, false
+	})))
 }
 
 func router2(hs *grope.GHttpServe) {
 	// 仓库相关路由设置
 	route := hs.Group("/two")
-	route.Post("/test1", &TestTwo{}, two1)
-	route.Get("/test2/:id/:name/:pass", nil, two2)
+	route.Post("/test1", two1)
+	route.Get("/test2/:id/:name/:pass", two2, doFilter2)
+	route.Get("/test3", two3)
 }
 
-func two1(_ http.ResponseWriter, r *http.Request, reqModel interface{}, _ map[string]string, _ map[string]string) (respModel interface{}, custom bool) {
-	twos := reqModel.(*TestTwo)
-	gnomon.Log().Info("two", gnomon.Log().Field("two", &twos), gnomon.Log().Field("url", r.URL.String()))
-	return &TestOne{
+func two1(ctx *grope.Context) {
+	twos, _ := ctx.ReceiveJson(&TestTwo{})
+	log.Info("two", log.Field("two", &twos), log.Field("url", ctx.Request().URL.String()))
+	log.Info("one1", log.Field("resp", ctx.ResponseJson(http.StatusOK, &TestOne{
 		One:   "1",
 		Ones:  true,
 		OneGo: 1,
-	}, false
+	})))
 }
 
-func two2(w http.ResponseWriter, r *http.Request, _ interface{}, valueMaps map[string]string, _ map[string]string) (respModel interface{}, custom bool) {
-	gnomon.Log().Info("one", gnomon.Log().Field("url", r.URL.String()),
-		gnomon.Log().Field("id", valueMaps["id"]), gnomon.Log().Field("name", valueMaps["name"]),
-		gnomon.Log().Field("pass", valueMaps["pass"]))
-	_, _ = w.Write([]byte("custom true"))
-	return nil, true
+func two2(ctx *grope.Context) {
+	log.Info("one", log.Field("url", ctx.Request().URL.String()),
+		log.Field("id", ctx.Values()["id"]), log.Field("name", ctx.Values()["name"]),
+		log.Field("pass", ctx.Values()["pass"]),
+		log.Field("ok", ctx.HeaderGet("ok")), log.Field("no", ctx.HeaderGet("no")))
+	log.Info("one1", log.Field("resp", ctx.ResponseJson(http.StatusOK, &TestOne{
+		One:   "1",
+		Ones:  true,
+		OneGo: 1,
+	})))
+}
+
+func two3(ctx *grope.Context) {
+	twos, _ := ctx.ReceiveJson(&TestTwo{})
+	log.Info("two", log.Field("two", &twos), log.Field("url", ctx.Request().URL.String()))
+	log.Info("one1", log.Field("resp", ctx.ResponseFile(http.StatusOK, "tmp/httpFileTest/1400115281_report_pb.dump")))
 }

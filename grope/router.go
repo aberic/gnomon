@@ -24,33 +24,13 @@ import (
 
 // Handler 待实现接收请求方法
 //
-// writer 原生 net/http 结构
-//
-// request 原生 net/http 结构
-//
-// reqModel 如果需要，这里是期望接收的结构，如Test，通过reqModel.(*Test)转换
-//
-// valueMap 如果需要，这里是与url请求中对应的参数集合，如“/demo/:id/”，则通过 paramMap[id] 获取url中的值
-//
-// paramMap 如果需要，这里是请求params
-//
-// return respModel 自行返回的结构
-//
-// return custom 是否自行处理返回结果，如果自行处理，则本次返回不再执行默认操作
-type Handler func(writer http.ResponseWriter, request *http.Request, reqModel interface{}, valueMap map[string]string, paramMap map[string]string) (respModel interface{}, custom bool)
+// ctx 请求处理上下文结构
+type Handler func(ctx *Context)
 
-// Filter 待实现拦截器/过滤器方法，group方法将优于request方法验证
+// Filter 过滤器/拦截器处理
 //
-// writer 原生 net/http 结构
-//
-// request 原生 net/http 结构
-//
-// return custom 是否自行处理返回结果，如果自行处理，则本次返回不再执行默认操作
-//
-// return code http错误码，如：http.StatusInternalServerError
-//
-// return err 具体err信息
-type Filter func(writer http.ResponseWriter, request *http.Request) (custom bool, code int, err error)
+// ctx 请求处理上下文结构
+type Filter func(ctx *Context)
 
 type router struct {
 	routes map[string]*route
@@ -58,9 +38,8 @@ type router struct {
 
 // route 路由子项目结构
 type route struct {
-	model    interface{}    // 期望接收的结构，如“&Test{}”，最终在Handler方法中得以调用
 	handler  Handler        // 待实现接收请求方法
-	paramMap map[int]string // url泛型下标对应字符串集合
+	valueMap map[int]string // url泛型下标对应字符串集合
 	filters  []Filter       // 过滤器/拦截器数组
 }
 
@@ -72,63 +51,18 @@ type GHttpRouter struct {
 	lock         sync.RWMutex
 }
 
-// repo 发起一个接收项目，请求方法复用 net/http “http.MethodGet”等
-//
-// 安全性与幂等性
-//
-// 关于HTTP请求采用的这些个方法，具有两个基本的特性，即“安全性”和“幂等性”。
-//
-// 对于7种HTTP方法，GET、HEAD和OPTIONS均被认为是安全的方法，因为它们旨在实现对数据的获取，并不具有“边界效应”。
-//
-// 至于其它4个HTTP方法，由于它们会导致服务端资源的变化，所以被认为是不安全的方法。
-//
-// 幂等性（Idempotent）是一个数学上的概念，在这里表示发送一次和多次请求引起的边界效应是一致的。
-// 在网速不够快的情况下，客户端发送一个请求后不能立即得到响应，由于不能确定是否请求是否被成功提交，所以它有可能会再次发送另一个相同的请求，幂等性决定了第二个请求是否有效。
-//
-// 3种安全的HTTP方法（GET、HEAD和OPTIONS）均是幂等方法。由于DELETE和PATCH请求操作的是现有的某个资源，所以它们是幂等方法。
-// 对于PUT请求，只有在对应资源不存在的情况下服务器才会进行添加操作，否则只作修改操作，所以它也是幂等方法。
-// 至于最后一种POST，由于它总是进行添加操作，如果服务器接收到两次相同的POST操作，将导致两个相同的资源被创建，所以这是一个非幂等的方法。
-//
-// 当我们在设计Web API的时候，应该尽量根据请求HTTP方法的幂等型来决定处理的逻辑。
-// 由于PUT是一个幂等方法，所以携带相同资源的PUT请求不应该引起资源的状态变化，如果我们在资源上附加一个自增长的计数器表示被修改的次数，这实际上就破坏了幂等型。
-//
-// 无状态性
-//
-// restful只要维护资源的状态，而不需要维护客户端的状态。
-// 对于它来说，每次请求都是全新的，它只需要针对本次请求作相应的操作，不需要将本次请求的相关信息记录下来以便用于后续来自相同客户端请求的处理。
-// 对于上面所述restful的这些个特性，它们都是要求为了满足这些特征做点什么，唯有这个无状态却是要求不要做什么，因为HTTP本身就是无状态的。
-//
-// 举个例子，一个网页通过调用Web API分页获取符合查询条件的记录。
-// 一般情况下，页面导航均具有“上一页”和“下一页”链接用于呈现当前页的前一页和后一页的记录。那么现在有两种实现方式返回上下页的记录。
-//
-// Web API不仅仅会定义根据具体页码的数据查询定义相关的操作，还会针对“上一页”和“下一页”这样的请求定义单独的操作。
-// 它自身会根据客户端的Session ID对每次数据返回的页面在本地进行保存，以便能够知道上一页和下一页具体是哪一页。
-//
-// Web API只会定义根据具体页码的数据查询定义相关的操作，当前返回数据的页码由客户端来维护。
-//
-// 第一种貌似很“智能”，其实就是一种画蛇添足的作法，因为它破坏了Web API的无状态性。
-// 设计无状态的Web API不仅仅使Web API自身显得简单而精炼，还因减除了针对客户端的“亲和度（Affinty）”使我们可以有效地实施负载均衡，
-// 因为只有这样集群中的每一台服务器对于每个客户端才是等效的。
-//
-// pattern 项目路径，如“/demo/:id/:name”，与路由根路径相结合，最终会通过类似“http://127.0.0.1:8080/test/demo/1/g”方式进行访问
-//
-// model 期望接收的结构，如“&Test{}”，最终在Handler方法中得以调用
-//
-// handler 待实现接收请求方法
-//
-// filters 待实现拦截器/过滤器方法数组
-func (ghr *GHttpRouter) repo(method, pattern string, model interface{}, handler Handler, filters ...Filter) {
+func (ghr *GHttpRouter) repo(method, pattern string, handler Handler, filters ...Filter) {
 	if pattern[0] != '/' {
 		panic("path must begin with '/'")
 	}
 	var (
 		patterned string
-		paramMap  map[int]string
+		valueMap  map[int]string
 		rtr       *router
 		exist     bool
 		err       error
 	)
-	if patterned, paramMap, err = ghr.execUrl(pattern); nil != err {
+	if patterned, valueMap, err = ghr.execUrl(pattern); nil != err {
 		panic(err.Error())
 	}
 	ghr.lock.Lock()
@@ -141,7 +75,7 @@ func (ghr *GHttpRouter) repo(method, pattern string, model interface{}, handler 
 		panic(fmt.Sprintf("already have the same url, with method:%s and patterned:%s in group with pattern:%s",
 			method, patterned, ghr.groupPattern))
 	}
-	rtr.routes[patterned] = &route{model: model, handler: handler, paramMap: paramMap, filters: filters}
+	rtr.routes[patterned] = &route{handler: handler, valueMap: valueMap, filters: filters}
 	ghr.lock.Unlock()
 
 	assemblyPattern := strings.Join([]string{ghr.groupPattern, patterned}, "")
@@ -165,17 +99,17 @@ func (ghr *GHttpRouter) repo(method, pattern string, model interface{}, handler 
 //
 // return patterned 处理后的url
 //
-// return paramMap url泛型下标对应字符串集合
+// return valueMap url泛型下标对应字符串集合
 //
 // return err 处理错误内容
-func (ghr *GHttpRouter) execUrl(pattern string) (patterned string, paramMap map[int]string, err error) {
+func (ghr *GHttpRouter) execUrl(pattern string) (patterned string, valueMap map[int]string, err error) {
 	patterned = ""
-	paramMap = map[int]string{}
+	valueMap = map[int]string{}
 	ps := strings.Split(pattern, "/")[1:]
 	index := 0
 	for _, param := range ps {
 		if strings.HasPrefix(param, ":") {
-			paramMap[index] = strings.Split(param, ":")[1]
+			valueMap[index] = strings.Split(param, ":")[1]
 			index++
 		} else {
 			if index > 0 {
@@ -200,8 +134,8 @@ func (ghr *GHttpRouter) execUrl(pattern string) (patterned string, paramMap map[
 // handler 待实现接收请求方法
 //
 // filters 待实现拦截器/过滤器方法数组
-func (ghr *GHttpRouter) Get(pattern string, model interface{}, handler Handler, filters ...Filter) {
-	go ghr.repo(http.MethodGet, pattern, model, handler, filters...)
+func (ghr *GHttpRouter) Get(pattern string, handler Handler, filters ...Filter) {
+	go ghr.repo(http.MethodGet, pattern, handler, filters...)
 }
 
 // Head 发起一个 Head 请求接收项目
@@ -217,8 +151,8 @@ func (ghr *GHttpRouter) Get(pattern string, model interface{}, handler Handler, 
 // handler 待实现接收请求方法
 //
 // filters 待实现拦截器/过滤器方法数组
-func (ghr *GHttpRouter) Head(pattern string, model interface{}, handler Handler, filters ...Filter) {
-	go ghr.repo(http.MethodHead, pattern, model, handler, filters...)
+func (ghr *GHttpRouter) Head(pattern string, handler Handler, filters ...Filter) {
+	go ghr.repo(http.MethodHead, pattern, handler, filters...)
 }
 
 // Post 发起一个 Post 请求接收项目
@@ -233,8 +167,8 @@ func (ghr *GHttpRouter) Head(pattern string, model interface{}, handler Handler,
 // handler 待实现接收请求方法
 //
 // filters 待实现拦截器/过滤器方法数组
-func (ghr *GHttpRouter) Post(pattern string, model interface{}, handler Handler, filters ...Filter) {
-	go ghr.repo(http.MethodPost, pattern, model, handler, filters...)
+func (ghr *GHttpRouter) Post(pattern string, handler Handler, filters ...Filter) {
+	go ghr.repo(http.MethodPost, pattern, handler, filters...)
 }
 
 // Put 发起一个 Put 请求接收项目
@@ -248,8 +182,8 @@ func (ghr *GHttpRouter) Post(pattern string, model interface{}, handler Handler,
 // handler 待实现接收请求方法
 //
 // filters 待实现拦截器/过滤器方法数组
-func (ghr *GHttpRouter) Put(pattern string, model interface{}, handler Handler, filters ...Filter) {
-	go ghr.repo(http.MethodPut, pattern, model, handler, filters...)
+func (ghr *GHttpRouter) Put(pattern string, handler Handler, filters ...Filter) {
+	go ghr.repo(http.MethodPut, pattern, handler, filters...)
 }
 
 // Patch 发起一个 Patch 请求接收项目
@@ -265,8 +199,8 @@ func (ghr *GHttpRouter) Put(pattern string, model interface{}, handler Handler, 
 // handler 待实现接收请求方法
 //
 // filters 待实现拦截器/过滤器方法数组
-func (ghr *GHttpRouter) Patch(pattern string, model interface{}, handler Handler, filters ...Filter) {
-	go ghr.repo(http.MethodPatch, pattern, model, handler, filters...)
+func (ghr *GHttpRouter) Patch(pattern string, handler Handler, filters ...Filter) {
+	go ghr.repo(http.MethodPatch, pattern, handler, filters...)
 }
 
 // Delete 发起一个 Delete 请求接收项目
@@ -281,8 +215,8 @@ func (ghr *GHttpRouter) Patch(pattern string, model interface{}, handler Handler
 // handler 待实现接收请求方法
 //
 // filters 待实现拦截器/过滤器方法数组
-func (ghr *GHttpRouter) Delete(pattern string, model interface{}, handler Handler, filters ...Filter) {
-	go ghr.repo(http.MethodDelete, pattern, model, handler, filters...)
+func (ghr *GHttpRouter) Delete(pattern string, handler Handler, filters ...Filter) {
+	go ghr.repo(http.MethodDelete, pattern, handler, filters...)
 }
 
 // Connect 发起一个 Connect 请求接收项目
@@ -296,8 +230,8 @@ func (ghr *GHttpRouter) Delete(pattern string, model interface{}, handler Handle
 // handler 待实现接收请求方法
 //
 // filters 待实现拦截器/过滤器方法数组
-func (ghr *GHttpRouter) Connect(pattern string, model interface{}, handler Handler, filters ...Filter) {
-	go ghr.repo(http.MethodConnect, pattern, model, handler, filters...)
+func (ghr *GHttpRouter) Connect(pattern string, handler Handler, filters ...Filter) {
+	go ghr.repo(http.MethodConnect, pattern, handler, filters...)
 }
 
 // Options 发起一个 Options 请求接收项目
@@ -313,8 +247,8 @@ func (ghr *GHttpRouter) Connect(pattern string, model interface{}, handler Handl
 // handler 待实现接收请求方法
 //
 // filters 待实现拦截器/过滤器方法数组
-func (ghr *GHttpRouter) Options(pattern string, model interface{}, handler Handler, filters ...Filter) {
-	go ghr.repo(http.MethodOptions, pattern, model, handler, filters...)
+func (ghr *GHttpRouter) Options(pattern string, handler Handler, filters ...Filter) {
+	go ghr.repo(http.MethodOptions, pattern, handler, filters...)
 }
 
 // Trace 发起一个 Trace 请求接收项目
@@ -328,38 +262,6 @@ func (ghr *GHttpRouter) Options(pattern string, model interface{}, handler Handl
 // handler 待实现接收请求方法
 //
 // filters 待实现拦截器/过滤器方法数组
-func (ghr *GHttpRouter) Trace(pattern string, model interface{}, handler Handler, filters ...Filter) {
-	go ghr.repo(http.MethodTrace, pattern, model, handler, filters...)
-}
-
-// GetForm 发起一个 PostForm 请求接收项目
-//
-// POST请求会 向指定资源提交数据，请求服务器进行处理，如：表单数据提交、文件上传等，请求数据会被包含在请求体中。
-// POST方法是非幂等的方法，因为这个请求可能会创建新的资源或/和修改现有资源。
-//
-// pattern 项目路径，如“/demo/:id/:name”，与路由根路径相结合，最终会通过类似“http://127.0.0.1:8080/test/demo/1/g”方式进行访问
-//
-// fieldMap 如果需要，这里是期望接收的kv集合
-//
-// handler 待实现接收请求方法
-//
-// filters 待实现拦截器/过滤器方法数组
-func (ghr *GHttpRouter) GetForm(pattern string, fieldMap map[string]string, handler Handler, filters ...Filter) {
-	go ghr.repo(http.MethodGet, pattern, fieldMap, handler, filters...)
-}
-
-// PostForm 发起一个 PostForm 请求接收项目
-//
-// POST请求会 向指定资源提交数据，请求服务器进行处理，如：表单数据提交、文件上传等，请求数据会被包含在请求体中。
-// POST方法是非幂等的方法，因为这个请求可能会创建新的资源或/和修改现有资源。
-//
-// pattern 项目路径，如“/demo/:id/:name”，与路由根路径相结合，最终会通过类似“http://127.0.0.1:8080/test/demo/1/g”方式进行访问
-//
-// fieldMap 如果需要，这里是期望接收的kv集合
-//
-// handler 待实现接收请求方法
-//
-// filters 待实现拦截器/过滤器方法数组
-func (ghr *GHttpRouter) PostForm(pattern string, fieldMap map[string]interface{}, handler Handler, filters ...Filter) {
-	go ghr.repo(http.MethodPost, pattern, fieldMap, handler, filters...)
+func (ghr *GHttpRouter) Trace(pattern string, handler Handler, filters ...Filter) {
+	go ghr.repo(http.MethodTrace, pattern, handler, filters...)
 }

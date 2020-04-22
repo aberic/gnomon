@@ -15,9 +15,6 @@
 package grope
 
 import (
-	"encoding/json"
-	"io"
-	"io/ioutil"
 	"net/http"
 	"strings"
 	"sync"
@@ -62,6 +59,7 @@ func (ghs *GHttpServe) doServe(w http.ResponseWriter, r *http.Request) {
 		ghr          *GHttpRouter
 		groupPattern string // 项目根路径
 		patterned    string // 处理后的url
+		ctx          = &Context{writer: w, request: r}
 	)
 	pattern, paramMap := ghs.parseUrlParams(r)
 	ps := strings.Split(pattern, "/")[1:]
@@ -85,32 +83,28 @@ func (ghs *GHttpServe) doServe(w http.ResponseWriter, r *http.Request) {
 		if router, exist := ghr.methodMap[r.Method]; exist { // 判断router中是否存在当前请求方法
 			if route, ok := router.routes[patterned]; ok { // 判断当前url是否存在route中
 				for _, filter := range route.filters { // 过滤无效请求
-					if custom, code, err := filter(w, r); nil != err {
-						if custom {
-							return
-						}
-						http.Error(w, err.Error(), code)
+					filter(ctx)
+					if ctx.responded {
 						return
 					}
 				}
-				if err := ghs.parseReqMethod(r, route); nil != err {
-					http.Error(w, err.Error(), http.StatusInternalServerError)
-					return
-				}
+				//if err := ghs.parseReqMethod(r, route); nil != err {
+				//	http.Error(w, err.Error(), http.StatusInternalServerError)
+				//	return
+				//}
 				var (
 					offset   = 0
 					valueMap = map[string]string{}
 				)
 				for index, p := range ps {
 					if index > position {
-						valueMap[route.paramMap[offset]] = p
+						valueMap[route.valueMap[offset]] = p
 						offset++
 					}
 				}
-				if err := ghs.parseHandler(w, r, route, valueMap, paramMap); nil != err {
-					http.Error(w, err.Error(), http.StatusInternalServerError)
-					return
-				}
+				ctx.valueMap = valueMap
+				ctx.paramMap = paramMap
+				ghs.parseHandler(ctx, route)
 				return
 			}
 		}
@@ -151,86 +145,18 @@ func (ghs *GHttpServe) execUrlParams(paramStr string) map[string]string {
 	return paramMap
 }
 
-// parseReqMethod 解析请求方法
-func (ghs *GHttpServe) parseReqMethod(r *http.Request, route *route) error {
-	if r.Method != http.MethodGet && r.Method != http.MethodHead && r.Method != http.MethodOptions && r.Method != http.MethodDelete {
-		if err := ghs.parseReqModel(r, route); nil != err {
-			return err
-		}
-	}
-	return nil
-}
-
-// parseReqModel 解析请求参数
-func (ghs *GHttpServe) parseReqModel(r *http.Request, route *route) error {
-	contentType := r.Header.Get("Content-Type")
-	switch contentType {
-	case "application/json":
-		return json.NewDecoder(r.Body).Decode(route.model)
-	case "application/x-www-form-urlencoded":
-		if err := r.ParseForm(); nil != err { //解析参数，默认是不会解析的
-			return err
-		}
-		filedMap := make(map[string]interface{})
-		for k, v := range r.Form {
-			filedMap[k] = strings.Join(v, "")
-		}
-		route.model = filedMap
-	default:
-		if strings.Contains(contentType, "multipart/form-data") {
-			if reader, err := r.MultipartReader(); nil != err {
-				return err
-			} else {
-				filedMap := make(map[string]interface{})
-				for {
-					part, err := reader.NextPart()
-					if err == io.EOF {
-						break
-					}
-					if part == nil {
-						return err
-					}
-					if part.FileName() == "" { // this is FormData
-						if data, err := ioutil.ReadAll(part); nil != err {
-							return err
-						} else {
-							filedMap[part.FormName()] = string(data)
-						}
-					} else { // This is FileData
-						if bytes, err := ioutil.ReadAll(part); nil != err {
-							return err
-						} else {
-							filedMap[part.FormName()] = &FormFile{
-								FileName: part.FileName(),
-								Data:     bytes,
-							}
-						}
-					}
-					func() { _ = part.Close() }()
-				}
-				route.model = filedMap
-			}
-		}
-	}
-	return nil
-}
-
-type FormFile struct {
-	FileName string // file name
-	Data     []byte // file bytes content
-}
-
 // parseHandler 解析请求处理方法
-func (ghs *GHttpServe) parseHandler(w http.ResponseWriter, r *http.Request, route *route, valueMap map[string]string, paramMap map[string]string) error {
-	if respModel, custom := route.handler(w, r, route.model, valueMap, paramMap); !custom {
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		if bytes, err := json.Marshal(respModel); nil != err {
-			return err
-		} else if _, err := w.Write(bytes); nil != err {
-			return err
-		}
-	}
-	return nil
+func (ghs *GHttpServe) parseHandler(ctx *Context, route *route) {
+	route.handler(ctx)
+	//if respModel, custom := route.handler(ctx); !custom {
+	//	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	//	if bytes, err := json.Marshal(respModel); nil != err {
+	//		return err
+	//	} else if _, err := w.Write(bytes); nil != err {
+	//		return err
+	//	}
+	//}
+	//return nil
 }
 
 // singleSeparator 将字符串内所有连续/替换为单个/
