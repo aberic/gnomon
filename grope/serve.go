@@ -66,8 +66,9 @@ func (ghs *GHttpServe) doServe(w http.ResponseWriter, r *http.Request) {
 		exist        bool
 	)
 	pattern, paramMap := ghs.parseUrlParams(r)
+	ctx.paramMap = paramMap
 	ps := strings.Split(pattern, "/")[1:]
-	for position, p := range ps {
+	for position, p := range ps { // 遍历url结构锁定Http服务路由
 		groupPattern = strings.Join([]string{groupPattern, "/", p}, "")
 		if ghrNow, exist := ghs.routerMap[groupPattern]; exist {
 			ghr = ghrNow
@@ -86,36 +87,41 @@ func (ghs *GHttpServe) doServe(w http.ResponseWriter, r *http.Request) {
 				continue
 			}
 			patterned = strings.Join([]string{patterned, param}, "/")
-			if route, ok := rtr.routes[patterned]; ok { // 判断当前url是否存在route中
+			if route, ok := rtr.routes[patterned]; ok { // 判断当前url是否存在route中，如果存在，继续遍历增量是否存在
 				rt = route
 				pos = position
-				continue
+			} else { // 如果不存在，退出当前遍历
+				break
 			}
 		}
-		if nil != rt {
-			for _, filter := range rt.filters { // 过滤无效请求
-				filter(ctx)
-				if ctx.responded {
-					return
-				}
-			}
-			var (
-				offset   = 0
-				valueMap = map[string]string{}
-			)
-			for index, p := range ps {
-				if index > pos {
-					valueMap[rt.valueMap[offset]] = p
-					offset++
-				}
-			}
-			ctx.valueMap = valueMap
-			ctx.paramMap = paramMap
-			ghs.parseHandler(ctx, rt)
+		if nil != rt { // 处理请求逻辑
+			ghs.execRoute(ctx, rt, ps, pos)
 			return
 		}
 	}
 	http.NotFound(w, r)
+}
+
+// execRoute 处理请求逻辑
+func (ghs *GHttpServe) execRoute(ctx *Context, rt *route, patterns []string, position int) {
+	for _, filter := range rt.filters { // 过滤无效请求
+		filter(ctx)
+		if ctx.responded {
+			return
+		}
+	}
+	var (
+		offset   = 0
+		valueMap = map[string]string{}
+	)
+	for index, p := range patterns {
+		if index > position {
+			valueMap[rt.valueMap[offset]] = p
+			offset++
+		}
+	}
+	ctx.valueMap = valueMap
+	ghs.parseHandler(ctx, rt)
 }
 
 func (ghs *GHttpServe) parseUrlParams(r *http.Request) (pattern string, paramMap map[string]string) {

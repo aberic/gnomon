@@ -99,17 +99,17 @@ func (ghr *GHttpRouter) repo(method, pattern string, handler Handler, filters ..
 //
 // return patterned 处理后的url
 //
-// return valueMap url泛型下标对应字符串集合
+// return valueKeyIndexMap url泛型下标对应字符串集合
 //
 // return err 处理错误内容
-func (ghr *GHttpRouter) execUrl(pattern string) (patterned string, valueMap map[int]string, err error) {
+func (ghr *GHttpRouter) execUrl(pattern string) (patterned string, valueKeyIndexMap map[int]string, err error) {
 	patterned = ""
-	valueMap = map[int]string{}
+	valueKeyIndexMap = map[int]string{}
 	ps := strings.Split(pattern, "/")[1:]
 	index := 0
 	for _, param := range ps {
 		if strings.HasPrefix(param, ":") {
-			valueMap[index] = strings.Split(param, ":")[1]
+			valueKeyIndexMap[index] = strings.Split(param, ":")[1]
 			index++
 		} else {
 			if index > 0 {
