@@ -71,7 +71,8 @@ func router1(hs *grope.GHttpServe) {
 }
 
 func one1(ctx *grope.Context) {
-	ones, _ := ctx.ReceiveJson(&TestOne{})
+	ones := &TestOne{}
+	_ = ctx.ReceiveJson(ones)
 	log.Info("one", log.Field("one", &ones),
 		log.Field("url", ctx.Request().URL.String()), log.Field("paramMap", ctx.Params()))
 	log.Info("one1", log.Field("resp", ctx.ResponseJson(http.StatusOK, &TestTwo{
@@ -82,7 +83,8 @@ func one1(ctx *grope.Context) {
 }
 
 func one2(ctx *grope.Context) {
-	ones, _ := ctx.ReceiveJson(&TestOne{})
+	ones := &TestOne{}
+	_ = ctx.ReceiveJson(ones)
 	log.Info("one", log.Field("one", &ones),
 		log.Field("url", ctx.Request().URL.String()),
 		log.Field("a", ctx.Values()["a"]), log.Field("b", ctx.Values()["b"]))
@@ -148,7 +150,8 @@ func router2(hs *grope.GHttpServe) {
 }
 
 func two1(ctx *grope.Context) {
-	twos, _ := ctx.ReceiveJson(&TestTwo{})
+	twos := &TestTwo{}
+	_ = ctx.ReceiveJson(twos)
 	log.Info("two", log.Field("two", &twos), log.Field("url", ctx.Request().URL.String()))
 	log.Info("one1", log.Field("resp", ctx.ResponseJson(http.StatusOK, &TestOne{
 		One:   "1",
@@ -170,7 +173,8 @@ func two2(ctx *grope.Context) {
 }
 
 func two3(ctx *grope.Context) {
-	twos, _ := ctx.ReceiveJson(&TestTwo{})
+	twos := &TestTwo{}
+	_ = ctx.ReceiveJson(twos)
 	log.Info("two", log.Field("two", &twos), log.Field("url", ctx.Request().URL.String()))
 	log.Info("one1", log.Field("resp", ctx.ResponseFile(http.StatusOK, "tmp/httpFileTest/1400115281_report_pb.dump")))
 }

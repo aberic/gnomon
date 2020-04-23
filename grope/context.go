@@ -72,27 +72,27 @@ func (c *Context) Params() map[string]string {
 	return c.paramMap
 }
 
-func (c *Context) ReceiveJson(model interface{}) (interface{}, error) {
+func (c *Context) ReceiveJson(model interface{}) error {
 	if err := tune.ParseJson(c.request, model); nil != err {
-		return nil, err
+		return err
 	} else {
-		return model, nil
+		return nil
 	}
 }
 
-func (c *Context) ReceiveYaml(model interface{}) (interface{}, error) {
+func (c *Context) ReceiveYaml(model interface{}) error {
 	if err := tune.ParseYaml(c.request, model); nil != err {
-		return nil, err
+		return err
 	} else {
-		return model, nil
+		return nil
 	}
 }
 
-func (c *Context) ReceiveMsgPack(model interface{}) (interface{}, error) {
+func (c *Context) ReceiveMsgPack(model interface{}) error {
 	if err := tune.ParseMsgPack(c.request, model); nil != err {
-		return nil, err
+		return err
 	} else {
-		return model, nil
+		return nil
 	}
 }
 
