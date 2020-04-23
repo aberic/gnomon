@@ -15,6 +15,7 @@
 package grope
 
 import (
+	"github.com/aberic/gnomon/grope/log"
 	"net/http"
 	"strings"
 	"sync"
@@ -147,16 +148,13 @@ func (ghs *GHttpServe) execUrlParams(paramStr string) map[string]string {
 
 // parseHandler 解析请求处理方法
 func (ghs *GHttpServe) parseHandler(ctx *Context, route *route) {
+	defer func() {
+		if err := recover(); err != nil {
+			log.Error("parseHandler", log.Field("error", err))
+			ctx.Status(http.StatusInternalServerError)
+		}
+	}()
 	route.handler(ctx)
-	//if respModel, custom := route.handler(ctx); !custom {
-	//	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	//	if bytes, err := json.Marshal(respModel); nil != err {
-	//		return err
-	//	} else if _, err := w.Write(bytes); nil != err {
-	//		return err
-	//	}
-	//}
-	//return nil
 }
 
 // singleSeparator 将字符串内所有连续/替换为单个/

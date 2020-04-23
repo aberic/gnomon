@@ -40,7 +40,6 @@ var (
 	tc             *TimeCommon
 	pc             *PoolCommon
 	gc             *GRPCCommon
-	ghc            *GHTTPCommon
 	hpc            *HttpClientCommon
 	sql            *SQLCommon
 	onceByte       sync.Once
@@ -61,7 +60,6 @@ var (
 	onceTime       sync.Once
 	oncePool       sync.Once
 	onceGRPC       sync.Once
-	onceGHTTP      sync.Once
 	onceHTTPClient sync.Once
 	onceSQL        sync.Once
 )
@@ -208,14 +206,6 @@ func GRPC() *GRPCCommon {
 		gc = &GRPCCommon{}
 	})
 	return gc
-}
-
-// Grope Http工具
-func Grope() *GHTTPCommon {
-	onceGHTTP.Do(func() {
-		ghc = &GHTTPCommon{}
-	})
-	return ghc
 }
 
 // HttpClient Http工具

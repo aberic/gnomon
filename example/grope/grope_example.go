@@ -35,10 +35,10 @@ type TestTwo struct {
 }
 
 func main() {
-	httpServe := gnomon.Grope().NewHttpServe()
+	httpServe := grope.NewHttpServe()
 	router1(httpServe)
 	router2(httpServe)
-	gnomon.Grope().ListenAndServe(":8888", httpServe)
+	grope.ListenAndServe(":8888", httpServe)
 	//gnomon.Grope().ListenAndServeTLS(
 	//	httpServe,
 	//	":8888",
@@ -70,7 +70,13 @@ func router1(hs *grope.GHttpServe) {
 	route.Post("/test5/:a/:b", one5)
 }
 
+func nilOne() *TestOne {
+	return nil
+}
+
 func one1(ctx *grope.Context) {
+	oness := nilOne()
+	oness.One = "1"
 	ones := &TestOne{}
 	_ = ctx.ReceiveJson(ones)
 	log.Info("one", log.Field("one", &ones),
