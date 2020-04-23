@@ -61,13 +61,16 @@ func (ghs *GHttpServe) doServe(w http.ResponseWriter, r *http.Request) {
 		groupPattern string // 项目根路径
 		patterned    string // 处理后的url
 		ctx          = &Context{writer: w, request: r}
+		rtr          *router
+		rt           *route
+		exist        bool
 	)
 	pattern, paramMap := ghs.parseUrlParams(r)
 	ps := strings.Split(pattern, "/")[1:]
 	for position, p := range ps {
-		var exist bool
 		groupPattern = strings.Join([]string{groupPattern, "/", p}, "")
-		if ghr, exist = ghs.routerMap[groupPattern]; exist {
+		if ghrNow, exist := ghs.routerMap[groupPattern]; exist {
+			ghr = ghrNow
 			offset = position
 			break
 		}
@@ -76,38 +79,40 @@ func (ghs *GHttpServe) doServe(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	for position, param := range ps {
-		if position <= offset {
-			continue
-		}
-		patterned = strings.Join([]string{patterned, param}, "/")
-		if router, exist := ghr.methodMap[r.Method]; exist { // 判断router中是否存在当前请求方法
-			if route, ok := router.routes[patterned]; ok { // 判断当前url是否存在route中
-				for _, filter := range route.filters { // 过滤无效请求
-					filter(ctx)
-					if ctx.responded {
-						return
-					}
-				}
-				//if err := ghs.parseReqMethod(r, route); nil != err {
-				//	http.Error(w, err.Error(), http.StatusInternalServerError)
-				//	return
-				//}
-				var (
-					offset   = 0
-					valueMap = map[string]string{}
-				)
-				for index, p := range ps {
-					if index > position {
-						valueMap[route.valueMap[offset]] = p
-						offset++
-					}
-				}
-				ctx.valueMap = valueMap
-				ctx.paramMap = paramMap
-				ghs.parseHandler(ctx, route)
-				return
+	if rtr, exist = ghr.methodMap[r.Method]; exist { // 判断router中是否存在当前请求方法
+		var pos int
+		for position, param := range ps {
+			if position <= offset {
+				continue
 			}
+			patterned = strings.Join([]string{patterned, param}, "/")
+			if route, ok := rtr.routes[patterned]; ok { // 判断当前url是否存在route中
+				rt = route
+				pos = position
+				continue
+			}
+		}
+		if nil != rt {
+			for _, filter := range rt.filters { // 过滤无效请求
+				filter(ctx)
+				if ctx.responded {
+					return
+				}
+			}
+			var (
+				offset   = 0
+				valueMap = map[string]string{}
+			)
+			for index, p := range ps {
+				if index > pos {
+					valueMap[rt.valueMap[offset]] = p
+					offset++
+				}
+			}
+			ctx.valueMap = valueMap
+			ctx.paramMap = paramMap
+			ghs.parseHandler(ctx, rt)
+			return
 		}
 	}
 	http.NotFound(w, r)

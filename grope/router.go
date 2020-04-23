@@ -83,7 +83,7 @@ func (ghr *GHttpRouter) repo(method, pattern string, handler Handler, filters ..
 	patternLock.Lock()
 	if patterns, exist := patternMap[method]; exist {
 		for _, p := range patterns {
-			if strings.Contains(assemblyPattern, p) || strings.Contains(p, assemblyPattern) {
+			if p == assemblyPattern {
 				panic(fmt.Sprintf("already have the same url, with assemblyPattern:%s and p:%s", assemblyPattern, p))
 			}
 		}

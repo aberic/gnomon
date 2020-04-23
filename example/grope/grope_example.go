@@ -68,6 +68,8 @@ func router1(hs *grope.GHttpServe) {
 	route.Post("/test3/:a/:b", one3)
 	route.Post("/test4/:a/:b", one4)
 	route.Post("/test5/:a/:b", one5)
+	route.Put("/test6/ok", one1)
+	route.Put("/test6/:a", one6)
 }
 
 func nilOne() *TestOne {
@@ -141,6 +143,18 @@ func one5(ctx *grope.Context) {
 	gnomon.File().Append("tmp/httpFileTest/"+file1.FileName, file1.Data, true)
 	gnomon.File().Append("tmp/httpFileTest/"+file2.FileName, file2.Data, true)
 	log.Info("one1", log.Field("resp", ctx.ResponseJson(http.StatusOK, &TestTwo{
+		Two:   "2",
+		Twos:  false,
+		TwoGo: 2,
+	})))
+}
+
+func one6(ctx *grope.Context) {
+	ones := &TestOne{}
+	_ = ctx.ReceiveJson(ones)
+	log.Info("one", log.Field("one", &ones),
+		log.Field("url", ctx.Request().URL.String()), log.Field("a", ctx.Values()["a"]))
+	log.Info("one6", log.Field("resp", ctx.ResponseJson(http.StatusOK, &TestTwo{
 		Two:   "2",
 		Twos:  false,
 		TwoGo: 2,
