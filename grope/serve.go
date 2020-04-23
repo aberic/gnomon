@@ -56,26 +56,16 @@ func (ghs *GHttpServe) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // doMethod 处理请求具体方法
 func (ghs *GHttpServe) doServe(w http.ResponseWriter, r *http.Request) {
 	var (
-		offset       = 0
-		ghr          *GHttpRouter
-		groupPattern string // 项目根路径
-		patterned    string // 处理后的url
-		ctx          = &Context{writer: w, request: r}
-		rtr          *router
-		rt           *route
-		exist        bool
+		patterned string // 处理后的url
+		ctx       = &Context{writer: w, request: r}
+		rtr       *router
+		rt        *route
+		exist     bool
 	)
 	pattern, paramMap := ghs.parseUrlParams(r)
 	ctx.paramMap = paramMap
 	ps := strings.Split(pattern, "/")[1:]
-	for position, p := range ps { // 遍历url结构锁定Http服务路由
-		groupPattern = strings.Join([]string{groupPattern, "/", p}, "")
-		if ghrNow, exist := ghs.routerMap[groupPattern]; exist {
-			ghr = ghrNow
-			offset = position
-			break
-		}
-	}
+	ghr, offset := ghs.parsePatterns(ps)
 	if nil == ghr {
 		http.NotFound(w, r)
 		return
@@ -155,6 +145,19 @@ func (ghs *GHttpServe) execUrlParams(paramStr string) map[string]string {
 		}
 	}
 	return paramMap
+}
+
+func (ghs *GHttpServe) parsePatterns(patterns []string) (ghr *GHttpRouter, offset int) {
+	var groupPattern string             // 项目根路径
+	for position, p := range patterns { // 遍历url结构锁定Http服务路由
+		groupPattern = strings.Join([]string{groupPattern, "/", p}, "")
+		if ghrNow, exist := ghs.routerMap[groupPattern]; exist {
+			ghr = ghrNow
+			offset = position
+			break
+		}
+	}
+	return
 }
 
 // parseHandler 解析请求处理方法

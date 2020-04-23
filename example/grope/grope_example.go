@@ -69,6 +69,7 @@ func router1(hs *grope.GHttpServe) {
 	route.Post("/test4/:a/:b", one4)
 	route.Post("/test5/:a/:b", one5)
 	route.Put("/test6/ok", one1)
+	route.Put("/test6/ok/no", one6)
 	route.Put("/test6/:a/:b", one6)
 }
 
