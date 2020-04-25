@@ -16,13 +16,17 @@ package grope
 
 import (
 	"encoding/json"
+	"github.com/aberic/gnomon"
 	"github.com/aberic/gnomon/grope/tune"
 	"github.com/vmihailenco/msgpack"
 	"gopkg.in/yaml.v3"
 	"io"
+	"io/ioutil"
 	"net/http"
+	"net/url"
 	"os"
 	"strconv"
+	"strings"
 )
 
 // Context grope 请求处理上下文
@@ -31,6 +35,8 @@ type Context struct {
 	writer http.ResponseWriter
 	// request 原生 net/http 结构
 	request *http.Request
+	// sameSite 原生 net/http 结构, SameSite允许服务器定义cookie属性，使得浏览器不可能将此cookie与跨站点请求一起发送。
+	sameSite http.SameSite
 	// valueMap 如果需要，这里是与url请求中对应的参数集合，如“/demo/:id/”，则通过 valueMap[id] 获取url中的值
 	valueMap map[string]string
 	// paramMap 如果需要，这里是请求params
@@ -58,6 +64,71 @@ func (c *Context) HeaderSet(key, value string) {
 // GetHeader returns value from request headers.
 func (c *Context) HeaderGet(key string) string {
 	return c.requestHeader(key)
+}
+
+// SetSameSite with cookie
+func (c *Context) SetSameSite(sameSite http.SameSite) {
+	c.sameSite = sameSite
+}
+
+// SetCookie adds a Set-Cookie header to the ResponseWriter's headers.
+// The provided cookie must have a valid Name. Invalid cookies may be
+// silently dropped.
+func (c *Context) SetCookie(name, value string, maxAge int, path, domain string, secure, httpOnly bool) {
+	if path == "" {
+		path = "/"
+	}
+	http.SetCookie(c.writer, &http.Cookie{
+		Name:     name,
+		Value:    url.QueryEscape(value),
+		MaxAge:   maxAge,
+		Path:     path,
+		Domain:   domain,
+		SameSite: c.sameSite,
+		Secure:   secure,
+		HttpOnly: httpOnly,
+	})
+}
+
+// Cookie returns the named cookie provided in the request or
+// ErrNoCookie if not found. And return the named cookie is unescaped.
+// If multiple cookies match the given name, only one cookie will
+// be returned.
+func (c *Context) Cookie(name string) (string, error) {
+	cookie, err := c.request.Cookie(name)
+	if err != nil {
+		return "", err
+	}
+	val, _ := url.QueryUnescape(cookie.Value)
+	return val, nil
+}
+
+func (c *Context) ClientIP() string {
+	return gnomon.IP().Get(c.request)
+}
+
+func filterFlags(content string) string {
+	for i, char := range content {
+		if char == ' ' || char == ';' {
+			return content[:i]
+		}
+	}
+	return content
+}
+
+// ContentType returns the Content-Type header of the request.
+func (c *Context) ContentType() string {
+	return filterFlags(c.requestHeader("Content-Type"))
+}
+
+// IsWebsocket returns true if the request headers indicate that a websocket
+// handshake is being initiated by the client.
+func (c *Context) IsWebsocket() bool {
+	if strings.Contains(strings.ToLower(c.requestHeader("Connection")), "upgrade") &&
+		strings.EqualFold(c.requestHeader("Upgrade"), "websocket") {
+		return true
+	}
+	return false
 }
 
 func (c *Context) Status(code int) {
@@ -103,6 +174,12 @@ func (c *Context) ReceiveForm() (map[string]interface{}, error) {
 func (c *Context) ReceiveMultipartForm() (map[string]interface{}, error) {
 	return tune.ParseMultipartForm(c.request)
 }
+
+// GetRawData return stream data.
+func (c *Context) GetRawData() ([]byte, error) {
+	return ioutil.ReadAll(c.request.Body)
+}
+
 func (c *Context) response(bytes []byte) error {
 	if _, err := c.writer.Write(bytes); nil != err {
 		return err

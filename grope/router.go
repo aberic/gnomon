@@ -16,10 +16,9 @@ package grope
 
 import (
 	"errors"
-	"fmt"
+	"github.com/aberic/gnomon"
 	"net/http"
 	"strings"
-	"sync"
 )
 
 // Handler 待实现接收请求方法
@@ -32,65 +31,14 @@ type Handler func(ctx *Context)
 // ctx 请求处理上下文结构
 type Filter func(ctx *Context)
 
-type router struct {
-	routes map[string]*route
-}
-
-// route 路由子项目结构
-type route struct {
-	handler  Handler        // 待实现接收请求方法
-	valueMap map[int]string // url泛型下标对应字符串集合
-	filters  []Filter       // 过滤器/拦截器数组
-}
-
 // GHttpRouter Http服务路由结构
 type GHttpRouter struct {
-	groupPattern string             // 跟路由名
-	methodMap    map[string]*router // 路由子项目集
-	filters      []Filter           // 过滤器/拦截器数组
-	lock         sync.RWMutex
+	pattern string // group pattern
+	nodal   *node
 }
 
 func (ghr *GHttpRouter) repo(method, pattern string, handler Handler, filters ...Filter) {
-	if pattern[0] != '/' {
-		panic("path must begin with '/'")
-	}
-	var (
-		patterned string
-		valueMap  map[int]string
-		rtr       *router
-		exist     bool
-		err       error
-	)
-	if patterned, valueMap, err = ghr.execUrl(pattern); nil != err {
-		panic(err.Error())
-	}
-	ghr.lock.Lock()
-	if rtr, exist = ghr.methodMap[method]; !exist {
-		rtr = &router{map[string]*route{}}
-		ghr.methodMap[method] = rtr
-	}
-	filters = append(ghr.filters, filters...)
-	if _, exist := rtr.routes[patterned]; exist {
-		panic(fmt.Sprintf("already have the same url, with method:%s and patterned:%s in group with pattern:%s",
-			method, patterned, ghr.groupPattern))
-	}
-	rtr.routes[patterned] = &route{handler: handler, valueMap: valueMap, filters: filters}
-	ghr.lock.Unlock()
-
-	assemblyPattern := strings.Join([]string{ghr.groupPattern, patterned}, "")
-	defer patternLock.Unlock()
-	patternLock.Lock()
-	if patterns, exist := patternMap[method]; exist {
-		for _, p := range patterns {
-			if p == assemblyPattern {
-				panic(fmt.Sprintf("already have the same url, with assemblyPattern:%s and p:%s", assemblyPattern, p))
-			}
-		}
-		patternMap[method] = append(patternMap[method], assemblyPattern)
-	} else {
-		patternMap[method] = []string{assemblyPattern}
-	}
+	ghr.nodal.add(gnomon.String().StringBuilder(ghr.pattern, pattern), method, handler, filters...)
 }
 
 // execUrl 特殊处理Url

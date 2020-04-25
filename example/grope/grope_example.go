@@ -35,7 +35,7 @@ type TestTwo struct {
 }
 
 func main() {
-	httpServe := grope.NewHttpServe()
+	httpServe := grope.NewHttpServe(doFilter1)
 	router1(httpServe)
 	router2(httpServe)
 	grope.ListenAndServe(":8888", httpServe)
@@ -49,13 +49,19 @@ func main() {
 
 func doFilter1(ctx *grope.Context) {
 	if ctx.HeaderGet("name") != "name" {
-		log.Info("doFilter1", log.Field("resp", ctx.ResponseText(http.StatusForbidden, "test")))
+		log.Info("doFilter1", log.Field("resp", ctx.ResponseText(http.StatusForbidden, "filter name")))
 	}
 }
 
 func doFilter2(ctx *grope.Context) {
 	if ctx.HeaderGet("pass") != "pass" {
-		log.Info("doFilter2", log.Field("resp", ctx.ResponseText(http.StatusForbidden, "test")))
+		log.Info("doFilter2", log.Field("resp", ctx.ResponseText(http.StatusForbidden, "filter pass")))
+	}
+}
+
+func doFilter3(ctx *grope.Context) {
+	if ctx.HeaderGet("test") != "test" {
+		log.Info("doFilter3", log.Field("resp", ctx.ResponseText(http.StatusForbidden, "filter test")))
 	}
 }
 
@@ -63,7 +69,7 @@ func router1(hs *grope.GHttpServe) {
 	// 仓库相关路由设置
 	route := hs.Group("/one/test")
 	route.Post("/test1", one1)
-	route.Put("/test1", one1)
+	route.Put("/test1", one2)
 	route.Post("/test2/:a/:b", one2)
 	route.Post("/test3/:a/:b", one3)
 	route.Post("/test4/:a/:b", one4)
@@ -85,9 +91,9 @@ func one1(ctx *grope.Context) {
 	log.Info("one", log.Field("one", &ones),
 		log.Field("url", ctx.Request().URL.String()), log.Field("paramMap", ctx.Params()))
 	log.Info("one1", log.Field("resp", ctx.ResponseJson(http.StatusOK, &TestTwo{
-		Two:   "2",
+		Two:   "1",
 		Twos:  false,
-		TwoGo: 2,
+		TwoGo: 1,
 	})))
 }
 
@@ -164,9 +170,10 @@ func one6(ctx *grope.Context) {
 
 func router2(hs *grope.GHttpServe) {
 	// 仓库相关路由设置
-	route := hs.Group("/two")
+	route := hs.Group("/two", doFilter3)
 	route.Post("/test1", two1)
 	route.Get("/test2/:id/:name/:pass", two2, doFilter2)
+	route.Get("/test2/test", two3)
 	route.Get("/test3", two3)
 }
 
@@ -197,5 +204,5 @@ func two3(ctx *grope.Context) {
 	twos := &TestTwo{}
 	_ = ctx.ReceiveJson(twos)
 	log.Info("two", log.Field("two", &twos), log.Field("url", ctx.Request().URL.String()))
-	log.Info("one1", log.Field("resp", ctx.ResponseFile(http.StatusOK, "tmp/httpFileTest/1400115281_report_pb.dump")))
+	log.Info("one1", log.Field("resp", ctx.ResponseFile(http.StatusOK, "tmp/httpFileTest/baas.sql")))
 }

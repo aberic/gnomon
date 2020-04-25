@@ -18,23 +18,16 @@ import (
 	"github.com/aberic/gnomon/grope/log"
 	"net/http"
 	"strings"
-	"sync"
-)
-
-var (
-	patternMap  map[string][]string // method下所属url集合
-	patternLock sync.Mutex
 )
 
 // NewGHttpServe 新建一个Http服务
 func NewGHttpServe(filters ...Filter) *GHttpServe {
-	patternMap = map[string][]string{}
-	return &GHttpServe{filters: filters, routerMap: map[string]*GHttpRouter{}}
+	nodal := newNode(filters...)
+	return &GHttpServe{nodal: nodal}
 }
 
 type GHttpServe struct {
-	filters   []Filter // 过滤器/拦截器数组
-	routerMap map[string]*GHttpRouter
+	nodal *node
 }
 
 // Group 设置路由根路径
@@ -43,9 +36,8 @@ type GHttpServe struct {
 //
 // filters 待实现拦截器/过滤器方法数组
 func (ghs *GHttpServe) Group(pattern string, filters ...Filter) *GHttpRouter {
-	filters = append(ghs.filters, filters...)
-	ghr := &GHttpRouter{groupPattern: pattern, methodMap: map[string]*router{}, filters: filters}
-	ghs.routerMap[pattern] = ghr
+	ghs.nodal.add(pattern, "", nil, filters...)
+	ghr := &GHttpRouter{pattern: pattern, nodal: ghs.nodal}
 	return ghr
 }
 
@@ -55,63 +47,34 @@ func (ghs *GHttpServe) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // doMethod 处理请求具体方法
 func (ghs *GHttpServe) doServe(w http.ResponseWriter, r *http.Request) {
-	var (
-		patterned string // 处理后的url
-		ctx       = &Context{writer: w, request: r}
-		rtr       *router
-		rt        *route
-		exist     bool
-	)
+	var ctx = &Context{writer: w, request: r, valueMap: map[string]string{}}
 	pattern, paramMap := ghs.parseUrlParams(r)
 	ctx.paramMap = paramMap
-	ps := strings.Split(pattern, "/")[1:]
-	ghr, offset := ghs.parsePatterns(ps)
-	if nil == ghr {
+	n := ghs.nodal.fetch(pattern, r.Method)
+	if nil == n {
 		http.NotFound(w, r)
 		return
 	}
-	if rtr, exist = ghr.methodMap[r.Method]; exist { // 判断router中是否存在当前请求方法
-		var pos int
-		for position, param := range ps {
-			if position <= offset {
-				continue
-			}
-			patterned = strings.Join([]string{patterned, param}, "/")
-			if route, ok := rtr.routes[patterned]; ok { // 判断当前url是否存在route中，如果存在，继续遍历增量是否存在
-				rt = route
-				pos = position
-			} else { // 如果不存在，退出当前遍历
-				break
-			}
-		}
-		if nil != rt { // 处理请求逻辑
-			ghs.execRoute(ctx, rt, ps, pos)
-			return
+	psUrlReq := strings.Split(pattern, "/")[1:]
+	psUrlLocal := strings.Split(n.pattern, "/")[1:]
+	for index, p := range psUrlLocal {
+		if p[0] == ':' {
+			ctx.valueMap[p[1:]] = psUrlReq[index]
 		}
 	}
-	http.NotFound(w, r)
+	ghs.execRoute(ctx, n)
+	return
 }
 
 // execRoute 处理请求逻辑
-func (ghs *GHttpServe) execRoute(ctx *Context, rt *route, patterns []string, position int) {
-	for _, filter := range rt.filters { // 过滤无效请求
+func (ghs *GHttpServe) execRoute(ctx *Context, nodal *node) {
+	for _, filter := range nodal.filters { // 过滤无效请求
 		filter(ctx)
 		if ctx.responded {
 			return
 		}
 	}
-	var (
-		offset   = 0
-		valueMap = map[string]string{}
-	)
-	for index, p := range patterns {
-		if index > position {
-			valueMap[rt.valueMap[offset]] = p
-			offset++
-		}
-	}
-	ctx.valueMap = valueMap
-	ghs.parseHandler(ctx, rt)
+	ghs.parseHandler(ctx, nodal)
 }
 
 func (ghs *GHttpServe) parseUrlParams(r *http.Request) (pattern string, paramMap map[string]string) {
@@ -147,28 +110,15 @@ func (ghs *GHttpServe) execUrlParams(paramStr string) map[string]string {
 	return paramMap
 }
 
-func (ghs *GHttpServe) parsePatterns(patterns []string) (ghr *GHttpRouter, offset int) {
-	var groupPattern string             // 项目根路径
-	for position, p := range patterns { // 遍历url结构锁定Http服务路由
-		groupPattern = strings.Join([]string{groupPattern, "/", p}, "")
-		if ghrNow, exist := ghs.routerMap[groupPattern]; exist {
-			ghr = ghrNow
-			offset = position
-			break
-		}
-	}
-	return
-}
-
 // parseHandler 解析请求处理方法
-func (ghs *GHttpServe) parseHandler(ctx *Context, route *route) {
+func (ghs *GHttpServe) parseHandler(ctx *Context, nodal *node) {
 	defer func() {
 		if err := recover(); err != nil {
 			log.Error("parseHandler", log.Field("error", err))
 			ctx.Status(http.StatusInternalServerError)
 		}
 	}()
-	route.handler(ctx)
+	nodal.handler(ctx)
 }
 
 // singleSeparator 将字符串内所有连续/替换为单个/
