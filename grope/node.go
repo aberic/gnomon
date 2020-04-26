@@ -29,11 +29,11 @@ func newNode(filters ...Filter) *node {
 	}
 }
 
-func nextNode(n *node, patternPiece string, filters ...Filter) *node {
+func nextNode(n *node, patternPiece string) *node {
 	return &node{
 		root:         false,
 		patternPiece: patternPiece,
-		filters:      append(n.filters, filters...),
+		filters:      n.filters,
 		preNode:      n,
 		nextNodes:    []*node{},
 	}
@@ -49,7 +49,6 @@ type node struct {
 	preNode      *node
 	nextNodes    []*node
 	lockNode     sync.Mutex
-	lockFilter   sync.Mutex
 }
 
 // add
@@ -110,7 +109,7 @@ func (n *node) addFunc(pattern, method string, patternSplitArr []string, index i
 			return
 		}
 	}
-	nextNode := nextNode(n, patternPiece, n.filters...)
+	nextNode := nextNode(n, patternPiece)
 	n.lockNode.Lock()
 	n.nextNodes = append(n.nextNodes, nextNode)
 	n.lockNode.Unlock()
