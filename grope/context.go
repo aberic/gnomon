@@ -143,6 +143,14 @@ func (c *Context) Params() map[string]string {
 	return c.paramMap
 }
 
+func (c *Context) Value(key string) string {
+	return c.valueMap[key]
+}
+
+func (c *Context) Param(key string) string {
+	return c.paramMap[key]
+}
+
 func (c *Context) ReceiveJson(model interface{}) error {
 	if err := tune.ParseJson(c.request, model); nil != err {
 		return err
