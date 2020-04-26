@@ -63,6 +63,21 @@ func TestNodeLab(t *testing.T) {
 	printNode(root.fetch("/a/b/c/d/e/f/g", http.MethodPost), t)
 }
 
+func TestNodeQA(t *testing.T) {
+	root := newNode()
+	root.add("/v1/company/:companyID/platforms", http.MethodGet, nil)
+	root.add("/v1/company/:companyID/platforms", http.MethodPost, nil)
+	root.add("/v1/login", http.MethodPost, nil)
+	root.add("/v1/company/:companyID/platforms/members/invitations", http.MethodPost, nil)
+	root.add("/v1/company/:companyID/platforms/:platformID", http.MethodPut, nil)
+	t.Log("=============")
+	printNode(root.fetch("/v1/company/:companyID/platforms", http.MethodGet), t)
+	printNode(root.fetch("/v1/company/:companyID/platforms", http.MethodPost), t)
+	printNode(root.fetch("/v1/login", http.MethodPost), t)
+	printNode(root.fetch("/v1/company/:companyID/platforms/members/invitations", http.MethodPost), t)
+	printNode(root.fetch("/v1/company/1/platforms/2", http.MethodPut), t)
+}
+
 func printNode(n *node, t *testing.T) {
 	if nil == n {
 		t.Log("none")

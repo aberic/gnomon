@@ -196,7 +196,9 @@ func (n *node) fetchFuncAsync(pattern, patternPiece string, method string, patte
 				}
 				continue
 			}
-			return nd.fetchSplitArr(pattern, method, patternSplitArr, index)
+			if rn := nd.fetchSplitArr(pattern, method, patternSplitArr, index); nil != rn && rn.method == method {
+				return rn
+			}
 		}
 	}
 	return nil
