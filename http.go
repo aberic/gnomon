@@ -231,8 +231,13 @@ func (hc *HttpClientCommon) requestTLS(method, url string, body io.Reader, tlsCo
 func (hc *HttpClientCommon) requestTLSDo(req *http.Request, tlsConfig *HttpTLSConfig) (resp *http.Response, err error) {
 	var (
 		tlsClient    *http.Client
-		tlsClientKey = CryptoHash().MD516(String().StringBuilder(tlsConfig.CACrtFilePath, tlsConfig.CertFilePath, tlsConfig.KeyFilePath))
+		tlsClientKey string
 	)
+	if nil == tlsConfig {
+		tlsClientKey = ""
+	} else {
+		tlsClientKey = CryptoHash().MD516(String().StringBuilder(tlsConfig.CACrtFilePath, tlsConfig.CertFilePath, tlsConfig.KeyFilePath))
+	}
 	if tlsClient, err = getTLSClient(tlsClientKey, tlsConfig); nil != err {
 		return
 	}

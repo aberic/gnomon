@@ -16,6 +16,7 @@ package grope
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/aberic/gnomon"
 	"github.com/aberic/gnomon/grope/tune"
 	"github.com/vmihailenco/msgpack"
@@ -53,6 +54,7 @@ func (c *Context) Request() *http.Request {
 	return c.request
 }
 
+// HeaderSet 设置请求头中指定key的值
 func (c *Context) HeaderSet(key, value string) {
 	if value == "" {
 		c.writer.Header().Del(key)
@@ -61,7 +63,7 @@ func (c *Context) HeaderSet(key, value string) {
 	c.writer.Header().Set(key, value)
 }
 
-// GetHeader returns value from request headers.
+// GetHeader 返回请求头中指定key的值
 func (c *Context) HeaderGet(key string) string {
 	return c.requestHeader(key)
 }
@@ -103,6 +105,7 @@ func (c *Context) Cookie(name string) (string, error) {
 	return val, nil
 }
 
+// ClientIP 尝试获取客户端IP
 func (c *Context) ClientIP() string {
 	return gnomon.IP().Get(c.request)
 }
@@ -116,13 +119,12 @@ func filterFlags(content string) string {
 	return content
 }
 
-// ContentType returns the Content-Type header of the request.
+// ContentType 返回请求的内容类型头
 func (c *Context) ContentType() string {
 	return filterFlags(c.requestHeader("Content-Type"))
 }
 
-// IsWebsocket returns true if the request headers indicate that a websocket
-// handshake is being initiated by the client.
+// 如果请求头指示客户端正在发起websocket握手，则IsWebsocket返回true
 func (c *Context) IsWebsocket() bool {
 	if strings.Contains(strings.ToLower(c.requestHeader("Connection")), "upgrade") &&
 		strings.EqualFold(c.requestHeader("Upgrade"), "websocket") {
@@ -131,26 +133,32 @@ func (c *Context) IsWebsocket() bool {
 	return false
 }
 
+// Status 用提供的状态码发送一个HTTP响应头
 func (c *Context) Status(code int) {
 	c.writer.WriteHeader(code)
 }
 
+// Values 获取URI中自定义的参数集合
 func (c *Context) Values() map[string]string {
 	return c.valueMap
 }
 
+// Params 获取Params中自定义的参数集合
 func (c *Context) Params() map[string]string {
 	return c.paramMap
 }
 
+// Values 获取URI中自定义的参数集合中指定Key的值
 func (c *Context) Value(key string) string {
 	return c.valueMap[key]
 }
 
+// Params 获取Params中自定义的参数集合中指定Key的值
 func (c *Context) Param(key string) string {
 	return c.paramMap[key]
 }
 
+// ReceiveJson 接收一个"application/json"请求
 func (c *Context) ReceiveJson(model interface{}) error {
 	if err := tune.ParseJson(c.request, model); nil != err {
 		return err
@@ -159,6 +167,7 @@ func (c *Context) ReceiveJson(model interface{}) error {
 	}
 }
 
+// ReceiveYaml 接收一个"application/x-yaml"请求
 func (c *Context) ReceiveYaml(model interface{}) error {
 	if err := tune.ParseYaml(c.request, model); nil != err {
 		return err
@@ -167,6 +176,7 @@ func (c *Context) ReceiveYaml(model interface{}) error {
 	}
 }
 
+// ReceiveMsgPack 接收一个"application/x-msgpack"请求
 func (c *Context) ReceiveMsgPack(model interface{}) error {
 	if err := tune.ParseMsgPack(c.request, model); nil != err {
 		return err
@@ -175,15 +185,17 @@ func (c *Context) ReceiveMsgPack(model interface{}) error {
 	}
 }
 
+// ReceiveForm 接收一个"application/x-www-form-urlencoded"请求
 func (c *Context) ReceiveForm() (map[string]interface{}, error) {
 	return tune.ParseForm(c.request)
 }
 
+// ReceiveMultipartForm 接收一个"multipart/form-data"请求
 func (c *Context) ReceiveMultipartForm() (map[string]interface{}, error) {
 	return tune.ParseMultipartForm(c.request)
 }
 
-// GetRawData return stream data.
+// GetRawData 返回Body中流数据.
 func (c *Context) GetRawData() ([]byte, error) {
 	return ioutil.ReadAll(c.request.Body)
 }
@@ -195,6 +207,8 @@ func (c *Context) response(bytes []byte) error {
 	return nil
 }
 
+// ResponseJson 返回一个"application/json"
+//
 // statusCode eg:http.StatusOK
 func (c *Context) ResponseJson(statusCode int, model interface{}) error {
 	if err := tune.ValidateStruct(model); nil != err {
@@ -210,6 +224,8 @@ func (c *Context) ResponseJson(statusCode int, model interface{}) error {
 	}
 }
 
+// ResponseYaml 返回一个"application/x-yaml"
+//
 // statusCode eg:http.StatusOK
 func (c *Context) ResponseYaml(statusCode int, model interface{}) error {
 	if err := tune.ValidateStruct(model); nil != err {
@@ -225,6 +241,8 @@ func (c *Context) ResponseYaml(statusCode int, model interface{}) error {
 	}
 }
 
+// ResponseMsgPack 返回一个"application/x-msgpack"
+//
 // statusCode eg:http.StatusOK
 func (c *Context) ResponseMsgPack(statusCode int, model interface{}) error {
 	if err := tune.ValidateStruct(model); nil != err {
@@ -240,6 +258,8 @@ func (c *Context) ResponseMsgPack(statusCode int, model interface{}) error {
 	}
 }
 
+// ResponseText 返回一个"text/plain"
+//
 // statusCode eg:http.StatusOK
 func (c *Context) ResponseText(statusCode int, text string) error {
 	c.responded = true
@@ -248,6 +268,8 @@ func (c *Context) ResponseText(statusCode int, text string) error {
 	return c.response([]byte(text))
 }
 
+// ResponseFile 返回一个"application/octet-stream"
+//
 // statusCode eg:http.StatusOK
 func (c *Context) ResponseFile(statusCode int, filepath string) error {
 	var (
@@ -277,4 +299,13 @@ func (c *Context) ResponseFile(statusCode int, filepath string) error {
 	}
 	_, err = io.Copy(c.writer, file)
 	return err
+}
+
+// Redirect 将http请求重定向到新的地址并写入重定向响应
+func (c *Context) Redirect(statusCode int, addr string) error {
+	if (statusCode < 300 || statusCode > 308) && statusCode != 201 {
+		return fmt.Errorf("cannot redirect with status code %d", statusCode)
+	}
+	http.Redirect(c.writer, c.request, addr, statusCode)
+	return nil
 }

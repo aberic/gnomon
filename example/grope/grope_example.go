@@ -175,6 +175,7 @@ func router2(hs *grope.GHttpServe) {
 	route.Get("/test2/:id/:name/:pass", two2, doFilter2)
 	route.Get("/test2/test", two3)
 	route.Get("/test3", two3)
+	route.Get("/test4", two4)
 }
 
 func two1(ctx *grope.Context) {
@@ -205,4 +206,13 @@ func two3(ctx *grope.Context) {
 	_ = ctx.ReceiveJson(twos)
 	log.Info("two", log.Field("two", &twos), log.Field("url", ctx.Request().URL.String()))
 	log.Info("one1", log.Field("resp", ctx.ResponseFile(http.StatusOK, "tmp/httpFileTest/baas.sql")))
+}
+
+func two4(ctx *grope.Context) {
+	twos := &TestTwo{}
+	_ = ctx.ReceiveJson(twos)
+	log.Info("two", log.Field("two", &twos), log.Field("url", ctx.Request().URL.String()))
+	ctx.Distribution("http://www.baidu.com", func(err error) {
+		log.Error("two4", log.Err(err))
+	})
 }
