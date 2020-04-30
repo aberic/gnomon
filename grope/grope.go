@@ -24,8 +24,8 @@ import (
 	"time"
 )
 
-// NewHttpServe 新建一个Http服务
-func NewHttpServe(filters ...Filter) *GHttpServe {
+// NewHTTPServe 新建一个Http服务
+func NewHTTPServe(filters ...Filter) *GHttpServe {
 	return NewGHttpServe(filters...)
 }
 

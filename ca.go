@@ -167,6 +167,7 @@ func (ca *CACommon) GenerateCertificateRequest(cert *CertRequestModel) (csr []by
 	return csrData, nil
 }
 
+// LoadCsrPemFromFP 从文件中读取csr信息
 func (ca *CACommon) LoadCsrPemFromFP(csrFilePath string) (cert *x509.CertificateRequest, err error) {
 	data, err := ioutil.ReadFile(csrFilePath)
 	if nil != err {

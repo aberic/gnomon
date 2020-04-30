@@ -35,7 +35,7 @@ type TestTwo struct {
 }
 
 func main() {
-	httpServe := grope.NewHttpServe(doFilter1)
+	httpServe := grope.NewHTTPServe(doFilter1)
 	router1(httpServe)
 	router2(httpServe)
 	grope.ListenAndServe(":8888", httpServe)
@@ -87,10 +87,10 @@ func one1(ctx *grope.Context) {
 	//oness := nilOne()
 	//oness.One = "1"
 	ones := &TestOne{}
-	_ = ctx.ReceiveJson(ones)
+	_ = ctx.ReceiveJSON(ones)
 	log.Info("one", log.Field("one", &ones),
 		log.Field("url", ctx.Request().URL.String()), log.Field("paramMap", ctx.Params()))
-	log.Info("one1", log.Field("resp", ctx.ResponseJson(http.StatusOK, &TestTwo{
+	log.Info("one1", log.Field("resp", ctx.ResponseJSON(http.StatusOK, &TestTwo{
 		Two:   "1",
 		Twos:  false,
 		TwoGo: 1,
@@ -99,11 +99,11 @@ func one1(ctx *grope.Context) {
 
 func one2(ctx *grope.Context) {
 	ones := &TestOne{}
-	_ = ctx.ReceiveJson(ones)
+	_ = ctx.ReceiveJSON(ones)
 	log.Info("one", log.Field("one", &ones),
 		log.Field("url", ctx.Request().URL.String()),
 		log.Field("a", ctx.Values()["a"]), log.Field("b", ctx.Values()["b"]))
-	log.Info("one1", log.Field("resp", ctx.ResponseJson(http.StatusOK, &TestTwo{
+	log.Info("one1", log.Field("resp", ctx.ResponseJSON(http.StatusOK, &TestTwo{
 		Two:   "2",
 		Twos:  false,
 		TwoGo: 2,
@@ -118,7 +118,7 @@ func one3(ctx *grope.Context) {
 	log.Info("one", log.Field("one", &ones),
 		log.Field("url", ctx.Request().URL.String()),
 		log.Field("a", ctx.Values()["a"]), log.Field("b", ctx.Values()["b"]))
-	log.Info("one1", log.Field("resp", ctx.ResponseJson(http.StatusOK, &TestTwo{
+	log.Info("one1", log.Field("resp", ctx.ResponseJSON(http.StatusOK, &TestTwo{
 		Two:   "2",
 		Twos:  false,
 		TwoGo: 2,
@@ -132,7 +132,7 @@ func one4(ctx *grope.Context) {
 		log.Field("a", ctx.Values()["a"]), log.Field("b", ctx.Values()["b"]))
 	file := ones["file1"].(*tune.FormFile)
 	gnomon.File().Append("tmp/httpFileTest/"+file.FileName, file.Data, true)
-	log.Info("one1", log.Field("resp", ctx.ResponseJson(http.StatusOK, &TestTwo{
+	log.Info("one1", log.Field("resp", ctx.ResponseJSON(http.StatusOK, &TestTwo{
 		Two:   "2",
 		Twos:  false,
 		TwoGo: 2,
@@ -149,7 +149,7 @@ func one5(ctx *grope.Context) {
 	file2 := ones["kw"].(*tune.FormFile)
 	gnomon.File().Append("tmp/httpFileTest/"+file1.FileName, file1.Data, true)
 	gnomon.File().Append("tmp/httpFileTest/"+file2.FileName, file2.Data, true)
-	log.Info("one1", log.Field("resp", ctx.ResponseJson(http.StatusOK, &TestTwo{
+	log.Info("one1", log.Field("resp", ctx.ResponseJSON(http.StatusOK, &TestTwo{
 		Two:   "2",
 		Twos:  false,
 		TwoGo: 2,
@@ -158,10 +158,10 @@ func one5(ctx *grope.Context) {
 
 func one6(ctx *grope.Context) {
 	ones := &TestOne{}
-	_ = ctx.ReceiveJson(ones)
+	_ = ctx.ReceiveJSON(ones)
 	log.Info("one", log.Field("one", &ones),
 		log.Field("url", ctx.Request().URL.String()), log.Field("a", ctx.Values()["a"]))
-	log.Info("one6", log.Field("resp", ctx.ResponseJson(http.StatusOK, &TestTwo{
+	log.Info("one6", log.Field("resp", ctx.ResponseJSON(http.StatusOK, &TestTwo{
 		Two:   "22",
 		Twos:  false,
 		TwoGo: 22,
@@ -180,9 +180,9 @@ func router2(hs *grope.GHttpServe) {
 
 func two1(ctx *grope.Context) {
 	twos := &TestTwo{}
-	_ = ctx.ReceiveJson(twos)
+	_ = ctx.ReceiveJSON(twos)
 	log.Info("two", log.Field("two", &twos), log.Field("url", ctx.Request().URL.String()))
-	log.Info("one1", log.Field("resp", ctx.ResponseJson(http.StatusOK, &TestOne{
+	log.Info("one1", log.Field("resp", ctx.ResponseJSON(http.StatusOK, &TestOne{
 		One:   "1",
 		Ones:  true,
 		OneGo: 1,
@@ -194,7 +194,7 @@ func two2(ctx *grope.Context) {
 		log.Field("id", ctx.Values()["id"]), log.Field("name", ctx.Values()["name"]),
 		log.Field("pass", ctx.Values()["pass"]),
 		log.Field("ok", ctx.HeaderGet("ok")), log.Field("no", ctx.HeaderGet("no")))
-	log.Info("one1", log.Field("resp", ctx.ResponseJson(http.StatusOK, &TestOne{
+	log.Info("one1", log.Field("resp", ctx.ResponseJSON(http.StatusOK, &TestOne{
 		One:   "1",
 		Ones:  true,
 		OneGo: 1,
@@ -203,14 +203,14 @@ func two2(ctx *grope.Context) {
 
 func two3(ctx *grope.Context) {
 	twos := &TestTwo{}
-	_ = ctx.ReceiveJson(twos)
+	_ = ctx.ReceiveJSON(twos)
 	log.Info("two", log.Field("two", &twos), log.Field("url", ctx.Request().URL.String()))
 	log.Info("one1", log.Field("resp", ctx.ResponseFile(http.StatusOK, "tmp/httpFileTest/baas.sql")))
 }
 
 func two4(ctx *grope.Context) {
 	twos := &TestTwo{}
-	_ = ctx.ReceiveJson(twos)
+	_ = ctx.ReceiveJSON(twos)
 	log.Info("two", log.Field("two", &twos), log.Field("url", ctx.Request().URL.String()))
 	ctx.Distribution("http://www.baidu.com", func(err error) {
 		log.Error("two4", log.Err(err))

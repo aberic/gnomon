@@ -150,14 +150,14 @@ func getTLSClientSync(tlsClientKey string, transport *Transport) (*http.Client, 
 		tlsClient = &http.Client{}
 		err       error
 	)
-	if tlsClient.Transport, err = getTlsTransport(transport); nil != err {
+	if tlsClient.Transport, err = getTLSTransport(transport); nil != err {
 		return nil, err
 	}
 	clients[tlsClientKey] = tlsClient
 	return tlsClient, nil
 }
 
-func getTlsTransport(transport *Transport) (ht *http.Transport, err error) {
+func getTLSTransport(transport *Transport) (ht *http.Transport, err error) {
 	var (
 		pool       = x509.NewCertPool()
 		caCrtBytes []byte

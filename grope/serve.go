@@ -28,6 +28,7 @@ func NewGHttpServe(filters ...Filter) *GHttpServe {
 	return &GHttpServe{nodal: nodal}
 }
 
+// GHttpServe Http服务
 type GHttpServe struct {
 	nodal *node
 }
@@ -50,28 +51,27 @@ func (ghs *GHttpServe) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // doMethod 处理请求具体方法
 func (ghs *GHttpServe) doServe(w http.ResponseWriter, r *http.Request) {
 	var ctx = &Context{writer: w, request: r, valueMap: map[string]string{}}
-	pattern, paramMap := ghs.parseUrlParams(r)
+	pattern, paramMap := ghs.parseURLParams(r)
 	ctx.paramMap = paramMap
 	n := ghs.nodal.fetch(pattern, r.Method)
 	if nil == n {
 		http.NotFound(w, r)
 		return
 	} else if nil != n.error {
-		w.Header().Set("Content-Type", tune.ContentTypeJson)
+		w.Header().Set("Content-Type", tune.ContentTypeJSON)
 		w.WriteHeader(http.StatusOK)
 		bytes, _ := json.Marshal(n.error)
 		_, _ = w.Write(bytes)
 		return
 	}
-	psUrlReq := strings.Split(pattern, "/")[1:]
-	psUrlLocal := strings.Split(n.pattern, "/")[1:]
-	for index, p := range psUrlLocal {
+	psURLReq := strings.Split(pattern, "/")[1:]
+	psURLLocal := strings.Split(n.pattern, "/")[1:]
+	for index, p := range psURLLocal {
 		if p[0] == ':' {
-			ctx.valueMap[p[1:]] = psUrlReq[index]
+			ctx.valueMap[p[1:]] = psURLReq[index]
 		}
 	}
 	ghs.execRoute(ctx, n)
-	return
 }
 
 // execRoute 处理请求逻辑
@@ -85,7 +85,7 @@ func (ghs *GHttpServe) execRoute(ctx *Context, nodal *node) {
 	ghs.parseHandler(ctx, nodal)
 }
 
-func (ghs *GHttpServe) parseUrlParams(r *http.Request) (pattern string, paramMap map[string]string) {
+func (ghs *GHttpServe) parseURLParams(r *http.Request) (pattern string, paramMap map[string]string) {
 	var (
 		// 项目路径，如“/demo/:id/:name”，与路由根路径相结合，最终会通过类似“http://127.0.0.1:8080/test/demo/1/g?name=hello&pass=work”方式进行访问
 		p  = ghs.singleSeparator(r.URL.String())
@@ -94,7 +94,7 @@ func (ghs *GHttpServe) parseUrlParams(r *http.Request) (pattern string, paramMap
 	if len(ps) != 2 {
 		pattern = p
 	} else {
-		paramMap = ghs.execUrlParams(ps[1])
+		paramMap = ghs.execURLParams(ps[1])
 		if len(paramMap) == 0 {
 			pattern = p
 		} else {
@@ -104,15 +104,15 @@ func (ghs *GHttpServe) parseUrlParams(r *http.Request) (pattern string, paramMap
 	return
 }
 
-func (ghs *GHttpServe) execUrlParams(paramStr string) map[string]string {
+func (ghs *GHttpServe) execURLParams(paramStr string) map[string]string {
 	paramMap := map[string]string{}
 	paramPair := strings.Split(paramStr, "&")
 	for _, pair := range paramPair {
 		valuePair := strings.Split(pair, "=")
-		if len(valuePair) == 1 {
-			return map[string]string{}
-		} else {
+		if len(valuePair) != 1 {
 			paramMap[valuePair[0]] = valuePair[1]
+		} else {
+			return map[string]string{}
 		}
 	}
 	return paramMap

@@ -20,9 +20,11 @@ import (
 )
 
 var (
+	// ErrResponseObject valid error when parse object
 	ErrResponseObject = errors.New("valid error when parse object")
 )
 
+// ValidateStruct 验证数据结构体与否
 func ValidateStruct(obj interface{}) error {
 	value := reflect.ValueOf(obj)
 	valueType := value.Kind()

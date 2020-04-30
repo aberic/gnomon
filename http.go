@@ -29,144 +29,145 @@ import (
 	"sync"
 )
 
-// HttpClientCommon http客户端工具
-type HttpClientCommon struct{}
+// HTTPClientCommon http客户端工具
+type HTTPClientCommon struct{}
 
-func (hc *HttpClientCommon) Get(url string) (resp *http.Response, err error) {
-	return hc.GetTLS(url, &HttpTLSConfig{})
+// Get get 请求
+func (hc *HTTPClientCommon) Get(url string) (resp *http.Response, err error) {
+	return hc.GetTLS(url, &HTTPTLSConfig{})
 }
 
-// Post
+// Post post 请求
 //
 // content-type=application/json
-func (hc *HttpClientCommon) Post(url string, model interface{}) (resp *http.Response, err error) {
-	return hc.PostTLS(url, model, &HttpTLSConfig{})
+func (hc *HTTPClientCommon) Post(url string, model interface{}) (resp *http.Response, err error) {
+	return hc.PostTLS(url, model, &HTTPTLSConfig{})
 }
 
-// Put
+// Put put 请求
 //
 // content-type=application/json
-func (hc *HttpClientCommon) Put(url string, model interface{}) (resp *http.Response, err error) {
-	return hc.PutTLS(url, model, &HttpTLSConfig{})
+func (hc *HTTPClientCommon) Put(url string, model interface{}) (resp *http.Response, err error) {
+	return hc.PutTLS(url, model, &HTTPTLSConfig{})
 }
 
-// Patch
+// Patch patch 请求
 //
 // content-type=application/json
-func (hc *HttpClientCommon) Patch(url string, model interface{}) (resp *http.Response, err error) {
-	return hc.PatchTLS(url, model, &HttpTLSConfig{})
+func (hc *HTTPClientCommon) Patch(url string, model interface{}) (resp *http.Response, err error) {
+	return hc.PatchTLS(url, model, &HTTPTLSConfig{})
 }
 
-func (hc *HttpClientCommon) Delete(url string) (resp *http.Response, err error) {
-	return hc.DeleteTLS(url, &HttpTLSConfig{})
+// Delete delete 请求
+func (hc *HTTPClientCommon) Delete(url string) (resp *http.Response, err error) {
+	return hc.DeleteTLS(url, &HTTPTLSConfig{})
 }
 
-func (hc *HttpClientCommon) Do(req *http.Request) (resp *http.Response, err error) {
-	return hc.DoTLS(req, &HttpTLSConfig{})
+// Do 自定义请求处理
+func (hc *HTTPClientCommon) Do(req *http.Request) (resp *http.Response, err error) {
+	return hc.DoTLS(req, &HTTPTLSConfig{})
 }
 
-func (hc *HttpClientCommon) GetTLS(url string, tlsConfig *HttpTLSConfig) (resp *http.Response, err error) {
+// GetTLS get tls 请求
+func (hc *HTTPClientCommon) GetTLS(url string, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
 	return hc.requestTLS(http.MethodGet, url, nil, tlsConfig)
 }
 
-// PostTLS
+// PostTLS post tls 请求
 //
 // content-type=application/json
-func (hc *HttpClientCommon) PostTLS(url string, model interface{}, tlsConfig *HttpTLSConfig) (resp *http.Response, err error) {
-	return hc.requestJson(http.MethodPost, url, model, tlsConfig)
+func (hc *HTTPClientCommon) PostTLS(url string, model interface{}, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
+	return hc.requestJSON(http.MethodPost, url, model, tlsConfig)
 }
 
-// PutTLS
+// PutTLS put tls 请求
 //
 // content-type=application/json
-func (hc *HttpClientCommon) PutTLS(url string, model interface{}, tlsConfig *HttpTLSConfig) (resp *http.Response, err error) {
-	return hc.requestJson(http.MethodPut, url, model, tlsConfig)
+func (hc *HTTPClientCommon) PutTLS(url string, model interface{}, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
+	return hc.requestJSON(http.MethodPut, url, model, tlsConfig)
 }
 
-// PatchTLS
+// PatchTLS patch tls 请求
 //
 // content-type=application/json
-func (hc *HttpClientCommon) PatchTLS(url string, model interface{}, tlsConfig *HttpTLSConfig) (resp *http.Response, err error) {
-	return hc.requestJson(http.MethodPatch, url, model, tlsConfig)
+func (hc *HTTPClientCommon) PatchTLS(url string, model interface{}, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
+	return hc.requestJSON(http.MethodPatch, url, model, tlsConfig)
 }
 
-func (hc *HttpClientCommon) DeleteTLS(url string, tlsConfig *HttpTLSConfig) (resp *http.Response, err error) {
+// DeleteTLS delete tls 请求
+func (hc *HTTPClientCommon) DeleteTLS(url string, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
 	return hc.requestTLS(http.MethodDelete, url, nil, tlsConfig)
 }
 
-func (hc *HttpClientCommon) DoTLS(req *http.Request, tlsConfig *HttpTLSConfig) (resp *http.Response, err error) {
+// DoTLS 处理 tls 请求
+func (hc *HTTPClientCommon) DoTLS(req *http.Request, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
 	return hc.requestTLSDo(req, tlsConfig)
 }
 
-// PostForm
+// PostForm post 请求
 //
 // paramMap form普通参数
 //
 // fileMap form附件key及附件路径
-func (hc *HttpClientCommon) PostForm(url string, paramMap map[string]string, fileMap map[string]string) (resp *http.Response, err error) {
-	return hc.PostFormTLS(url, paramMap, fileMap, &HttpTLSConfig{})
+func (hc *HTTPClientCommon) PostForm(url string, paramMap map[string]string, fileMap map[string]string) (resp *http.Response, err error) {
+	return hc.PostFormTLS(url, paramMap, fileMap, &HTTPTLSConfig{})
 }
 
-// PutForm
+// PutForm put 请求
 //
 // paramMap form普通参数
 //
 // fileMap form附件key及附件路径
-func (hc *HttpClientCommon) PutForm(url string, paramMap map[string]string, fileMap map[string]string) (resp *http.Response, err error) {
-	return hc.PutFormTLS(url, paramMap, fileMap, &HttpTLSConfig{})
+func (hc *HTTPClientCommon) PutForm(url string, paramMap map[string]string, fileMap map[string]string) (resp *http.Response, err error) {
+	return hc.PutFormTLS(url, paramMap, fileMap, &HTTPTLSConfig{})
 }
 
-// PatchForm
+// PatchForm patch 请求
 //
 // paramMap form普通参数
 //
 // fileMap form附件key及附件路径
-func (hc *HttpClientCommon) PatchForm(url string, paramMap map[string]string, fileMap map[string]string) (resp *http.Response, err error) {
-	return hc.PatchFormTLS(url, paramMap, fileMap, &HttpTLSConfig{})
+func (hc *HTTPClientCommon) PatchForm(url string, paramMap map[string]string, fileMap map[string]string) (resp *http.Response, err error) {
+	return hc.PatchFormTLS(url, paramMap, fileMap, &HTTPTLSConfig{})
 }
 
-// PostFormTLS
+// PostFormTLS post tls 请求
 //
 // paramMap form普通参数
 //
 // fileMap form附件key及附件路径
-func (hc *HttpClientCommon) PostFormTLS(url string, paramMap map[string]string, fileMap map[string]string, tlsConfig *HttpTLSConfig) (resp *http.Response, err error) {
+func (hc *HTTPClientCommon) PostFormTLS(url string, paramMap map[string]string, fileMap map[string]string, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
 	return hc.requestForm(http.MethodPost, url, paramMap, fileMap, tlsConfig)
 }
 
-// PutFormTLS
+// PutFormTLS put tls 请求
 //
 // paramMap form普通参数
 //
 // fileMap form附件key及附件路径
-func (hc *HttpClientCommon) PutFormTLS(url string, paramMap map[string]string, fileMap map[string]string, tlsConfig *HttpTLSConfig) (resp *http.Response, err error) {
+func (hc *HTTPClientCommon) PutFormTLS(url string, paramMap map[string]string, fileMap map[string]string, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
 	return hc.requestForm(http.MethodPut, url, paramMap, fileMap, tlsConfig)
 }
 
-// PatchFormTLS
+// PatchFormTLS patch tls 请求
 //
 // paramMap form普通参数
 //
 // fileMap form附件key及附件路径
-func (hc *HttpClientCommon) PatchFormTLS(url string, paramMap map[string]string, fileMap map[string]string, tlsConfig *HttpTLSConfig) (resp *http.Response, err error) {
+func (hc *HTTPClientCommon) PatchFormTLS(url string, paramMap map[string]string, fileMap map[string]string, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
 	return hc.requestForm(http.MethodPatch, url, paramMap, fileMap, tlsConfig)
 }
 
-// requestJson
+// requestJSON
 //
 // model 结构体
-func (hc *HttpClientCommon) requestJson(method, url string, model interface{}, tlsConfig *HttpTLSConfig) (resp *http.Response, err error) {
+func (hc *HTTPClientCommon) requestJSON(method, url string, model interface{}, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
 	var (
 		data []byte
 		req  *http.Request
 	)
-	switch model.(type) {
-	case []byte:
-		data = model.([]byte)
-	default:
-		if data, err = json.Marshal(model); err != nil {
-			return nil, err
-		}
+	if data, err = json.Marshal(model); err != nil {
+		return nil, err
 	}
 	if req, err = http.NewRequest(method, url, bytes.NewReader(data)); nil != err {
 		return
@@ -180,7 +181,7 @@ func (hc *HttpClientCommon) requestJson(method, url string, model interface{}, t
 // paramMap form普通参数
 //
 // fileMap form附件key及附件路径
-func (hc *HttpClientCommon) requestForm(method, url string, paramMap map[string]string, fileMap map[string]string, tlsConfig *HttpTLSConfig) (resp *http.Response, err error) {
+func (hc *HTTPClientCommon) requestForm(method, url string, paramMap map[string]string, fileMap map[string]string, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
 	var (
 		req        *http.Request
 		bodyBuffer = &bytes.Buffer{}
@@ -220,7 +221,7 @@ func (hc *HttpClientCommon) requestForm(method, url string, paramMap map[string]
 	return hc.requestTLSDo(req, tlsConfig)
 }
 
-func (hc *HttpClientCommon) requestTLS(method, url string, body io.Reader, tlsConfig *HttpTLSConfig) (resp *http.Response, err error) {
+func (hc *HTTPClientCommon) requestTLS(method, url string, body io.Reader, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
 	var req *http.Request
 	if req, err = http.NewRequest(method, url, body); nil != err {
 		return
@@ -228,7 +229,7 @@ func (hc *HttpClientCommon) requestTLS(method, url string, body io.Reader, tlsCo
 	return hc.requestTLSDo(req, tlsConfig)
 }
 
-func (hc *HttpClientCommon) requestTLSDo(req *http.Request, tlsConfig *HttpTLSConfig) (resp *http.Response, err error) {
+func (hc *HTTPClientCommon) requestTLSDo(req *http.Request, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
 	var (
 		tlsClient    *http.Client
 		tlsClientKey string
@@ -249,7 +250,7 @@ var (
 	clientLock sync.Mutex
 )
 
-func getTLSClient(tlsClientKey string, tlsConfig *HttpTLSConfig) (*http.Client, error) {
+func getTLSClient(tlsClientKey string, tlsConfig *HTTPTLSConfig) (*http.Client, error) {
 	if tlsClient, exist := clients[tlsClientKey]; exist {
 		return tlsClient, nil
 	}
@@ -262,14 +263,14 @@ func getTLSClient(tlsClientKey string, tlsConfig *HttpTLSConfig) (*http.Client, 
 		tlsClient = &http.Client{}
 		err       error
 	)
-	if tlsClient.Transport, err = getTlsTransport(tlsConfig); nil != err {
+	if tlsClient.Transport, err = getTLSTransport(tlsConfig); nil != err {
 		return nil, err
 	}
 	clients[tlsClientKey] = tlsClient
 	return tlsClient, nil
 }
 
-func getTlsTransport(tlsConfig *HttpTLSConfig) (transport *http.Transport, err error) {
+func getTLSTransport(tlsConfig *HTTPTLSConfig) (transport *http.Transport, err error) {
 	var (
 		pool       = x509.NewCertPool()
 		caCrtBytes []byte
@@ -307,8 +308,8 @@ func getTlsTransport(tlsConfig *HttpTLSConfig) (transport *http.Transport, err e
 	return
 }
 
-// HttpTLSConfig http tls 请求配置
-type HttpTLSConfig struct {
+// HTTPTLSConfig http tls 请求配置
+type HTTPTLSConfig struct {
 	CACrtFilePath      string // 服务端根证书，用于我方验证对方证书合法性
 	CertFilePath       string // 服务端签发的子证书，用于对方验证我方证书合法性
 	KeyFilePath        string // 客户端私钥，用于对方验证我方证书合法性

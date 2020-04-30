@@ -145,6 +145,7 @@ func (s *StringCommon) PrefixSupplementZero(str string, offset int) string {
 	return str
 }
 
+// SubString 截取字符串
 func (s *StringCommon) SubString(res string, start, end int) string {
 	if start > end || start < 0 || end > len(res) {
 		return ""
@@ -152,6 +153,7 @@ func (s *StringCommon) SubString(res string, start, end int) string {
 	return res[start:end]
 }
 
+// StringBuilder 拼接字符串
 func (s *StringCommon) StringBuilder(arrString ...string) string {
 	return strings.Join(arrString, "")
 }

@@ -58,9 +58,9 @@ func (l *Limit) add(time int64) {
 }
 
 // remove 移除第一个元素
-func (l *Limit) remove() {
-	l.times = l.times[1:]
-}
+//func (l *Limit) remove() {
+//	l.times = l.times[1:]
+//}
 
 func (l *Limit) resetTimes(time int64) {
 	l.times = l.times[1:]

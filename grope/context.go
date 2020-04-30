@@ -50,6 +50,7 @@ func (c *Context) requestHeader(key string) string {
 	return c.request.Header.Get(key)
 }
 
+// Request 获取 *http.Request
 func (c *Context) Request() *http.Request {
 	return c.request
 }
@@ -63,7 +64,7 @@ func (c *Context) HeaderSet(key, value string) {
 	c.writer.Header().Set(key, value)
 }
 
-// GetHeader 返回请求头中指定key的值
+// HeaderGet 返回请求头中指定key的值
 func (c *Context) HeaderGet(key string) string {
 	return c.requestHeader(key)
 }
@@ -124,7 +125,7 @@ func (c *Context) ContentType() string {
 	return filterFlags(c.requestHeader("Content-Type"))
 }
 
-// 如果请求头指示客户端正在发起websocket握手，则IsWebsocket返回true
+// IsWebsocket 如果请求头指示客户端正在发起websocket握手，则IsWebsocket返回true
 func (c *Context) IsWebsocket() bool {
 	if strings.Contains(strings.ToLower(c.requestHeader("Connection")), "upgrade") &&
 		strings.EqualFold(c.requestHeader("Upgrade"), "websocket") {
@@ -148,41 +149,38 @@ func (c *Context) Params() map[string]string {
 	return c.paramMap
 }
 
-// Values 获取URI中自定义的参数集合中指定Key的值
+// Value 获取URI中自定义的参数集合中指定Key的值
 func (c *Context) Value(key string) string {
 	return c.valueMap[key]
 }
 
-// Params 获取Params中自定义的参数集合中指定Key的值
+// Param 获取Params中自定义的参数集合中指定Key的值
 func (c *Context) Param(key string) string {
 	return c.paramMap[key]
 }
 
-// ReceiveJson 接收一个"application/json"请求
-func (c *Context) ReceiveJson(model interface{}) error {
-	if err := tune.ParseJson(c.request, model); nil != err {
+// ReceiveJSON 接收一个"application/json"请求
+func (c *Context) ReceiveJSON(model interface{}) error {
+	if err := tune.ParseJSON(c.request, model); nil != err {
 		return err
-	} else {
-		return nil
 	}
+	return nil
 }
 
 // ReceiveYaml 接收一个"application/x-yaml"请求
 func (c *Context) ReceiveYaml(model interface{}) error {
 	if err := tune.ParseYaml(c.request, model); nil != err {
 		return err
-	} else {
-		return nil
 	}
+	return nil
 }
 
 // ReceiveMsgPack 接收一个"application/x-msgpack"请求
 func (c *Context) ReceiveMsgPack(model interface{}) error {
 	if err := tune.ParseMsgPack(c.request, model); nil != err {
 		return err
-	} else {
-		return nil
 	}
+	return nil
 }
 
 // ReceiveForm 接收一个"application/x-www-form-urlencoded"请求
@@ -207,21 +205,21 @@ func (c *Context) response(bytes []byte) error {
 	return nil
 }
 
-// ResponseJson 返回一个"application/json"
+// ResponseJSON 返回一个"application/json"
 //
 // statusCode eg:http.StatusOK
-func (c *Context) ResponseJson(statusCode int, model interface{}) error {
+func (c *Context) ResponseJSON(statusCode int, model interface{}) error {
 	if err := tune.ValidateStruct(model); nil != err {
 		return err
 	}
 	c.responded = true
-	c.HeaderSet("Content-Type", tune.ContentTypeJson)
+	c.HeaderSet("Content-Type", tune.ContentTypeJSON)
 	c.Status(statusCode)
-	if bytes, err := json.Marshal(model); nil != err {
+	bytes, err := json.Marshal(model)
+	if nil != err {
 		return err
-	} else {
-		return c.response(bytes)
 	}
+	return c.response(bytes)
 }
 
 // ResponseYaml 返回一个"application/x-yaml"
@@ -234,11 +232,11 @@ func (c *Context) ResponseYaml(statusCode int, model interface{}) error {
 	c.responded = true
 	c.HeaderSet("Content-Type", tune.ContentTypeYaml)
 	c.Status(statusCode)
-	if bytes, err := yaml.Marshal(model); nil != err {
+	bytes, err := yaml.Marshal(model)
+	if nil != err {
 		return err
-	} else {
-		return c.response(bytes)
 	}
+	return c.response(bytes)
 }
 
 // ResponseMsgPack 返回一个"application/x-msgpack"
@@ -251,11 +249,11 @@ func (c *Context) ResponseMsgPack(statusCode int, model interface{}) error {
 	c.responded = true
 	c.HeaderSet("Content-Type", tune.ContentTypeMsgPack)
 	c.Status(statusCode)
-	if bytes, err := msgpack.Marshal(model); nil != err {
+	bytes, err := msgpack.Marshal(model)
+	if nil != err {
 		return err
-	} else {
-		return c.response(bytes)
 	}
+	return c.response(bytes)
 }
 
 // ResponseText 返回一个"text/plain"

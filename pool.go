@@ -102,26 +102,26 @@ func (p *Pond) getOrCreate() (Conn, error) {
 	return connect, nil
 }
 
-// acquire 获取资源
+// Acquire 获取资源
 func (p *Pond) Acquire() (Conn, error) {
 	if p.closed {
 		return nil, errPoolClosed
 	}
-	for {
-		connect, err := p.getOrCreate()
-		if err != nil {
-			return nil, err
-		}
-		//// 如果设置了超时且当前连接的活跃时间+超时时间早于现在，则当前连接已过期
-		//if p.maxLifetime > 0 && connect.lastActiveTime().Add(p.maxLifetime).Before(time.Now()) {
-		//	_ = p.close(connect)
-		//	continue
-		//}
-		return connect, nil
+	//for {
+	connect, err := p.getOrCreate()
+	if err != nil {
+		return nil, err
 	}
+	//// 如果设置了超时且当前连接的活跃时间+超时时间早于现在，则当前连接已过期
+	//if p.maxLifetime > 0 && connect.lastActiveTime().Add(p.maxLifetime).Before(time.Now()) {
+	//	_ = p.close(connect)
+	//	continue
+	//}
+	return connect, nil
+	//}
 }
 
-// release 释放单个资源到连接池
+// Release 释放单个资源到连接池
 func (p *Pond) Release(conn Conn) error {
 	if p.closed {
 		return errPoolClosed
@@ -130,7 +130,7 @@ func (p *Pond) Release(conn Conn) error {
 	return nil
 }
 
-// close 关闭单个资源
+// Close 关闭单个资源
 func (p *Pond) Close(conn Conn) {
 	p.Lock()
 	_ = conn.Close()
@@ -138,7 +138,7 @@ func (p *Pond) Close(conn Conn) {
 	p.Unlock()
 }
 
-// shutdown 关闭连接池，释放所有资源
+// Shutdown 关闭连接池，释放所有资源
 func (p *Pond) Shutdown() error {
 	if p.closed {
 		return errPoolClosed

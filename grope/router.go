@@ -15,10 +15,8 @@
 package grope
 
 import (
-	"errors"
 	"github.com/aberic/gnomon"
 	"net/http"
-	"strings"
 )
 
 // Handler 待实现接收请求方法
@@ -31,6 +29,7 @@ type Handler func(ctx *Context)
 // ctx 请求处理上下文结构
 type Filter func(ctx *Context)
 
+// Extend 请求扩展
 type Extend struct {
 	Limit *Limit
 }
@@ -45,7 +44,7 @@ func (ghr *GHttpRouter) repo(method, pattern string, extend *Extend, handler Han
 	ghr.nodal.add(gnomon.String().StringBuilder(ghr.pattern, pattern), method, extend, handler, filters...)
 }
 
-// execUrl 特殊处理Url
+// execURL 特殊处理Url
 //
 // pattern 项目路径，如“/demo/:id/:name”，与路由根路径相结合，最终会通过类似“http://127.0.0.1:8080/test/demo/1/g”方式进行访问
 //
@@ -54,25 +53,25 @@ func (ghr *GHttpRouter) repo(method, pattern string, extend *Extend, handler Han
 // return valueKeyIndexMap url泛型下标对应字符串集合
 //
 // return err 处理错误内容
-func (ghr *GHttpRouter) execUrl(pattern string) (patterned string, valueKeyIndexMap map[int]string, err error) {
-	patterned = ""
-	valueKeyIndexMap = map[int]string{}
-	ps := strings.Split(pattern, "/")[1:]
-	index := 0
-	for _, param := range ps {
-		if strings.HasPrefix(param, ":") {
-			valueKeyIndexMap[index] = strings.Split(param, ":")[1]
-			index++
-		} else {
-			if index > 0 {
-				err = errors.New("custom url must continue until the end")
-				return
-			}
-			patterned = strings.Join([]string{patterned, param}, "/")
-		}
-	}
-	return
-}
+//func (ghr *GHttpRouter) execURL(pattern string) (patterned string, valueKeyIndexMap map[int]string, err error) {
+//	patterned = ""
+//	valueKeyIndexMap = map[int]string{}
+//	ps := strings.Split(pattern, "/")[1:]
+//	index := 0
+//	for _, param := range ps {
+//		if strings.HasPrefix(param, ":") {
+//			valueKeyIndexMap[index] = strings.Split(param, ":")[1]
+//			index++
+//		} else {
+//			if index > 0 {
+//				err = errors.New("custom url must continue until the end")
+//				return
+//			}
+//			patterned = strings.Join([]string{patterned, param}, "/")
+//		}
+//	}
+//	return
+//}
 
 // Get 发起一个 Get 请求接收项目
 //

@@ -40,7 +40,7 @@ var (
 	tc             *TimeCommon
 	pc             *PoolCommon
 	gc             *GRPCCommon
-	hpc            *HttpClientCommon
+	hpc            *HTTPClientCommon
 	sql            *SQLCommon
 	onceByte       sync.Once
 	onceCommand    sync.Once
@@ -208,10 +208,10 @@ func GRPC() *GRPCCommon {
 	return gc
 }
 
-// HttpClient Http工具
-func HttpClient() *HttpClientCommon {
+// HTTPClient Http工具
+func HTTPClient() *HTTPClientCommon {
 	onceHTTPClient.Do(func() {
-		hpc = &HttpClientCommon{}
+		hpc = &HTTPClientCommon{}
 	})
 	return hpc
 }

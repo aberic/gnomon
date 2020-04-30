@@ -1,5 +1,5 @@
-PKGS_WITH_OUT_EXAMPLES := $(shell go list ./... | grep -v 'examples/')
-PKGS_WITH_OUT_EXAMPLES_AND_UTILS := $(shell go list ./... | grep -v 'examples/\|utils/')
+PKGS_WITH_OUT_EXAMPLES := $(shell go list ./... | grep -v 'example/')
+PKGS_WITH_OUT_EXAMPLES_AND_UTILS := $(shell go list ./... | grep -v 'example/\|utils/')
 GO_FILES := $(shell find . -name "*.go" -not -name "*_test.go" -not -path "./vendor/*" -not -path ".git/*" -print0 | xargs -0)
 
 export GOPROXY=https://goproxy.io

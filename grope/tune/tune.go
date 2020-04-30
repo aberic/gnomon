@@ -26,12 +26,18 @@ import (
 )
 
 const (
-	ContentTypeJson              = "application/json"
-	ContentTypePlain             = "text/plain"
-	ContentTypePostForm          = "application/x-www-form-urlencoded"
+	// ContentTypeJSON application/json
+	ContentTypeJSON = "application/json"
+	// ContentTypePlain text/plain
+	ContentTypePlain = "text/plain"
+	// ContentTypePostForm application/x-www-form-urlencoded
+	ContentTypePostForm = "application/x-www-form-urlencoded"
+	// ContentTypeMultipartPostForm multipart/form-data
 	ContentTypeMultipartPostForm = "multipart/form-data"
-	ContentTypeYaml              = "application/x-yaml"
-	ContentTypeMsgPack           = "application/x-msgpack"
+	// ContentTypeYaml application/x-yaml
+	ContentTypeYaml = "application/x-yaml"
+	// ContentTypeMsgPack application/x-msgpack
+	ContentTypeMsgPack = "application/x-msgpack"
 	//ContentTypeHtml              = "text/html"
 	//ContentTypeXml               = "application/xml"
 	//ContentTypeXml2              = "text/xml"
@@ -40,13 +46,14 @@ const (
 )
 
 var (
+	// ErrContentType context type error
 	ErrContentType = errors.New("context type error")
 )
 
-// ParseJson 解析请求参数
-func ParseJson(r *http.Request, obj interface{}) error {
+// ParseJSON 解析请求参数
+func ParseJSON(r *http.Request, obj interface{}) error {
 	contentType := r.Header.Get("Content-Type")
-	if strings.Contains(contentType, ContentTypeJson) {
+	if strings.Contains(contentType, ContentTypeJSON) {
 		if err := ValidateStruct(obj); nil != err {
 			return err
 		}
@@ -99,9 +106,8 @@ func ParseForm(r *http.Request) (map[string]interface{}, error) {
 func ParseMultipartForm(r *http.Request) (map[string]interface{}, error) {
 	contentType := r.Header.Get("Content-Type")
 	if strings.Contains(contentType, ContentTypeMultipartPostForm) {
-		if reader, err := r.MultipartReader(); nil != err {
-			return nil, err
-		} else {
+		reader, err := r.MultipartReader()
+		if nil == err {
 			filedMap := make(map[string]interface{})
 			for {
 				part, err := reader.NextPart()
@@ -112,29 +118,31 @@ func ParseMultipartForm(r *http.Request) (map[string]interface{}, error) {
 					return nil, err
 				}
 				if part.FileName() == "" { // this is FormData
-					if data, err := ioutil.ReadAll(part); nil != err {
-						return nil, err
-					} else {
+					if data, err := ioutil.ReadAll(part); nil == err {
 						filedMap[part.FormName()] = string(data)
+					} else {
+						return nil, err
 					}
 				} else { // This is FileData
-					if bytes, err := ioutil.ReadAll(part); nil != err {
-						return nil, err
-					} else {
+					if bytes, err := ioutil.ReadAll(part); nil == err {
 						filedMap[part.FormName()] = &FormFile{
 							FileName: part.FileName(),
 							Data:     bytes,
 						}
+					} else {
+						return nil, err
 					}
 				}
 				func() { _ = part.Close() }()
 			}
 			return filedMap, nil
 		}
+		return nil, err
 	}
 	return nil, ErrContentType
 }
 
+// FormFile 表单附件信息
 type FormFile struct {
 	FileName string // file name
 	Data     []byte // file bytes content

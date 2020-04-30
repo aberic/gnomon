@@ -17,12 +17,12 @@ package gnomon
 import (
 	"errors"
 	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
+	_ "github.com/jinzhu/gorm/dialects/mysql" // MySQL加载器
 	"strings"
 	"time"
 )
 
-// SQL sql 连接对象
+// SQLCommon sql 连接对象
 type SQLCommon struct {
 	DB     *gorm.DB // 数据库任务入口
 	DBUrl  string   // dbURL 数据库 URL
@@ -37,6 +37,7 @@ type SQLCommon struct {
 	stop            chan struct{} // 释放当前角色chan
 }
 
+// DisConnect 关闭连接
 func (s *SQLCommon) DisConnect() {
 	if nil != s.scheduled {
 		s.stop <- struct{}{}

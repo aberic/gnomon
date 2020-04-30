@@ -235,7 +235,7 @@ func (l *LogCommon) Fatal(msg string, fields ...FieldInter) {
 	l.FatalSkip(2, msg, fields...)
 }
 
-// Debug 输出指定级别日志
+// DebugSkip 输出指定级别日志
 //
 // skip 如果经封装调用该方法，默认2，否则默认1
 func (l *LogCommon) DebugSkip(skip int, msg string, fields ...FieldInter) {
@@ -249,7 +249,7 @@ func (l *LogCommon) DebugSkip(skip int, msg string, fields ...FieldInter) {
 	}
 }
 
-// Info 输出指定级别日志
+// InfoSkip 输出指定级别日志
 //
 // skip 如果调用该方法，默认2
 func (l *LogCommon) InfoSkip(skip int, msg string, fields ...FieldInter) {
@@ -263,7 +263,7 @@ func (l *LogCommon) InfoSkip(skip int, msg string, fields ...FieldInter) {
 	}
 }
 
-// Warn 输出指定级别日志
+// WarnSkip 输出指定级别日志
 //
 // skip 如果调用该方法，默认2
 func (l *LogCommon) WarnSkip(skip int, msg string, fields ...FieldInter) {
@@ -277,7 +277,7 @@ func (l *LogCommon) WarnSkip(skip int, msg string, fields ...FieldInter) {
 	}
 }
 
-// Error 输出指定级别日志
+// ErrorSkip 输出指定级别日志
 //
 // skip 如果调用该方法，默认2
 func (l *LogCommon) ErrorSkip(skip int, msg string, fields ...FieldInter) {
@@ -291,7 +291,7 @@ func (l *LogCommon) ErrorSkip(skip int, msg string, fields ...FieldInter) {
 	}
 }
 
-// Panic 输出指定级别日志
+// PanicSkip 输出指定级别日志
 //
 // skip 如果调用该方法，默认2
 func (l *LogCommon) PanicSkip(skip int, msg string, fields ...FieldInter) {
@@ -305,7 +305,7 @@ func (l *LogCommon) PanicSkip(skip int, msg string, fields ...FieldInter) {
 	}
 }
 
-// Fatal 输出指定级别日志
+// FatalSkip 输出指定级别日志
 //
 // skip 如果调用该方法，默认2
 func (l *LogCommon) FatalSkip(skip int, msg string, fields ...FieldInter) {
@@ -332,7 +332,7 @@ func (l *LogCommon) Err(err error) *Field {
 	return &Field{Key: "error", Value: nil}
 }
 
-// Err 自定义输出错误
+// Errs 自定义输出错误
 func (l *LogCommon) Errs(msg string) *Field {
 	return &Field{Key: "error", Value: msg}
 }
@@ -672,6 +672,7 @@ func (f *filed) running() {
 	}
 }
 
+// FieldInter field 接口
 type FieldInter interface {
 	GetKey() string
 	GetValue() interface{}
@@ -683,10 +684,12 @@ type Field struct {
 	Value interface{}
 }
 
+// GetKey 获取日志打印 pairs key
 func (f *Field) GetKey() string {
 	return f.Key
 }
 
+// GetValue 获取日志打印 pairs value
 func (f *Field) GetValue() interface{} {
 	return f.Value
 }

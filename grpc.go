@@ -28,9 +28,10 @@ import (
 // GRPCCommon gRPC工具
 type GRPCCommon struct{}
 
+// Business 真实业务逻辑
 type Business func(conn *grpc.ClientConn) (interface{}, error)
 
-// RPC 通过rpc进行通信 protoc --go_out=plugins=grpc:. grpc/proto/*.proto
+// Request RPC 通过rpc进行通信 protoc --go_out=plugins=grpc:. grpc/proto/*.proto
 func (g *GRPCCommon) Request(url string, business Business) (interface{}, error) {
 	var (
 		conn *grpc.ClientConn
@@ -45,7 +46,7 @@ func (g *GRPCCommon) Request(url string, business Business) (interface{}, error)
 	return business(conn)
 }
 
-// RPCPool 通过rpc进行通信 protoc --go_out=plugins=grpc:. grpc/proto/*.proto
+// RequestPool 通过rpc进行通信 protoc --go_out=plugins=grpc:. grpc/proto/*.proto
 func (g *GRPCCommon) RequestPool(pool *Pond, business Business) (interface{}, error) {
 	var (
 		c    Conn
