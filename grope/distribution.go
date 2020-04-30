@@ -32,6 +32,8 @@ var (
 )
 
 // Fusing 熔断处理
+//
+// err 熔断处理原因
 type Fusing func(err error)
 
 // Distribution 请求转发

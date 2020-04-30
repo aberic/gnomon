@@ -46,9 +46,13 @@ type node struct {
 	method       string   // eg:http.MethodGet
 	handler      Handler  // 待实现接收请求方法
 	filters      []Filter // 过滤器/拦截器数组
-	preNode      *node
-	nextNodes    []*node
-	lockNode     sync.Mutex
+	extend       *Extend  // 扩展方案，如限流等
+	error        *struct {
+		Message string `json:"message"`
+	}
+	preNode   *node
+	nextNodes []*node
+	lockNode  sync.Mutex
 }
 
 // add
@@ -56,15 +60,15 @@ type node struct {
 // pattern /a/b/:c/d/:e/:f/g
 //
 // method eg:http.MethodGet
-func (n *node) add(pattern, method string, handler Handler, filters ...Filter) {
+func (n *node) add(pattern, method string, extend *Extend, handler Handler, filters ...Filter) {
 	if !n.root {
 		panic("only root can add node")
 	}
 	if pattern[0] != '/' {
 		panic("path must begin with '/'")
 	}
-	patternSplitArr := strings.Split(pattern, "/")[1:]                  // [a, b, :c, d, :e, :f, g]
-	n.addFunc(pattern, method, patternSplitArr, 0, handler, filters...) // 默认splitArr从0开始解析
+	patternSplitArr := strings.Split(pattern, "/")[1:]                          // [a, b, :c, d, :e, :f, g]
+	n.addFunc(pattern, method, patternSplitArr, 0, extend, handler, filters...) // 默认splitArr从0开始解析
 }
 
 // addSplitArr
@@ -76,12 +80,12 @@ func (n *node) add(pattern, method string, handler Handler, filters ...Filter) {
 // patternSplitArr [a, b, ?, d, ?, ?, g]
 //
 // index 1
-func (n *node) addSplitArr(pattern, method string, patternSplitArr []string, index int, handler Handler, filters ...Filter) {
+func (n *node) addSplitArr(pattern, method string, patternSplitArr []string, index int, extend *Extend, handler Handler, filters ...Filter) {
 	if len(patternSplitArr) == index { // splitArr长度与index相同则表明当前结点是叶子结点
-		n.fill(pattern, method, handler, filters...)
+		n.fill(pattern, method, extend, handler, filters...)
 		return
 	}
-	n.addFunc(pattern, method, patternSplitArr, index, handler, filters...)
+	n.addFunc(pattern, method, patternSplitArr, index, extend, handler, filters...)
 }
 
 // addFunc
@@ -93,7 +97,7 @@ func (n *node) addSplitArr(pattern, method string, patternSplitArr []string, ind
 // patternSplitArr [a, b, ?, d, ?, ?, g]
 //
 // index 1
-func (n *node) addFunc(pattern, method string, patternSplitArr []string, index int, handler Handler, filters ...Filter) {
+func (n *node) addFunc(pattern, method string, patternSplitArr []string, index int, extend *Extend, handler Handler, filters ...Filter) {
 	var patternPiece string
 	if patternPiece = patternSplitArr[index]; patternPiece[0] == ':' {
 		patternPiece = "?"
@@ -104,7 +108,7 @@ func (n *node) addFunc(pattern, method string, patternSplitArr []string, index i
 			if gnomon.String().IsNotEmpty(nd.method) && nd.method != method {
 				break
 			} else {
-				nd.addSplitArr(pattern, method, patternSplitArr, index, handler, filters...)
+				nd.addSplitArr(pattern, method, patternSplitArr, index, extend, handler, filters...)
 			}
 			return
 		}
@@ -113,20 +117,25 @@ func (n *node) addFunc(pattern, method string, patternSplitArr []string, index i
 	n.lockNode.Lock()
 	n.nextNodes = append(n.nextNodes, nextNode)
 	n.lockNode.Unlock()
-	nextNode.addSplitArr(pattern, method, patternSplitArr, index, handler, filters...)
+	nextNode.addSplitArr(pattern, method, patternSplitArr, index, extend, handler, filters...)
 }
 
 // fill
-func (n *node) fill(pattern, method string, handler Handler, filters ...Filter) {
+func (n *node) fill(pattern, method string, extend *Extend, handler Handler, filters ...Filter) {
 	if gnomon.String().IsNotEmpty(n.method) {
 		return
 	}
 	n.filters = append(n.filters, filters...)
 	n.pattern = pattern
 	n.method = method
+	n.extend = extend
 	n.handler = handler
 	if gnomon.String().IsNotEmpty(method) {
 		fmt.Printf("grope url %s %s \n", method, pattern)
+	}
+	if nil != extend && nil != extend.Limit {
+		n.extend.Limit.init()
+		go n.extend.Limit.limit()
 	}
 }
 
@@ -142,8 +151,20 @@ func (n *node) fetch(pattern, method string) *node {
 	if pattern[0] != '/' {
 		panic("path must begin with '/'")
 	}
-	patternSplitArr := strings.Split(pattern, "/")[1:]          // [a, b, :c, d, :e, :f, g]
-	return n.fetchSplitArr(pattern, method, patternSplitArr, 0) // 默认splitArr从0开始解析
+	patternSplitArr := strings.Split(pattern, "/")[1:] // [a, b, :c, d, :e, :f, g]
+	nodal := n.fetchSplitArr(pattern, method, patternSplitArr, 0)
+	if nil != nodal.extend && nil != nodal.extend.Limit {
+		if len(nodal.extend.Limit.limitChan) >= nodal.extend.Limit.LimitCount {
+			nodal.error = &struct {
+				Message string `json:"message"`
+			}{
+				Message: "request limit, please retry later",
+			}
+		} else {
+			nodal.extend.Limit.limitChan <- struct{}{}
+		}
+	}
+	return nodal // 默认splitArr从0开始解析
 }
 
 // fetchFunc

@@ -15,7 +15,9 @@
 package grope
 
 import (
+	"encoding/json"
 	"github.com/aberic/gnomon/grope/log"
+	"github.com/aberic/gnomon/grope/tune"
 	"net/http"
 	"strings"
 )
@@ -36,7 +38,7 @@ type GHttpServe struct {
 //
 // filters 待实现拦截器/过滤器方法数组
 func (ghs *GHttpServe) Group(pattern string, filters ...Filter) *GHttpRouter {
-	ghs.nodal.add(pattern, "", nil, filters...)
+	ghs.nodal.add(pattern, "", nil, nil, filters...)
 	ghr := &GHttpRouter{pattern: pattern, nodal: ghs.nodal}
 	return ghr
 }
@@ -53,6 +55,12 @@ func (ghs *GHttpServe) doServe(w http.ResponseWriter, r *http.Request) {
 	n := ghs.nodal.fetch(pattern, r.Method)
 	if nil == n {
 		http.NotFound(w, r)
+		return
+	} else if nil != n.error {
+		w.Header().Set("Content-Type", tune.ContentTypeJson)
+		w.WriteHeader(http.StatusOK)
+		bytes, _ := json.Marshal(n.error)
+		_, _ = w.Write(bytes)
 		return
 	}
 	psUrlReq := strings.Split(pattern, "/")[1:]
