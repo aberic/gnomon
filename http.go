@@ -19,6 +19,10 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/json"
+	"encoding/xml"
+	"github.com/golang/protobuf/proto"
+	"github.com/vmihailenco/msgpack"
+	"gopkg.in/yaml.v3"
 	"io"
 	"io/ioutil"
 	"mime/multipart"
@@ -37,25 +41,109 @@ func (hc *HTTPClientCommon) Get(url string) (resp *http.Response, err error) {
 	return hc.GetTLS(url, &HTTPTLSConfig{})
 }
 
-// Post post 请求
+// PostJSON post 请求
 //
 // content-type=application/json
-func (hc *HTTPClientCommon) Post(url string, model interface{}) (resp *http.Response, err error) {
-	return hc.PostTLS(url, model, &HTTPTLSConfig{})
+func (hc *HTTPClientCommon) PostJSON(url string, model interface{}) (resp *http.Response, err error) {
+	return hc.PostJSONTLS(url, model, &HTTPTLSConfig{})
 }
 
-// Put put 请求
+// PutJSON put 请求
 //
 // content-type=application/json
-func (hc *HTTPClientCommon) Put(url string, model interface{}) (resp *http.Response, err error) {
-	return hc.PutTLS(url, model, &HTTPTLSConfig{})
+func (hc *HTTPClientCommon) PutJSON(url string, model interface{}) (resp *http.Response, err error) {
+	return hc.PutJSONTLS(url, model, &HTTPTLSConfig{})
 }
 
-// Patch patch 请求
+// PatchJSON patch 请求
 //
 // content-type=application/json
-func (hc *HTTPClientCommon) Patch(url string, model interface{}) (resp *http.Response, err error) {
-	return hc.PatchTLS(url, model, &HTTPTLSConfig{})
+func (hc *HTTPClientCommon) PatchJSON(url string, model interface{}) (resp *http.Response, err error) {
+	return hc.PatchJSONTLS(url, model, &HTTPTLSConfig{})
+}
+
+// PostXML post 请求
+//
+// content-type=application/xml
+func (hc *HTTPClientCommon) PostXML(url string, model interface{}) (resp *http.Response, err error) {
+	return hc.PostXMLTLS(url, model, &HTTPTLSConfig{})
+}
+
+// PutXML put 请求
+//
+// content-type=application/xml
+func (hc *HTTPClientCommon) PutXML(url string, model interface{}) (resp *http.Response, err error) {
+	return hc.PutXMLTLS(url, model, &HTTPTLSConfig{})
+}
+
+// PatchXML patch 请求
+//
+// content-type=application/xml
+func (hc *HTTPClientCommon) PatchXML(url string, model interface{}) (resp *http.Response, err error) {
+	return hc.PatchXMLTLS(url, model, &HTTPTLSConfig{})
+}
+
+// PostYaml post 请求
+//
+// content-type=application/x-yaml
+func (hc *HTTPClientCommon) PostYaml(url string, model interface{}) (resp *http.Response, err error) {
+	return hc.PostYamlTLS(url, model, &HTTPTLSConfig{})
+}
+
+// PutYaml put 请求
+//
+// content-type=application/x-yaml
+func (hc *HTTPClientCommon) PutYaml(url string, model interface{}) (resp *http.Response, err error) {
+	return hc.PutYamlTLS(url, model, &HTTPTLSConfig{})
+}
+
+// PatchYaml patch 请求
+//
+// content-type=application/x-yaml
+func (hc *HTTPClientCommon) PatchYaml(url string, model interface{}) (resp *http.Response, err error) {
+	return hc.PatchYamlTLS(url, model, &HTTPTLSConfig{})
+}
+
+// PostMsgPack post 请求
+//
+// content-type=application/x-msgpack
+func (hc *HTTPClientCommon) PostMsgPack(url string, model interface{}) (resp *http.Response, err error) {
+	return hc.PostMsgPackTLS(url, model, &HTTPTLSConfig{})
+}
+
+// PutMsgPack put 请求
+//
+// content-type=application/x-msgpack
+func (hc *HTTPClientCommon) PutMsgPack(url string, model interface{}) (resp *http.Response, err error) {
+	return hc.PutMsgPackTLS(url, model, &HTTPTLSConfig{})
+}
+
+// PatchMsgPack patch 请求
+//
+// content-type=application/x-msgpack
+func (hc *HTTPClientCommon) PatchMsgPack(url string, model interface{}) (resp *http.Response, err error) {
+	return hc.PatchMsgPackTLS(url, model, &HTTPTLSConfig{})
+}
+
+// PostProtoBuf post 请求
+//
+// content-type=application/x-protobuf
+func (hc *HTTPClientCommon) PostProtoBuf(url string, pm proto.Message) (resp *http.Response, err error) {
+	return hc.PostProtoBufTLS(url, pm, &HTTPTLSConfig{})
+}
+
+// PutProtoBuf put 请求
+//
+// content-type=application/x-protobuf
+func (hc *HTTPClientCommon) PutProtoBuf(url string, pm proto.Message) (resp *http.Response, err error) {
+	return hc.PutProtoBufTLS(url, pm, &HTTPTLSConfig{})
+}
+
+// PatchProtoBuf patch 请求
+//
+// content-type=application/x-protobuf
+func (hc *HTTPClientCommon) PatchProtoBuf(url string, pm proto.Message) (resp *http.Response, err error) {
+	return hc.PatchProtoBufTLS(url, pm, &HTTPTLSConfig{})
 }
 
 // Delete delete 请求
@@ -73,25 +161,109 @@ func (hc *HTTPClientCommon) GetTLS(url string, tlsConfig *HTTPTLSConfig) (resp *
 	return hc.requestTLS(http.MethodGet, url, nil, tlsConfig)
 }
 
-// PostTLS post tls 请求
+// PostJSONTLS post tls 请求
 //
 // content-type=application/json
-func (hc *HTTPClientCommon) PostTLS(url string, model interface{}, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
+func (hc *HTTPClientCommon) PostJSONTLS(url string, model interface{}, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
 	return hc.requestJSON(http.MethodPost, url, model, tlsConfig)
 }
 
-// PutTLS put tls 请求
+// PutJSONTLS put tls 请求
 //
 // content-type=application/json
-func (hc *HTTPClientCommon) PutTLS(url string, model interface{}, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
+func (hc *HTTPClientCommon) PutJSONTLS(url string, model interface{}, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
 	return hc.requestJSON(http.MethodPut, url, model, tlsConfig)
 }
 
-// PatchTLS patch tls 请求
+// PatchJSONTLS patch tls 请求
 //
 // content-type=application/json
-func (hc *HTTPClientCommon) PatchTLS(url string, model interface{}, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
+func (hc *HTTPClientCommon) PatchJSONTLS(url string, model interface{}, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
 	return hc.requestJSON(http.MethodPatch, url, model, tlsConfig)
+}
+
+// PostXMLTLS post tls 请求
+//
+// content-type=application/xml
+func (hc *HTTPClientCommon) PostXMLTLS(url string, model interface{}, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
+	return hc.requestXML(http.MethodPost, url, model, tlsConfig)
+}
+
+// PutXMLTLS put tls 请求
+//
+// content-type=application/xml
+func (hc *HTTPClientCommon) PutXMLTLS(url string, model interface{}, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
+	return hc.requestXML(http.MethodPut, url, model, tlsConfig)
+}
+
+// PatchXMLTLS patch tls 请求
+//
+// content-type=application/xml
+func (hc *HTTPClientCommon) PatchXMLTLS(url string, model interface{}, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
+	return hc.requestXML(http.MethodPatch, url, model, tlsConfig)
+}
+
+// PostYamlTLS post tls 请求
+//
+// content-type=application/x-yaml
+func (hc *HTTPClientCommon) PostYamlTLS(url string, model interface{}, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
+	return hc.requestYaml(http.MethodPost, url, model, tlsConfig)
+}
+
+// PutYamlTLS put tls 请求
+//
+// content-type=application/x-yaml
+func (hc *HTTPClientCommon) PutYamlTLS(url string, model interface{}, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
+	return hc.requestYaml(http.MethodPut, url, model, tlsConfig)
+}
+
+// PatchYamlTLS patch tls 请求
+//
+// content-type=application/x-yaml
+func (hc *HTTPClientCommon) PatchYamlTLS(url string, model interface{}, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
+	return hc.requestYaml(http.MethodPatch, url, model, tlsConfig)
+}
+
+// PostMsgPackTLS post tls 请求
+//
+// content-type=application/x-msgpack
+func (hc *HTTPClientCommon) PostMsgPackTLS(url string, model interface{}, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
+	return hc.requestMsgPack(http.MethodPost, url, model, tlsConfig)
+}
+
+// PutMsgPackTLS put tls 请求
+//
+// content-type=application/x-msgpack
+func (hc *HTTPClientCommon) PutMsgPackTLS(url string, model interface{}, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
+	return hc.requestMsgPack(http.MethodPut, url, model, tlsConfig)
+}
+
+// PatchMsgPackTLS patch tls 请求
+//
+// content-type=application/x-msgpack
+func (hc *HTTPClientCommon) PatchMsgPackTLS(url string, model interface{}, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
+	return hc.requestMsgPack(http.MethodPatch, url, model, tlsConfig)
+}
+
+// PostProtoBufTLS post tls 请求
+//
+// content-type=application/x-protobuf
+func (hc *HTTPClientCommon) PostProtoBufTLS(url string, pm proto.Message, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
+	return hc.requestProtoBuf(http.MethodPost, url, pm, tlsConfig)
+}
+
+// PutProtoBufTLS put tls 请求
+//
+// content-type=application/x-protobuf
+func (hc *HTTPClientCommon) PutProtoBufTLS(url string, pm proto.Message, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
+	return hc.requestProtoBuf(http.MethodPut, url, pm, tlsConfig)
+}
+
+// PatchProtoBufTLS patch tls 请求
+//
+// content-type=application/x-protobuf
+func (hc *HTTPClientCommon) PatchProtoBufTLS(url string, pm proto.Message, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
+	return hc.requestProtoBuf(http.MethodPatch, url, pm, tlsConfig)
 }
 
 // DeleteTLS delete tls 请求
@@ -158,7 +330,7 @@ func (hc *HTTPClientCommon) PatchFormTLS(url string, paramMap map[string]string,
 	return hc.requestForm(http.MethodPatch, url, paramMap, fileMap, tlsConfig)
 }
 
-// requestJSON
+// requestJSON json 请求
 //
 // model 结构体
 func (hc *HTTPClientCommon) requestJSON(method, url string, model interface{}, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
@@ -173,6 +345,78 @@ func (hc *HTTPClientCommon) requestJSON(method, url string, model interface{}, t
 		return
 	}
 	req.Header.Set("content-type", "application/json")
+	return hc.requestTLSDo(req, tlsConfig)
+}
+
+// requestXML xml 请求
+//
+// model 结构体
+func (hc *HTTPClientCommon) requestXML(method, url string, model interface{}, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
+	var (
+		data []byte
+		req  *http.Request
+	)
+	if data, err = xml.Marshal(model); err != nil {
+		return nil, err
+	}
+	if req, err = http.NewRequest(method, url, bytes.NewReader(data)); nil != err {
+		return
+	}
+	req.Header.Set("content-type", "application/xml")
+	return hc.requestTLSDo(req, tlsConfig)
+}
+
+// requestYaml yaml 请求
+//
+// model 结构体
+func (hc *HTTPClientCommon) requestYaml(method, url string, model interface{}, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
+	var (
+		data []byte
+		req  *http.Request
+	)
+	if data, err = yaml.Marshal(model); err != nil {
+		return nil, err
+	}
+	if req, err = http.NewRequest(method, url, bytes.NewReader(data)); nil != err {
+		return
+	}
+	req.Header.Set("content-type", "application/x-yaml")
+	return hc.requestTLSDo(req, tlsConfig)
+}
+
+// requestMsgPack msgpack 请求
+//
+// model 结构体
+func (hc *HTTPClientCommon) requestMsgPack(method, url string, model interface{}, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
+	var (
+		data []byte
+		req  *http.Request
+	)
+	if data, err = msgpack.Marshal(model); err != nil {
+		return nil, err
+	}
+	if req, err = http.NewRequest(method, url, bytes.NewReader(data)); nil != err {
+		return
+	}
+	req.Header.Set("content-type", "application/x-msgpack")
+	return hc.requestTLSDo(req, tlsConfig)
+}
+
+// requestProtoBuf protobuf 请求
+//
+// model 结构体
+func (hc *HTTPClientCommon) requestProtoBuf(method, url string, pm proto.Message, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
+	var (
+		data []byte
+		req  *http.Request
+	)
+	if data, err = proto.Marshal(pm); err != nil {
+		return nil, err
+	}
+	if req, err = http.NewRequest(method, url, bytes.NewReader(data)); nil != err {
+		return
+	}
+	req.Header.Set("content-type", "application/x-protobuf")
 	return hc.requestTLSDo(req, tlsConfig)
 }
 

@@ -16,9 +16,11 @@ package grope
 
 import (
 	"encoding/json"
+	"encoding/xml"
 	"fmt"
 	"github.com/aberic/gnomon"
 	"github.com/aberic/gnomon/grope/tune"
+	"github.com/golang/protobuf/proto"
 	"github.com/vmihailenco/msgpack"
 	"gopkg.in/yaml.v3"
 	"io"
@@ -167,6 +169,14 @@ func (c *Context) ReceiveJSON(model interface{}) error {
 	return nil
 }
 
+// ReceiveXML 接收一个"application/xml"请求
+func (c *Context) ReceiveXML(model interface{}) error {
+	if err := tune.ParseXML(c.request, model); nil != err {
+		return err
+	}
+	return nil
+}
+
 // ReceiveYaml 接收一个"application/x-yaml"请求
 func (c *Context) ReceiveYaml(model interface{}) error {
 	if err := tune.ParseYaml(c.request, model); nil != err {
@@ -178,6 +188,14 @@ func (c *Context) ReceiveYaml(model interface{}) error {
 // ReceiveMsgPack 接收一个"application/x-msgpack"请求
 func (c *Context) ReceiveMsgPack(model interface{}) error {
 	if err := tune.ParseMsgPack(c.request, model); nil != err {
+		return err
+	}
+	return nil
+}
+
+// ReceiveProtoBuf 接收一个"application/x-protobuf"请求
+func (c *Context) ReceiveProtoBuf(pm proto.Message) error {
+	if err := tune.ParseProtoBuf(c.request, pm); nil != err {
 		return err
 	}
 	return nil
@@ -222,6 +240,23 @@ func (c *Context) ResponseJSON(statusCode int, model interface{}) error {
 	return c.response(bytes)
 }
 
+// ResponseXML 返回一个"application/xml"
+//
+// statusCode eg:http.StatusOK
+func (c *Context) ResponseXML(statusCode int, model interface{}) error {
+	if err := tune.ValidateStruct(model); nil != err {
+		return err
+	}
+	c.responded = true
+	c.HeaderSet("Content-Type", tune.ContentTypeXML)
+	c.Status(statusCode)
+	bytes, err := xml.Marshal(model)
+	if nil != err {
+		return err
+	}
+	return c.response(bytes)
+}
+
 // ResponseYaml 返回一个"application/x-yaml"
 //
 // statusCode eg:http.StatusOK
@@ -250,6 +285,20 @@ func (c *Context) ResponseMsgPack(statusCode int, model interface{}) error {
 	c.HeaderSet("Content-Type", tune.ContentTypeMsgPack)
 	c.Status(statusCode)
 	bytes, err := msgpack.Marshal(model)
+	if nil != err {
+		return err
+	}
+	return c.response(bytes)
+}
+
+// ResponseProtoBuf 返回一个"application/x-protobuf"
+//
+// statusCode eg:http.StatusOK
+func (c *Context) ResponseProtoBuf(statusCode int, pm proto.Message) error {
+	c.responded = true
+	c.HeaderSet("Content-Type", tune.ContentTypeProtoBuf)
+	c.Status(statusCode)
+	bytes, err := proto.Marshal(pm)
 	if nil != err {
 		return err
 	}

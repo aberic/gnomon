@@ -57,7 +57,7 @@ func TestHttpClientCommon_GetTLS(t *testing.T) {
 }
 
 func TestHttpClientCommon_Post(t *testing.T) {
-	if resp, err := HTTPClient().Post("http://localhost:8888/one/test1", &TestOne{
+	if resp, err := HTTPClient().PostJSON("http://localhost:8888/one/test1", &TestOne{
 		One:   "1",
 		Ones:  true,
 		OneGo: 1,
@@ -74,7 +74,7 @@ func TestHttpClientCommon_Post(t *testing.T) {
 }
 
 func TestHttpClientCommon_PostTLS(t *testing.T) {
-	if resp, err := HTTPClient().PostTLS("https://localhost:8888/one/test1", &TestOne{
+	if resp, err := HTTPClient().PostJSONTLS("https://localhost:8888/one/test1", &TestOne{
 		One:   "1",
 		Ones:  true,
 		OneGo: 1,

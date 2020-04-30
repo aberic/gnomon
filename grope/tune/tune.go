@@ -16,7 +16,9 @@ package tune
 
 import (
 	"encoding/json"
+	"encoding/xml"
 	"errors"
+	"github.com/golang/protobuf/proto"
 	"github.com/vmihailenco/msgpack"
 	"gopkg.in/yaml.v3"
 	"io"
@@ -28,6 +30,8 @@ import (
 const (
 	// ContentTypeJSON application/json
 	ContentTypeJSON = "application/json"
+	// ContentTypeXML application/xml
+	ContentTypeXML = "application/xml"
 	// ContentTypePlain text/plain
 	ContentTypePlain = "text/plain"
 	// ContentTypePostForm application/x-www-form-urlencoded
@@ -38,10 +42,10 @@ const (
 	ContentTypeYaml = "application/x-yaml"
 	// ContentTypeMsgPack application/x-msgpack
 	ContentTypeMsgPack = "application/x-msgpack"
+	// ContentTypeProtoBuf application/x-protobuf
+	ContentTypeProtoBuf = "application/x-protobuf"
 	//ContentTypeHtml              = "text/html"
-	//ContentTypeXml               = "application/xml"
 	//ContentTypeXml2              = "text/xml"
-	//ContentTypeProtoBuf          = "application/x-protobuf"
 	//ContentTypeMsgPack2          = "application/msgpack"
 )
 
@@ -58,6 +62,18 @@ func ParseJSON(r *http.Request, obj interface{}) error {
 			return err
 		}
 		return json.NewDecoder(r.Body).Decode(obj)
+	}
+	return ErrContentType
+}
+
+// ParseXML 解析请求参数
+func ParseXML(r *http.Request, obj interface{}) error {
+	contentType := r.Header.Get("Content-Type")
+	if strings.Contains(contentType, ContentTypeXML) {
+		if err := ValidateStruct(obj); nil != err {
+			return err
+		}
+		return xml.NewDecoder(r.Body).Decode(obj)
 	}
 	return ErrContentType
 }
@@ -82,6 +98,19 @@ func ParseMsgPack(r *http.Request, obj interface{}) error {
 			return err
 		}
 		return msgpack.NewDecoder(r.Body).Decode(obj)
+	}
+	return ErrContentType
+}
+
+// ParseProtoBuf 解析请求参数
+func ParseProtoBuf(r *http.Request, pm proto.Message) error {
+	contentType := r.Header.Get("Content-Type")
+	if strings.Contains(contentType, ContentTypeProtoBuf) {
+		bs, err := ioutil.ReadAll(r.Body)
+		if nil != err {
+			return err
+		}
+		return proto.UnmarshalMerge(bs, pm)
 	}
 	return ErrContentType
 }
