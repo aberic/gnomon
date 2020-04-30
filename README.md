@@ -19,7 +19,7 @@
 ### 安装
 ``go get github.com/aberic/gnomon``
 
-### 使用
+### 使用工具
 ```go
 gnomon.Byte(). … // 字节
 gnomon.Command(). … // 命令行
@@ -37,7 +37,73 @@ gnomon.CA(). … // CA
 gnomon.Log(). … // 日志
 gnomon.Scale(). … // 算数/转换
 gnomon.Time(). … // 时间
+gnomon.Pool(). … // conn池
+gnomon.GRPC(). … // grpc请求
+gnomon.HTTPClient(). … // http请求
+gnomon.SQL(). … // 数据库
 ```
+
+### 使用HTTP Server
+```go
+func main() {
+	httpServe := grope.NewHTTPServe(doFilter)
+	router(httpServe)
+	grope.ListenAndServe(":8888", httpServe)
+}
+
+func doFilter(ctx *grope.Context) {
+	if ctx.HeaderGet("name") != "name" {
+		log.Info("doFilter1", log.Field("resp", ctx.ResponseText(http.StatusForbidden, "filter name")))
+	}
+}
+
+func router(hs *grope.GHttpServe) {
+	// 仓库相关路由设置
+	route := hs.Group("/one/test")
+	route.Post("/test1", one1)
+	route.Put("/test1", one2)
+	route.Post("/test2/:a/:b", one2)
+	route.Post("/test3/:a/:b", one3)
+	route.Post("/test4/:a/:b", one4)
+	route.Post("/test5/:a/:b", one5)
+	route.Put("/test6/ok", one1)
+	route.Put("/test6/ok/no", one6)
+	route.Put("/test6/:a/:b", one6)
+}
+
+
+func one1(ctx *grope.Context) {
+	ones := &TestOne{}
+	_ = ctx.ReceiveJSON(ones)
+	log.Info("one", log.Field("one", &ones),
+		log.Field("url", ctx.Request().URL.String()), log.Field("paramMap", ctx.Params()))
+	log.Info("one1", log.Field("resp", ctx.ResponseJSON(http.StatusOK, &TestTwo{
+		Two:   "1",
+		Twos:  false,
+		TwoGo: 1,
+	})))
+}
+
+……
+```
+更多详情参考：https://github.com/aberic/gnomon/blob/master/example/grope/grope_example.go
+
+### 使用Balance
+```go
+func TestNewBalanceRound(t *testing.T) {
+	b := NewBalance(Round)
+	b.Add(1)
+	b.Add(2)
+	b.Add(3)
+	b.Add(4)
+	b.Add(5)
+	for i := 0; i < 100; i++ {
+		t.Log(b.Run())
+	}
+}
+```
+更多详情参考：https://github.com/aberic/gnomon/blob/master/balance/balance_test.go
+
 
 ### 文档
 参考 https://godoc.org/github.com/aberic/gnomon
