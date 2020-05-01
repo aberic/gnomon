@@ -15,12 +15,14 @@
 package balance
 
 const (
-	// Round 轮询负载
+	// Round 轮询加权负载
 	Round Class = iota
-	// Random 随机负载
+	// Random 随机加权负载
 	Random
-	// Hash hash负载
+	// Hash hash加权负载
 	Hash
+	// Smooth 平滑加权负载
+	Smooth
 )
 
 // Class 负载均衡分类
@@ -44,12 +46,14 @@ type Balancer interface {
 func NewBalance(c Class) Balancer {
 	switch c {
 	default:
-		return newRound()
+		return newRandom()
 	case Round:
 		return newRound()
 	case Random:
 		return newRandom()
 	case Hash:
 		return newHash()
+	case Smooth:
+		return newSmooth()
 	}
 }

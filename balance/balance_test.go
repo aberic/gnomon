@@ -62,3 +62,16 @@ func TestNewBalanceHash(t *testing.T) {
 		t.Log(b.Acquire())
 	}
 }
+
+func TestNewBalanceSmooth(t *testing.T) {
+	b := NewBalance(Smooth)
+	b.Add(1)
+	b.Weight(1, 5)
+	b.Add(2)
+	b.Weight(2, 1)
+	b.Add(3)
+	b.Weight(3, 1)
+	for i := 0; i < 10; i++ {
+		t.Log(b.Acquire())
+	}
+}
