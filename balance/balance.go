@@ -30,12 +30,14 @@ type Class int
 type Balancer interface {
 	// Add 新增负载对象
 	Add(interface{})
+	// Weight 设置负载对象权重
+	Weight(interface{}, int)
 	// Remove 移除负载对象
 	Remove(interface{})
 	// Class 获取负载均衡分类
 	Class() Class
-	// Run 执行负载均衡算法得到期望对象
-	Run() (interface{}, error)
+	// Acquire 执行负载均衡算法得到期望对象
+	Acquire() (interface{}, error)
 }
 
 // NewBalance 新建负载均衡器

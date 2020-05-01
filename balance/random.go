@@ -38,6 +38,14 @@ func (r *random) Add(obj interface{}) {
 	r.interSlice = append(r.interSlice, obj)
 }
 
+// Weight 设置负载对象权重
+func (r *random) Weight(obj interface{}, weight int) {
+	r.Remove(obj)
+	for i := 0; i < weight; i++ {
+		r.Add(obj)
+	}
+}
+
 // Remove 移除负载对象
 func (r *random) Remove(obj interface{}) {
 	defer r.lock.Unlock()
@@ -45,7 +53,6 @@ func (r *random) Remove(obj interface{}) {
 	for index, i := range r.interSlice {
 		if i == obj {
 			r.interSlice = append(r.interSlice[:index], r.interSlice[index+1:]...)
-			break
 		}
 	}
 }
@@ -55,8 +62,8 @@ func (r *random) Class() Class {
 	return Random
 }
 
-// Run 执行负载均衡算法得到期望对象
-func (r *random) Run() (interface{}, error) {
+// Acquire 执行负载均衡算法得到期望对象
+func (r *random) Acquire() (interface{}, error) {
 	lens := len(r.interSlice)
 	if lens == 0 {
 		return nil, errors.New("no instance")

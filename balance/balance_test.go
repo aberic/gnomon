@@ -24,7 +24,7 @@ func TestNewBalanceRound(t *testing.T) {
 	b.Add(4)
 	b.Add(5)
 	for i := 0; i < 100; i++ {
-		t.Log(b.Run())
+		t.Log(b.Acquire())
 	}
 }
 
@@ -33,10 +33,21 @@ func TestNewBalanceRandom(t *testing.T) {
 	b.Add(1)
 	b.Add(2)
 	b.Add(3)
-	b.Add(4)
-	b.Add(5)
-	for i := 0; i < 100; i++ {
-		t.Log(b.Run())
+	for i := 0; i < 50; i++ {
+		t.Log(b.Acquire())
+	}
+}
+
+func TestNewBalanceWeightRandom(t *testing.T) {
+	b := NewBalance(Random)
+	b.Add(1)
+	b.Weight(1, 10)
+	b.Add(2)
+	b.Weight(2, 5)
+	b.Add(3)
+	b.Weight(3, 1)
+	for i := 0; i < 50; i++ {
+		t.Log(b.Acquire())
 	}
 }
 
@@ -48,6 +59,6 @@ func TestNewBalanceHash(t *testing.T) {
 	b.Add(4)
 	b.Add(5)
 	for i := 0; i < 100; i++ {
-		t.Log(b.Run())
+		t.Log(b.Acquire())
 	}
 }

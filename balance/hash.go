@@ -40,6 +40,14 @@ func (h *hash) Add(obj interface{}) {
 	h.interSlice = append(h.interSlice, obj)
 }
 
+// Weight 设置负载对象权重
+func (h *hash) Weight(obj interface{}, weight int) {
+	h.Remove(obj)
+	for i := 0; i < weight; i++ {
+		h.Add(obj)
+	}
+}
+
 // Remove 移除负载对象
 func (h *hash) Remove(obj interface{}) {
 	defer h.lock.Unlock()
@@ -47,7 +55,6 @@ func (h *hash) Remove(obj interface{}) {
 	for index, i := range h.interSlice {
 		if i == obj {
 			h.interSlice = append(h.interSlice[:index], h.interSlice[index+1:]...)
-			break
 		}
 	}
 }
@@ -57,8 +64,8 @@ func (h *hash) Class() Class {
 	return Hash
 }
 
-// Run 执行负载均衡算法得到期望对象
-func (h *hash) Run() (interface{}, error) {
+// Acquire 执行负载均衡算法得到期望对象
+func (h *hash) Acquire() (interface{}, error) {
 	lens := len(h.interSlice)
 	if lens == 0 {
 		return nil, errors.New("no instance")

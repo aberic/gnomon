@@ -90,15 +90,16 @@ func one1(ctx *grope.Context) {
 
 ### 使用Balance
 ```go
-func TestNewBalanceRound(t *testing.T) {
-	b := NewBalance(Round)
+func TestNewBalanceWeightRandom(t *testing.T) {
+	b := NewBalance(Random)
 	b.Add(1)
+	b.Weight(1, 10)
 	b.Add(2)
+	b.Weight(2, 5)
 	b.Add(3)
-	b.Add(4)
-	b.Add(5)
-	for i := 0; i < 100; i++ {
-		t.Log(b.Run())
+	b.Weight(3, 1)
+	for i := 0; i < 50; i++ {
+		t.Log(b.Acquire())
 	}
 }
 ```

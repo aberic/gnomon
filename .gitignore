@@ -26,3 +26,4 @@ gen### Go template
 /coverage.txt
 /tmp/
 /grope/profile.coverprofile
+/balance/profile.coverprofile
