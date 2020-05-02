@@ -79,10 +79,6 @@ func router1(hs *grope.GHttpServe) {
 	route.Put("/test6/:a/:b", one6)
 }
 
-func nilOne() *TestOne {
-	return nil
-}
-
 func one1(ctx *grope.Context) {
 	//oness := nilOne()
 	//oness.One = "1"
@@ -131,7 +127,7 @@ func one4(ctx *grope.Context) {
 		log.Field("url", ctx.Request().URL.String()),
 		log.Field("a", ctx.Values()["a"]), log.Field("b", ctx.Values()["b"]))
 	file := ones["file1"].(*tune.FormFile)
-	gnomon.FileAppend("tmp/httpFileTest/"+file.FileName, file.Data, true)
+	_, _ = gnomon.FileAppend("tmp/httpFileTest/"+file.FileName, file.Data, true)
 	log.Info("one1", log.Field("resp", ctx.ResponseJSON(http.StatusOK, &TestTwo{
 		Two:   "2",
 		Twos:  false,
@@ -147,8 +143,8 @@ func one5(ctx *grope.Context) {
 
 	file1 := ones["wk"].(*tune.FormFile)
 	file2 := ones["kw"].(*tune.FormFile)
-	gnomon.FileAppend("tmp/httpFileTest/"+file1.FileName, file1.Data, true)
-	gnomon.FileAppend("tmp/httpFileTest/"+file2.FileName, file2.Data, true)
+	_, _ = gnomon.FileAppend("tmp/httpFileTest/"+file1.FileName, file1.Data, true)
+	_, _ = gnomon.FileAppend("tmp/httpFileTest/"+file2.FileName, file2.Data, true)
 	log.Info("one1", log.Field("resp", ctx.ResponseJSON(http.StatusOK, &TestTwo{
 		Two:   "2",
 		Twos:  false,
