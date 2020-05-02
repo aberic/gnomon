@@ -27,9 +27,6 @@ var (
 	errPoolClosed    = errors.New("pond closed")
 )
 
-// Pool io.Closer连接池工具
-type Pool struct{}
-
 // Conn 连接单体接口
 type Conn interface {
 	io.Closer // 实现io.Closer接口的对象都可以使用该连接池
@@ -47,7 +44,7 @@ type factory func() (Conn, error)
 // maxLifetime
 //
 // factory
-func (pc *Pool) New(minOpen, maxOpen int, maxLifetime time.Duration, factory factory) (*Pond, error) {
+func NewPond(minOpen, maxOpen int, maxLifetime time.Duration, factory factory) (*Pond, error) {
 	if maxOpen <= 0 || minOpen > maxOpen {
 		return nil, errInvalidParams
 	}
