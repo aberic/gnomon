@@ -54,7 +54,7 @@ func TestLogCommon_Warn(t *testing.T) {
 }
 
 func TestLogCommon_Error(t *testing.T) {
-	Set(ErrorLevel(), logDir, 1, 1, false, false)
+	Fit("Error", logDir, 1, 1, false, false)
 	logDo()
 }
 
@@ -65,7 +65,7 @@ func TestLogCommon_Panic(t *testing.T) {
 }
 
 func TestLogCommon_Fatal(t *testing.T) {
-	Set(FatalLevel(), logDir, 1, 1, false, false)
+	Fit("Fatal", logDir, 1, 1, false, false)
 	logDo()
 	time.Sleep(3 * time.Second)
 }
