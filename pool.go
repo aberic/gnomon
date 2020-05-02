@@ -35,7 +35,7 @@ type Conn interface {
 // factory 创建连接的方法
 type factory func() (Conn, error)
 
-// New 新建一个支持所有实现 io.Closer 接口的连接池
+// NewPond 新建一个支持所有实现 io.Closer 接口的连接池
 //
 // minOpen 池中最少资源数
 //
