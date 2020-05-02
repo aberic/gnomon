@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020. Aberic - All Rights Reserved.
+ *  Copyright (c) 2020. aberic - All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,18 +12,20 @@
  * limitations under the License.
  */
 
-package gnomon
+package db
 
 import (
 	"errors"
+	"fmt"
+	"github.com/aberic/gnomon"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql" // MySQL加载器
 	"strings"
 	"time"
 )
 
-// SQLCommon sql 连接对象
-type SQLCommon struct {
+// MySQL sql 连接对象
+type MySQL struct {
 	DB     *gorm.DB // 数据库任务入口
 	DBUrl  string   // dbURL 数据库 URL
 	DBUser string   // dbUser 数据库用户名
@@ -38,7 +40,7 @@ type SQLCommon struct {
 }
 
 // DisConnect 关闭连接
-func (s *SQLCommon) DisConnect() {
+func (s *MySQL) DisConnect() {
 	if nil != s.scheduled {
 		s.stop <- struct{}{}
 	}
@@ -59,9 +61,9 @@ func (s *SQLCommon) DisConnect() {
 // SetMaxIdleConns sets the maximum number of connections in the idle connection pool.
 //
 // SetMaxOpenConns sets the maximum number of open connections to the database.
-func (s *SQLCommon) Connect(dbURL, dbUser, dbPass, dbName string, logModeEnable bool, maxIdleConns, maxOpenConns int) error {
+func (s *MySQL) Connect(dbURL, dbUser, dbPass, dbName string, logModeEnable bool, maxIdleConns, maxOpenConns int) error {
 	if nil == s.DB {
-		if String().IsEmpty(dbURL) || String().IsEmpty(dbUser) || String().IsEmpty(dbPass) || String().IsEmpty(dbName) {
+		if gnomon.StringIsEmpty(dbURL) || gnomon.StringIsEmpty(dbUser) || gnomon.StringIsEmpty(dbPass) || gnomon.StringIsEmpty(dbName) {
 			return errors.New("db connect params can not be nil")
 		}
 		s.DBUrl = dbURL
@@ -73,15 +75,12 @@ func (s *SQLCommon) Connect(dbURL, dbUser, dbPass, dbName string, logModeEnable 
 		s.MaxOpenConnects = maxOpenConns
 		s.scheduled = time.NewTimer(time.Millisecond * time.Duration(10))
 		s.stop = make(chan struct{}, 1)
-		Log().Info("init DB Manager")
 		dbValue := strings.Join([]string{s.DBUser, ":", s.DBPass, "@tcp(", s.DBUrl, ")/", s.DBName,
 			"?charset=utf8&parseTime=True&loc=Local"}, "")
-		Log().Debug("dbValue = " + dbValue)
 		var err error
 		s.DB, err = gorm.Open("mysql", dbValue)
 		if err != nil {
-			Log().Error("failed to connect database, err = " + err.Error())
-			return err
+			panic(fmt.Sprint("failed to connect database, err", err))
 		}
 		s.DB.LogMode(logModeEnable)
 		// SetMaxIdleConns sets the maximum number of connections in the idle connection pool.
@@ -95,12 +94,12 @@ func (s *SQLCommon) Connect(dbURL, dbUser, dbPass, dbName string, logModeEnable 
 	return nil
 }
 
-func (s *SQLCommon) reConnect() error {
+func (s *MySQL) reConnect() error {
 	return s.Connect(s.DBUrl, s.DBUser, s.DBPass, s.DBName, s.LogModeEnable, s.MaxIdleConnects, s.MaxOpenConnects)
 }
 
-// Exec 执行自定义 SQL
-func (s *SQLCommon) Exec(f func(s *SQLCommon)) error {
+// Exec 执行自定义 MySQL
+func (s *MySQL) Exec(f func(s *MySQL)) error {
 	if nil == s.DB {
 		if err := s.reConnect(); nil == err {
 			f(s)
@@ -112,34 +111,34 @@ func (s *SQLCommon) Exec(f func(s *SQLCommon)) error {
 	return nil
 }
 
-// ExecSQL 执行自定义 SQL 语句，该方法是对 func Exec(f func(db *gorm.DB)) error 的实现
+// ExecSQL 执行自定义 MySQL 语句，该方法是对 func Exec(f func(db *gorm.DB)) error 的实现
 //
 // dest 期望通过该过程赋值的对象
 //
-// sql 即将执行的 SQL 语句，可以包含 "?" 来做通配符
+// sql 即将执行的 MySQL 语句，可以包含 "?" 来做通配符
 //
-// values 上述 SQL 语句中 "?" 通配符所表达的值
+// values 上述 MySQL 语句中 "?" 通配符所表达的值
 //
 // eg：在 db_user 表中根据用户编号和年龄查询用户基本信息，如下所示：
 //
 // ExecSQL(&user, "select id,name,age from db_user where id=? and age=?", 1, 18)
-func (s *SQLCommon) ExecSQL(dest interface{}, sql string, values ...interface{}) {
+func (s *MySQL) ExecSQL(dest interface{}, sql string, values ...interface{}) {
 	s.DB.Raw(Format(sql), values).Scan(dest)
 }
 
-// Format SQL 格式化
+// Format MySQL 格式化
 func Format(elem ...string) string {
 	return strings.Join(elem, " ")
 }
 
-func (s *SQLCommon) dbKeepAlive(db *gorm.DB) {
+func (s *MySQL) dbKeepAlive(db *gorm.DB) {
 	s.scheduled.Reset(time.Second * time.Duration(10))
 	for {
 		select {
 		case <-s.scheduled.C:
 			err := db.DB().Ping()
 			if nil != err {
-				_ = s.Exec(func(sql *SQLCommon) {})
+				_ = s.Exec(func(sql *MySQL) {})
 			}
 			s.scheduled.Reset(time.Second * time.Duration(10))
 		case <-s.stop:

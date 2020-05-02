@@ -110,7 +110,7 @@ func (c *Context) Cookie(name string) (string, error) {
 
 // ClientIP 尝试获取客户端IP
 func (c *Context) ClientIP() string {
-	return gnomon.IP().Get(c.request)
+	return gnomon.IPGet(c.request)
 }
 
 func filterFlags(content string) string {

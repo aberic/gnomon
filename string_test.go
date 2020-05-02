@@ -17,65 +17,66 @@ package gnomon
 import (
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestIsEmpty(t *testing.T) {
-	t.Log("haha empty =", String().IsEmpty("haha"))
-	t.Log("'' empty =", String().IsEmpty(""))
+	t.Log("haha empty =", StringIsEmpty("haha"))
+	t.Log("'' empty =", StringIsEmpty(""))
 }
 
 func TestIsNotEmpty(t *testing.T) {
-	t.Log("haha empty =", String().IsNotEmpty("haha"))
-	t.Log("'' empty =", String().IsNotEmpty(""))
+	t.Log("haha empty =", StringIsNotEmpty("haha"))
+	t.Log("'' empty =", StringIsNotEmpty(""))
 }
 
 func TestConvert(t *testing.T) {
-	t.Log("uu_xx_aa =", String().Convert("uu_xx_aa"))
+	t.Log("uu_xx_aa =", StringConvert("uu_xx_aa"))
 }
 
 func TestRandSeq(t *testing.T) {
-	t.Log("13 =", String().RandSeq(13))
-	t.Log("23 =", String().RandSeq(23))
-	t.Log("33 =", String().RandSeq(33))
+	t.Log("13 =", StringRandSeq(13))
+	t.Log("23 =", StringRandSeq(23))
+	t.Log("33 =", StringRandSeq(33))
 }
 
 func TestRandSeq16(t *testing.T) {
-	t.Log("RandSeq16 =", String().RandSeq16())
+	t.Log("RandSeq16 =", StringRandSeq16())
 }
 
 func TestTrim(t *testing.T) {
 	s := "kjsdhfj ajsd\nksjhdka sjkh"
-	t.Log(s, "=", String().Trim(s))
+	t.Log(s, "=", StringTrim(s))
 }
 
-func TestStringCommon_ToString(t *testing.T) {
-	t.Log(String().ToString(&BTest{Name: "test", Age: 18, Male: true}))
-	t.Log(String().ToString(nil))
+func TestString_ToString(t *testing.T) {
+	t.Log(ToString(&BTest{Name: "test", Age: 18, Male: true}))
+	t.Log(ToString(nil))
 }
 
-func TestStringCommon_SingleValue(t *testing.T) {
-	t.Log(String().SingleValue("ksjdf/////lksjdf/////lkjlksdf/////lkjl/lkjasldj kjnkj ///", "/"))
+func TestString_SingleValue(t *testing.T) {
+	t.Log(StringSingleValue("ksjdf/////lksjdf/////lkjlksdf/////lkjl/lkjasldj kjnkj ///", "/"))
 }
 
-func TestStringCommon_SingleSpace(t *testing.T) {
-	t.Log(String().SingleSpace("ksjdf     lksjdf  lkjlksdf        lkjl   lkjasldj kjnkj     "))
+func TestString_SingleSpace(t *testing.T) {
+	t.Log(StringSingleSpace("ksjdf     lksjdf  lkjlksdf        lkjl   lkjasldj kjnkj     "))
 }
 
-func TestStringCommon_PrefixSupplementZero(t *testing.T) {
-	Log().Debug("ui64", Log().Field("92873890910928019", String().PrefixSupplementZero("92873890910928019", 10)))
-	Log().Debug("ui64", Log().Field("92873890910928019", String().PrefixSupplementZero("92873890910928019", 20)))
-	Log().Debug("ui64", Log().Field("92873890910928019", String().PrefixSupplementZero("92873890910928019", 30)))
-	Log().Debug("ui64", Log().Field("92873890910928019", String().PrefixSupplementZero("92873890910928019", 40)))
-	Log().Debug("ui64", Log().Field("92873890910928019", String().PrefixSupplementZero("92873890910928019", 50)))
-	Log().Debug("ui64", Log().Field("92873890910928019", String().PrefixSupplementZero("92873890910928019", 60)))
+func TestString_PrefixSupplementZero(t *testing.T) {
+	t.Log("ui64", "92873890910928019", StringPrefixSupplementZero("92873890910928019", 10))
+	t.Log("ui64", "92873890910928019", StringPrefixSupplementZero("92873890910928019", 20))
+	t.Log("ui64", "92873890910928019", StringPrefixSupplementZero("92873890910928019", 30))
+	t.Log("ui64", "92873890910928019", StringPrefixSupplementZero("92873890910928019", 40))
+	t.Log("ui64", "92873890910928019", StringPrefixSupplementZero("92873890910928019", 50))
+	t.Log("ui64", "92873890910928019", StringPrefixSupplementZero("92873890910928019", 60))
 }
 
-func TestStringCommon_SubString(t *testing.T) {
-	t.Log(String().SubString("110xxxxxxx", 0, 3))
+func TestString_SubString(t *testing.T) {
+	t.Log(SubString("110xxxxxxx", 0, 3))
 }
 
-func TestStringCommon_StringBuilder(t *testing.T) {
-	t.Log(String().StringBuilder("a", "b"))
+func TestString_StringBuilder(t *testing.T) {
+	t.Log(StringBuild("a", "b"))
 }
 
 func TestSlice(t *testing.T) {
@@ -88,4 +89,16 @@ func TestUrl(t *testing.T) {
 	var url2 = "http://127.0.0.1:8080/test/demo/1/g"
 	t.Log(strings.Split(url1, "?"))
 	t.Log(strings.Split(url2, "?"))
+}
+
+func TestString_String2Timestamp(t *testing.T) {
+	i64, err := String2Timestamp("2019/09/17 10:16:56", "2006/01/02 15:04:05", time.Local)
+	t.Log("i64", i64, err)
+	i64, err = String2Timestamp("2019/09/17 10:16:56", "2006/01/02 15:04:05", time.UTC)
+	t.Log("i64", i64, err)
+}
+
+func TestString_String2Timestamp_Fail(t *testing.T) {
+	_, err := String2Timestamp("hello world", "2006/01/02 15:04:05", time.Local)
+	t.Skip(err)
 }

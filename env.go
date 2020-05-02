@@ -21,108 +21,105 @@ import (
 	"strings"
 )
 
-// EnvCommon 环境变量工具
-type EnvCommon struct{}
-
-// Get 获取环境变量 envName 的值
+// EnvGet 获取环境变量 envName 的值
 //
 // envName 环境变量名称
-func (e *EnvCommon) Get(envName string) string {
+func EnvGet(envName string) string {
 	return os.Getenv(envName)
 }
 
-// GetD 获取环境变量 envName 的值
+// EnvGetD 获取环境变量 envName 的值
 //
 // envName 环境变量名称
 //
 // defaultValue 环境变量为空时的默认值
-func (e *EnvCommon) GetD(envName string, defaultValue string) string {
-	env := e.Get(envName)
-	if String().IsEmpty(env) {
+func EnvGetD(envName string, defaultValue string) string {
+	env := EnvGet(envName)
+	if StringIsEmpty(env) {
 		return defaultValue
 	}
 	return env
 }
 
-// GetInt 获取环境变量 envName 的值
+// EnvGetInt 获取环境变量 envName 的值
 //
 // envName 环境变量名称
-func (e *EnvCommon) GetInt(envName string) (int, error) {
+func EnvGetInt(envName string) (int, error) {
 	return strconv.Atoi(os.Getenv(envName))
 }
 
-// GetIntD 获取环境变量 envName 的值
+// EnvGetIntD 获取环境变量 envName 的值
 //
 // envName 环境变量名称
 //
 // defaultValue 环境变量为空时的默认值
-func (e *EnvCommon) GetIntD(envName string, defaultValue int) int {
+func EnvGetIntD(envName string, defaultValue int) int {
 	if i, err := strconv.Atoi(os.Getenv(envName)); nil == err {
 		return i
 	}
 	return defaultValue
 }
 
-// GetInt64 获取环境变量 envName 的值
+// EnvGetInt64 获取环境变量 envName 的值
 //
 // envName 环境变量名称
-func (e *EnvCommon) GetInt64(envName string) (int64, error) {
-	return strconv.ParseInt(e.Get(envName), 10, 64)
+func EnvGetInt64(envName string) (int64, error) {
+	return strconv.ParseInt(EnvGet(envName), 10, 64)
 }
 
-// GetInt64D 获取环境变量 envName 的值
+// EnvGetInt64D 获取环境变量 envName 的值
 //
 // envName 环境变量名称
 //
 // defaultValue 环境变量为空时的默认值
-func (e *EnvCommon) GetInt64D(envName string, defaultValue int64) int64 {
-	if i, err := strconv.ParseInt(e.Get(envName), 10, 64); nil == err {
+func EnvGetInt64D(envName string, defaultValue int64) int64 {
+	if i, err := strconv.ParseInt(EnvGet(envName), 10, 64); nil == err {
 		return i
 	}
 	return defaultValue
 }
 
-// GetUint64 获取环境变量 envName 的值
+// EnvGetUint64 获取环境变量 envName 的值
 //
 // envName 环境变量名称
-func (e *EnvCommon) GetUint64(envName string) (uint64, error) {
-	return strconv.ParseUint(e.Get(envName), 10, 64)
+func EnvGetUint64(envName string) (uint64, error) {
+	return strconv.ParseUint(EnvGet(envName), 10, 64)
 }
 
-// GetUint64D 获取环境变量 envName 的值
+// EnvGetUint64D 获取环境变量 envName 的值
 //
 // envName 环境变量名称
 //
 // defaultValue 环境变量为空时的默认值
-func (e *EnvCommon) GetUint64D(envName string, defaultValue uint64) uint64 {
-	if i, err := strconv.ParseUint(e.Get(envName), 10, 64); nil == err {
+func EnvGetUint64D(envName string, defaultValue uint64) uint64 {
+	if i, err := strconv.ParseUint(EnvGet(envName), 10, 64); nil == err {
 		return i
 	}
 	return defaultValue
 }
 
-// GetFloat64 获取环境变量 envName 的值
+// EnvGetFloat64 获取环境变量 envName 的值
 //
 // envName 环境变量名称
-func (e *EnvCommon) GetFloat64(envName string) (float64, error) {
-	return strconv.ParseFloat(e.Get(envName), 64)
+func EnvGetFloat64(envName string) (float64, error) {
+	return strconv.ParseFloat(EnvGet(envName), 64)
 }
 
-// GetFloat64D 获取环境变量 envName 的值
+// EnvGetFloat64D 获取环境变量 envName 的值
 //
 // envName 环境变量名称
 //
 // defaultValue 环境变量为空时的默认值
-func (e *EnvCommon) GetFloat64D(envName string, defaultValue float64) float64 {
-	if i, err := strconv.ParseFloat(e.Get(envName), 64); nil == err {
+func EnvGetFloat64D(envName string, defaultValue float64) float64 {
+	if i, err := strconv.ParseFloat(EnvGet(envName), 64); nil == err {
 		return i
 	}
 	return defaultValue
 }
 
-// GetBool 获取环境变量 envName 的 bool 值
+// EnvGetBool 获取环境变量 envName 的 bool 值
 //
 // envName 环境变量名称
-func (e *EnvCommon) GetBool(envName string) bool {
+func EnvGetBool(envName string) bool {
 	return strings.EqualFold(os.Getenv(envName), "true")
 }

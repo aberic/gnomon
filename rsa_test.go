@@ -49,87 +49,87 @@ var (
 )
 
 func TestRSACommon_GenerateRsaKey(t *testing.T) {
-	t.Log(CryptoRSA().GenerateKey(256, pathrsapksc1256, privateRSAName, publicRSAName, CryptoRSA().PKSC1()))
-	t.Log(CryptoRSA().GenerateKeyWithPass(512, pathrsapksc1512, privateRSAName, publicRSAName, "123456", x509.PEMCipher3DES, CryptoRSA().PKSC1()))
-	t.Log(CryptoRSA().GenerateKey(1024, pathrsapksc11024, privateRSAName, publicRSAName, CryptoRSA().PKSC1()))
-	t.Log(CryptoRSA().GenerateKeyWithPass(2048, pathrsapksc12048, privateRSAName, publicRSAName, "123456", x509.PEMCipher3DES, CryptoRSA().PKSC1()))
+	t.Log(RSAGenerateKey(256, pathrsapksc1256, privateRSAName, publicRSAName, RSAPKSC1()))
+	t.Log(RSAGenerateKeyWithPass(512, pathrsapksc1512, privateRSAName, publicRSAName, "123456", x509.PEMCipher3DES, RSAPKSC1()))
+	t.Log(RSAGenerateKey(1024, pathrsapksc11024, privateRSAName, publicRSAName, RSAPKSC1()))
+	t.Log(RSAGenerateKeyWithPass(2048, pathrsapksc12048, privateRSAName, publicRSAName, "123456", x509.PEMCipher3DES, RSAPKSC1()))
 
-	t.Log(CryptoRSA().GenerateKeyWithPass(256, pathrsapksc8256, privateRSAName, publicRSAName, "123456", x509.PEMCipher3DES, CryptoRSA().PKSC8()))
-	t.Log(CryptoRSA().GenerateKey(512, pathrsapksc8512, privateRSAName, publicRSAName, CryptoRSA().PKSC8()))
-	t.Log(CryptoRSA().GenerateKeyWithPass(1024, pathrsapksc81024, privateRSAName, publicRSAName, "123456", x509.PEMCipher3DES, CryptoRSA().PKSC8()))
-	t.Log(CryptoRSA().GenerateKey(2048, pathrsapksc82048, privateRSAName, publicRSAName, CryptoRSA().PKSC8()))
+	t.Log(RSAGenerateKeyWithPass(256, pathrsapksc8256, privateRSAName, publicRSAName, "123456", x509.PEMCipher3DES, RSAPKSC8()))
+	t.Log(RSAGenerateKey(512, pathrsapksc8512, privateRSAName, publicRSAName, RSAPKSC8()))
+	t.Log(RSAGenerateKeyWithPass(1024, pathrsapksc81024, privateRSAName, publicRSAName, "123456", x509.PEMCipher3DES, RSAPKSC8()))
+	t.Log(RSAGenerateKey(2048, pathrsapksc82048, privateRSAName, publicRSAName, RSAPKSC8()))
 }
 
 func TestRSACommon_GenerateRsaCustomPriKey(t *testing.T) {
-	t.Log(CryptoRSA().GeneratePriKeyWithPass(256, pathrsapksc1256, "private1.pem", "123456", x509.PEMCipher3DES, CryptoRSA().PKSC1()))
-	t.Log(CryptoRSA().GeneratePriKey(512, pathrsapksc1512, "private1.pem", CryptoRSA().PKSC1()))
-	t.Log(CryptoRSA().GeneratePriKeyWithPass(1024, pathrsapksc11024, "private1.pem", "123456", -1, CryptoRSA().PKSC1()))
-	t.Log(CryptoRSA().GeneratePriKeyWithPass(1024, pathrsapksc11024, "private1.pem", "123456", x509.PEMCipher3DES, CryptoRSA().PKSC1()))
-	t.Log(CryptoRSA().GeneratePriKey(2048, pathrsapksc12048, "private1.pem", CryptoRSA().PKSC1()))
+	t.Log(RSAGeneratePriKeyWithPass(256, pathrsapksc1256, "private1.pem", "123456", x509.PEMCipher3DES, RSAPKSC1()))
+	t.Log(RSAGeneratePriKey(512, pathrsapksc1512, "private1.pem", RSAPKSC1()))
+	t.Log(RSAGeneratePriKeyWithPass(1024, pathrsapksc11024, "private1.pem", "123456", -1, RSAPKSC1()))
+	t.Log(RSAGeneratePriKeyWithPass(1024, pathrsapksc11024, "private1.pem", "123456", x509.PEMCipher3DES, RSAPKSC1()))
+	t.Log(RSAGeneratePriKey(2048, pathrsapksc12048, "private1.pem", RSAPKSC1()))
 	t.Log()
 
-	t.Log(CryptoRSA().GeneratePriKey(256, pathrsapksc8256, "private1.pem", CryptoRSA().PKSC8()))
-	t.Log(CryptoRSA().GeneratePriKeyWithPass(512, pathrsapksc8512, "private1.pem", "123456", x509.PEMCipher3DES, CryptoRSA().PKSC8()))
-	t.Log(CryptoRSA().GeneratePriKey(1024, pathrsapksc81024, "private1.pem", CryptoRSA().PKSC8()))
-	t.Log(CryptoRSA().GeneratePriKeyWithPass(2048, pathrsapksc82048, "private1.pem", "123456", -1, CryptoRSA().PKSC8()))
-	t.Log(CryptoRSA().GeneratePriKeyWithPass(2048, pathrsapksc82048, "private1.pem", "123456", x509.PEMCipher3DES, CryptoRSA().PKSC8()))
-	t.Log(CryptoRSA().GeneratePubKey(nil, "/etc/pub", "public1.pem", CryptoRSA().PKSC8()))
+	t.Log(RSAGeneratePriKey(256, pathrsapksc8256, "private1.pem", RSAPKSC8()))
+	t.Log(RSAGeneratePriKeyWithPass(512, pathrsapksc8512, "private1.pem", "123456", x509.PEMCipher3DES, RSAPKSC8()))
+	t.Log(RSAGeneratePriKey(1024, pathrsapksc81024, "private1.pem", RSAPKSC8()))
+	t.Log(RSAGeneratePriKeyWithPass(2048, pathrsapksc82048, "private1.pem", "123456", -1, RSAPKSC8()))
+	t.Log(RSAGeneratePriKeyWithPass(2048, pathrsapksc82048, "private1.pem", "123456", x509.PEMCipher3DES, RSAPKSC8()))
+	t.Log(RSAGeneratePubKey(nil, "/etc/pub", "public1.pem", RSAPKSC8()))
 }
 
 func TestRSACommon_GenerateRsaCustomPubKey(t *testing.T) {
-	t.Log(CryptoRSA().GeneratePubKeyFPWithPass(pathrsapksc1256+"/"+"private1.pem", "123456", pathrsapksc1256, "public1.pem", CryptoRSA().PKSC1()))
-	t.Log(CryptoRSA().GeneratePubKeyFP(pathrsapksc1512+"/"+"private1.pem", pathrsapksc1512, "public1.pem", CryptoRSA().PKSC1()))
-	t.Log(CryptoRSA().GeneratePubKeyFPWithPass(pathrsapksc11024+"/"+"private1.pem", "123456", pathrsapksc11024, "public1.pem", CryptoRSA().PKSC1()))
-	t.Log(CryptoRSA().GeneratePubKeyFP(pathrsapksc12048+"/"+"private1.pem", pathrsapksc12048, "public1.pem", CryptoRSA().PKSC1()))
+	t.Log(RSAGeneratePubKeyFPWithPass(pathrsapksc1256+"/"+"private1.pem", "123456", pathrsapksc1256, "public1.pem", RSAPKSC1()))
+	t.Log(RSAGeneratePubKeyFP(pathrsapksc1512+"/"+"private1.pem", pathrsapksc1512, "public1.pem", RSAPKSC1()))
+	t.Log(RSAGeneratePubKeyFPWithPass(pathrsapksc11024+"/"+"private1.pem", "123456", pathrsapksc11024, "public1.pem", RSAPKSC1()))
+	t.Log(RSAGeneratePubKeyFP(pathrsapksc12048+"/"+"private1.pem", pathrsapksc12048, "public1.pem", RSAPKSC1()))
 	t.Log()
 
-	t.Log(CryptoRSA().GeneratePubKeyFP(pathrsapksc8256+"/"+"private1.pem", pathrsapksc8256, "public1.pem", CryptoRSA().PKSC8()))
-	t.Log(CryptoRSA().GeneratePubKeyFPWithPass(pathrsapksc8512+"/"+"private1.pem", "123456", pathrsapksc8512, "public1.pem", CryptoRSA().PKSC8()))
-	t.Log(CryptoRSA().GeneratePubKeyFP(pathrsapksc81024+"/"+"private1.pem", pathrsapksc81024, "public1.pem", CryptoRSA().PKSC8()))
-	t.Log(CryptoRSA().GeneratePubKeyFPWithPass(pathrsapksc82048+"/"+"private1.pem", "123456", pathrsapksc82048, "public1.pem", CryptoRSA().PKSC8()))
+	t.Log(RSAGeneratePubKeyFP(pathrsapksc8256+"/"+"private1.pem", pathrsapksc8256, "public1.pem", RSAPKSC8()))
+	t.Log(RSAGeneratePubKeyFPWithPass(pathrsapksc8512+"/"+"private1.pem", "123456", pathrsapksc8512, "public1.pem", RSAPKSC8()))
+	t.Log(RSAGeneratePubKeyFP(pathrsapksc81024+"/"+"private1.pem", pathrsapksc81024, "public1.pem", RSAPKSC8()))
+	t.Log(RSAGeneratePubKeyFPWithPass(pathrsapksc82048+"/"+"private1.pem", "123456", pathrsapksc82048, "public1.pem", RSAPKSC8()))
 	t.Log()
 
-	t.Log(CryptoRSA().GeneratePubKeyFP(pathrsapksc12048+"/"+"private100.pem", pathrsapksc12048, "public1.pem", CryptoRSA().PKSC1()))
-	t.Log(CryptoRSA().GeneratePubKeyFPWithPass(pathrsapksc82048+"/"+"private100.pem", "123456", pathrsapksc82048, "public1.pem", CryptoRSA().PKSC8()))
-	t.Log(CryptoRSA().GeneratePubKeyFP(pathrsapksc82048+"/"+"private1.pem", pathrsapksc82048, "public2.pem", CryptoRSA().PKSC1()))
+	t.Log(RSAGeneratePubKeyFP(pathrsapksc12048+"/"+"private100.pem", pathrsapksc12048, "public1.pem", RSAPKSC1()))
+	t.Log(RSAGeneratePubKeyFPWithPass(pathrsapksc82048+"/"+"private100.pem", "123456", pathrsapksc82048, "public1.pem", RSAPKSC8()))
+	t.Log(RSAGeneratePubKeyFP(pathrsapksc82048+"/"+"private1.pem", pathrsapksc82048, "public2.pem", RSAPKSC1()))
 }
 
 func TestRSACommon_GenerateRsaKey_FailPathExists(t *testing.T) {
-	t.Log(CryptoRSA().GenerateKey(256, "/etc/test", privateRSAName, publicRSAName, CryptoRSA().PKSC1()))
+	t.Log(RSAGenerateKey(256, "/etc/test", privateRSAName, publicRSAName, RSAPKSC1()))
 }
 
 func TestRSACommon_GenerateRsaKey_FailGenerate(t *testing.T) {
-	t.Log(CryptoRSA().GenerateKey(-1, pathrsapksc1256, privateRSAName, publicRSAName, CryptoRSA().PKSC1()))
+	t.Log(RSAGenerateKey(-1, pathrsapksc1256, privateRSAName, publicRSAName, RSAPKSC1()))
 }
 
 func TestRSACommon_GenerateRsaKey_FailCreate(t *testing.T) {
-	t.Log(CryptoRSA().GenerateKey(256, "/etc", privateRSAName, publicRSAName, CryptoRSA().PKSC1()))
+	t.Log(RSAGenerateKey(256, "/etc", privateRSAName, publicRSAName, RSAPKSC1()))
 }
 
 func TestRSACommon_GenerateRsaPKSC8Key_FailPathExists(t *testing.T) {
-	t.Log(CryptoRSA().GenerateKey(256, "/etc/test", privateRSAName, publicRSAName, CryptoRSA().PKSC8()))
+	t.Log(RSAGenerateKey(256, "/etc/test", privateRSAName, publicRSAName, RSAPKSC8()))
 }
 
 func TestRSACommon_GenerateRsaPKSC8Key_FailGenerate(t *testing.T) {
-	t.Log(CryptoRSA().GenerateKey(-1, pathrsapksc1256, privateRSAName, publicRSAName, CryptoRSA().PKSC8()))
+	t.Log(RSAGenerateKey(-1, pathrsapksc1256, privateRSAName, publicRSAName, RSAPKSC8()))
 }
 
 func TestRSACommon_GenerateRsaPKSC8Key_FailCreate(t *testing.T) {
-	t.Log(CryptoRSA().GenerateKey(256, "/etc", privateRSAName, publicRSAName, CryptoRSA().PKSC8()))
+	t.Log(RSAGenerateKey(256, "/etc", privateRSAName, publicRSAName, RSAPKSC8()))
 }
 
 func TestRSACommon_RsaEncryptDecrypt_Fail(t *testing.T) {
-	dataRSA, errRSA = CryptoRSA().Encrypt([]byte{}, []byte(contentRSA))
+	dataRSA, errRSA = RSAEncrypt([]byte{}, []byte(contentRSA))
 	if nil != errRSA {
 		t.Log(errRSA)
 	}
 
-	dataRSA, errRSA = CryptoRSA().EncryptFP(pathrsapksc1256+"/a/"+publicRSAName, []byte(contentRSA))
+	dataRSA, errRSA = RSAEncryptFP(pathrsapksc1256+"/a/"+publicRSAName, []byte(contentRSA))
 	if nil != errRSA {
 		t.Log(errRSA)
 	}
 
-	dataRSA, errRSA = CryptoRSA().Decrypt([]byte{}, []byte(contentRSA), CryptoRSA().PKSC8())
+	dataRSA, errRSA = RSADecrypt([]byte{}, []byte(contentRSA), RSAPKSC8())
 	if nil != errRSA {
 		t.Log(errRSA)
 	}
@@ -143,91 +143,91 @@ func TestRSACommon_RsaEncryptDecrypt(t *testing.T) {
 	if nil != errRSA {
 		t.Error(errRSA)
 	}
-	dataRSA, errRSA = CryptoRSA().Encrypt(pubRSAKeyData, []byte(contentRSA))
+	dataRSA, errRSA = RSAEncrypt(pubRSAKeyData, []byte(contentRSA))
 	if nil != errRSA {
 		t.Error(errRSA)
 	}
-	dataRSA, errRSA = CryptoRSA().EncryptFP(pathrsapksc1256+"/"+publicRSAName, []byte(contentRSA))
+	dataRSA, errRSA = RSAEncryptFP(pathrsapksc1256+"/"+publicRSAName, []byte(contentRSA))
 	if nil != errRSA {
 		t.Skip(errRSA)
 	}
 	t.Log("加密后256：", hex.EncodeToString(dataRSA))
-	dataRSAEncode, errRSA = CryptoRSA().DecryptFP(pathrsapksc1256+"/"+privateRSAName, dataRSA, CryptoRSA().PKSC1())
+	dataRSAEncode, errRSA = RSADecryptFP(pathrsapksc1256+"/"+privateRSAName, dataRSA, RSAPKSC1())
 	t.Log("解密后256：", string(dataRSAEncode))
 	priRSAKeyData, errRSA = ioutil.ReadFile(filepath.Join(pathrsapksc1256, privateRSAName))
 	if nil != errRSA {
 		t.Error(errRSA)
 	}
-	dataRSAEncode, errRSA = CryptoRSA().Decrypt(priRSAKeyData, dataRSA, CryptoRSA().PKSC1())
+	dataRSAEncode, errRSA = RSADecrypt(priRSAKeyData, dataRSA, RSAPKSC1())
 	if nil != errRSA {
 		t.Log(errRSA)
 	}
 	t.Log("解密后256：", string(dataRSAEncode))
 	t.Log("=================================")
 
-	dataRSA, errRSA = CryptoRSA().EncryptFP(pathrsapksc1512+"/"+publicRSAName, []byte(contentRSA))
+	dataRSA, errRSA = RSAEncryptFP(pathrsapksc1512+"/"+publicRSAName, []byte(contentRSA))
 	if nil != errRSA {
 		t.Skip(errRSA)
 	}
 	t.Log("加密后512：", hex.EncodeToString(dataRSA))
-	dataRSAEncode, errRSA = CryptoRSA().DecryptFP(pathrsapksc1512+"/"+privateRSAName, dataRSA, CryptoRSA().PKSC1())
+	dataRSAEncode, errRSA = RSADecryptFP(pathrsapksc1512+"/"+privateRSAName, dataRSA, RSAPKSC1())
 	t.Log("解密后512：", string(dataRSAEncode))
 	t.Log("=================================")
 
-	dataRSA, errRSA = CryptoRSA().EncryptFP(pathrsapksc11024+"/"+publicRSAName, []byte(contentRSA))
+	dataRSA, errRSA = RSAEncryptFP(pathrsapksc11024+"/"+publicRSAName, []byte(contentRSA))
 	if nil != errRSA {
 		t.Skip(errRSA)
 	}
 	t.Log("加密后1024：", hex.EncodeToString(dataRSA))
-	dataRSAEncode, errRSA = CryptoRSA().DecryptFP(pathrsapksc11024+"/"+privateRSAName, dataRSA, CryptoRSA().PKSC1())
+	dataRSAEncode, errRSA = RSADecryptFP(pathrsapksc11024+"/"+privateRSAName, dataRSA, RSAPKSC1())
 	t.Log("解密后1024：", string(dataRSAEncode))
 	t.Log("=================================")
 
-	dataRSA, errRSA = CryptoRSA().EncryptFP(pathrsapksc12048+"/"+publicRSAName, []byte(contentRSA))
+	dataRSA, errRSA = RSAEncryptFP(pathrsapksc12048+"/"+publicRSAName, []byte(contentRSA))
 	if nil != errRSA {
 		t.Skip(errRSA)
 	}
 	t.Log("加密后2048：", hex.EncodeToString(dataRSA))
-	dataRSAEncode, errRSA = CryptoRSA().DecryptFP(pathrsapksc12048+"/"+privateRSAName, dataRSA, CryptoRSA().PKSC1())
+	dataRSAEncode, errRSA = RSADecryptFP(pathrsapksc12048+"/"+privateRSAName, dataRSA, RSAPKSC1())
 	t.Log("解密后2048：", string(dataRSAEncode))
 }
 
 func TestRSACommon_RsaPKSC8EncryptDecrypt(t *testing.T) {
 	t.Log("加密前：", contentRSA)
 	t.Log("=================================")
-	dataRSA, errRSA = CryptoRSA().EncryptFP(pathrsapksc8256+"/"+publicRSAName, []byte(contentRSA))
+	dataRSA, errRSA = RSAEncryptFP(pathrsapksc8256+"/"+publicRSAName, []byte(contentRSA))
 	if nil != errRSA {
 		t.Skip(errRSA)
 	}
 	t.Log("加密后256：", hex.EncodeToString(dataRSA))
-	dataRSAEncode, errRSA = CryptoRSA().DecryptFP(pathrsapksc8256+"/"+privateRSAName, dataRSA, CryptoRSA().PKSC8())
+	dataRSAEncode, errRSA = RSADecryptFP(pathrsapksc8256+"/"+privateRSAName, dataRSA, RSAPKSC8())
 	t.Log("解密后256：", string(dataRSAEncode))
 	t.Log("=================================")
 
-	dataRSA, errRSA = CryptoRSA().EncryptFP(pathrsapksc8512+"/"+publicRSAName, []byte(contentRSA))
+	dataRSA, errRSA = RSAEncryptFP(pathrsapksc8512+"/"+publicRSAName, []byte(contentRSA))
 	if nil != errRSA {
 		t.Skip(errRSA)
 	}
 	t.Log("加密后512：", hex.EncodeToString(dataRSA))
-	dataRSAEncode, errRSA = CryptoRSA().DecryptFP(pathrsapksc8512+"/"+privateRSAName, dataRSA, CryptoRSA().PKSC8())
+	dataRSAEncode, errRSA = RSADecryptFP(pathrsapksc8512+"/"+privateRSAName, dataRSA, RSAPKSC8())
 	t.Log("解密后512：", string(dataRSAEncode))
 	t.Log("=================================")
 
-	dataRSA, errRSA = CryptoRSA().EncryptFP(pathrsapksc81024+"/"+publicRSAName, []byte(contentRSA))
+	dataRSA, errRSA = RSAEncryptFP(pathrsapksc81024+"/"+publicRSAName, []byte(contentRSA))
 	if nil != errRSA {
 		t.Skip(errRSA)
 	}
 	t.Log("加密后1024：", hex.EncodeToString(dataRSA))
-	dataRSAEncode, errRSA = CryptoRSA().DecryptFP(pathrsapksc81024+"/"+privateRSAName, dataRSA, CryptoRSA().PKSC8())
+	dataRSAEncode, errRSA = RSADecryptFP(pathrsapksc81024+"/"+privateRSAName, dataRSA, RSAPKSC8())
 	t.Log("解密后1024：", string(dataRSAEncode))
 	t.Log("=================================")
 
-	dataRSA, errRSA = CryptoRSA().EncryptFP(pathrsapksc82048+"/"+publicRSAName, []byte(contentRSA))
+	dataRSA, errRSA = RSAEncryptFP(pathrsapksc82048+"/"+publicRSAName, []byte(contentRSA))
 	if nil != errRSA {
 		t.Skip(errRSA)
 	}
 	t.Log("加密后2048：", hex.EncodeToString(dataRSA))
-	dataRSAEncode, errRSA = CryptoRSA().DecryptFP(pathrsapksc82048+"/"+privateRSAName, dataRSA, CryptoRSA().PKSC8())
+	dataRSAEncode, errRSA = RSADecryptFP(pathrsapksc82048+"/"+privateRSAName, dataRSA, RSAPKSC8())
 	t.Log("解密后2048：", string(dataRSAEncode))
 }
 
@@ -238,7 +238,7 @@ func TestRSACommon_RsaSign(t *testing.T) {
 	if nil != errRSA {
 		t.Error(errRSA)
 	}
-	if signRSAResult, errRSA = CryptoRSA().Sign(priRSAKeyData, []byte(contentRSA), crypto.SHA256, CryptoRSA().PKSC1(), CryptoRSA().SignPKCS()); nil != errRSA {
+	if signRSAResult, errRSA = RSASign(priRSAKeyData, []byte(contentRSA), crypto.SHA256, RSAPKSC1(), RSASignPKCS()); nil != errRSA {
 		t.Skip("签名错误1024：", errRSA)
 	} else {
 		t.Log("验签1024：", signRSAResult)
@@ -246,40 +246,40 @@ func TestRSACommon_RsaSign(t *testing.T) {
 		if nil != errRSA {
 			t.Error(errRSA)
 		}
-		if errRSA = CryptoRSA().Verify(pubRSAKeyData, []byte(contentRSA), signRSAResult, crypto.SHA256, CryptoRSA().SignPKCS()); nil != errRSA {
+		if errRSA = RSAVerify(pubRSAKeyData, []byte(contentRSA), signRSAResult, crypto.SHA256, RSASignPKCS()); nil != errRSA {
 			t.Skip("验签错误1024：", errRSA)
 		} else {
 			t.Log("验签通过1024")
 		}
 	}
 	t.Log("=================================")
-	if signRSAResult, errRSA = CryptoRSA().SignFPWithPass(pathrsapksc1512+"/"+privateRSAName, "123456", []byte(contentRSA), crypto.SHA256, CryptoRSA().PKSC1(), CryptoRSA().SignPKCS()); nil != errRSA {
+	if signRSAResult, errRSA = RSASignFPWithPass(pathrsapksc1512+"/"+privateRSAName, "123456", []byte(contentRSA), crypto.SHA256, RSAPKSC1(), RSASignPKCS()); nil != errRSA {
 		t.Skip("签名错误512：", errRSA)
 	} else {
 		t.Log("验签512：", signRSAResult)
-		if errRSA = CryptoRSA().VerifyFP(pathrsapksc1512+"/"+publicRSAName, []byte(contentRSA), signRSAResult, crypto.SHA256, CryptoRSA().SignPKCS()); nil != errRSA {
+		if errRSA = RSAVerifyFP(pathrsapksc1512+"/"+publicRSAName, []byte(contentRSA), signRSAResult, crypto.SHA256, RSASignPKCS()); nil != errRSA {
 			t.Skip("验签错误512：", errRSA)
 		} else {
 			t.Log("验签通过512")
 		}
 	}
 	t.Log("=================================")
-	if signRSAResult, errRSA = CryptoRSA().SignFP(pathrsapksc11024+"/"+privateRSAName, []byte(contentRSA), crypto.SHA512, CryptoRSA().PKSC1(), CryptoRSA().SignPKCS()); nil != errRSA {
+	if signRSAResult, errRSA = RSASignFP(pathrsapksc11024+"/"+privateRSAName, []byte(contentRSA), crypto.SHA512, RSAPKSC1(), RSASignPKCS()); nil != errRSA {
 		t.Skip("签名错误1024：", errRSA)
 	} else {
 		t.Log("验签1024：", signRSAResult)
-		if errRSA = CryptoRSA().VerifyFP(pathrsapksc11024+"/"+publicRSAName, []byte(contentRSA), signRSAResult, crypto.SHA512, CryptoRSA().SignPKCS()); nil != errRSA {
+		if errRSA = RSAVerifyFP(pathrsapksc11024+"/"+publicRSAName, []byte(contentRSA), signRSAResult, crypto.SHA512, RSASignPKCS()); nil != errRSA {
 			t.Skip("验签错误1024：", errRSA)
 		} else {
 			t.Log("验签通过1024")
 		}
 	}
 	t.Log("=================================")
-	if signRSAResult, errRSA = CryptoRSA().SignFP(pathrsapksc12048+"/"+privateRSAName, []byte(contentRSA), crypto.SHA384, CryptoRSA().PKSC1(), CryptoRSA().SignPKCS()); nil != errRSA {
+	if signRSAResult, errRSA = RSASignFP(pathrsapksc12048+"/"+privateRSAName, []byte(contentRSA), crypto.SHA384, RSAPKSC1(), RSASignPKCS()); nil != errRSA {
 		t.Skip("签名错误2048：", errRSA)
 	} else {
 		t.Log("验签2048：", signRSAResult)
-		if errRSA = CryptoRSA().VerifyFP(pathrsapksc12048+"/"+publicRSAName, []byte(contentRSA), signRSAResult, crypto.SHA384, CryptoRSA().SignPKCS()); nil != errRSA {
+		if errRSA = RSAVerifyFP(pathrsapksc12048+"/"+publicRSAName, []byte(contentRSA), signRSAResult, crypto.SHA384, RSASignPKCS()); nil != errRSA {
 			t.Skip("验签错误2048：", errRSA)
 		} else {
 			t.Log("验签通过2048")
@@ -290,33 +290,33 @@ func TestRSACommon_RsaSign(t *testing.T) {
 func TestRSACommon_RsaSignPSS(t *testing.T) {
 	t.Log("签名：", contentRSA)
 	t.Log("=================================")
-	if signRSAResult, errRSA = CryptoRSA().SignFP(pathrsapksc1512+"/"+privateRSAName, []byte(contentRSA), crypto.SHA256, CryptoRSA().PKSC1(), CryptoRSA().SignPSS()); nil != errRSA {
+	if signRSAResult, errRSA = RSASignFP(pathrsapksc1512+"/"+privateRSAName, []byte(contentRSA), crypto.SHA256, RSAPKSC1(), RSASignPSS()); nil != errRSA {
 		t.Skip("签名错误512：", errRSA)
 	} else {
 		t.Log("验签512：", signRSAResult)
-		if errRSA = CryptoRSA().VerifyFP(pathrsapksc1512+"/"+publicRSAName, []byte(contentRSA), signRSAResult, crypto.SHA256, CryptoRSA().SignPSS()); nil != errRSA {
+		if errRSA = RSAVerifyFP(pathrsapksc1512+"/"+publicRSAName, []byte(contentRSA), signRSAResult, crypto.SHA256, RSASignPSS()); nil != errRSA {
 			t.Skip("验签错误512：", errRSA)
 		} else {
 			t.Log("验签通过512")
 		}
 	}
 	t.Log("=================================")
-	if signRSAResult, errRSA = CryptoRSA().SignFP(pathrsapksc11024+"/"+privateRSAName, []byte(contentRSA), crypto.SHA512, CryptoRSA().PKSC1(), CryptoRSA().SignPSS()); nil != errRSA {
+	if signRSAResult, errRSA = RSASignFP(pathrsapksc11024+"/"+privateRSAName, []byte(contentRSA), crypto.SHA512, RSAPKSC1(), RSASignPSS()); nil != errRSA {
 		t.Skip("签名错误1024：", errRSA)
 	} else {
 		t.Log("验签1024：", signRSAResult)
-		if errRSA = CryptoRSA().VerifyFP(pathrsapksc11024+"/"+publicRSAName, []byte(contentRSA), signRSAResult, crypto.SHA512, CryptoRSA().SignPSS()); nil != errRSA {
+		if errRSA = RSAVerifyFP(pathrsapksc11024+"/"+publicRSAName, []byte(contentRSA), signRSAResult, crypto.SHA512, RSASignPSS()); nil != errRSA {
 			t.Skip("验签错误1024：", errRSA)
 		} else {
 			t.Log("验签通过1024")
 		}
 	}
 	t.Log("=================================")
-	if signRSAResult, errRSA = CryptoRSA().SignFP(pathrsapksc12048+"/"+privateRSAName, []byte(contentRSA), crypto.SHA384, CryptoRSA().PKSC1(), CryptoRSA().SignPSS()); nil != errRSA {
+	if signRSAResult, errRSA = RSASignFP(pathrsapksc12048+"/"+privateRSAName, []byte(contentRSA), crypto.SHA384, RSAPKSC1(), RSASignPSS()); nil != errRSA {
 		t.Skip("签名错误2048：", errRSA)
 	} else {
 		t.Log("验签2048：", signRSAResult)
-		if errRSA = CryptoRSA().VerifyFP(pathrsapksc12048+"/"+publicRSAName, []byte(contentRSA), signRSAResult, crypto.SHA384, CryptoRSA().SignPSS()); nil != errRSA {
+		if errRSA = RSAVerifyFP(pathrsapksc12048+"/"+publicRSAName, []byte(contentRSA), signRSAResult, crypto.SHA384, RSASignPSS()); nil != errRSA {
 			t.Skip("验签错误2048：", errRSA)
 		} else {
 			t.Log("验签通过2048")
@@ -327,33 +327,33 @@ func TestRSACommon_RsaSignPSS(t *testing.T) {
 func TestRSACommon_RsaPKSC8Sign(t *testing.T) {
 	t.Log("签名：", contentRSA)
 	t.Log("=================================")
-	if signRSAResult, errRSA = CryptoRSA().SignFP(pathrsapksc8512+"/"+privateRSAName, []byte(contentRSA), crypto.SHA256, CryptoRSA().PKSC8(), CryptoRSA().SignPKCS()); nil != errRSA {
+	if signRSAResult, errRSA = RSASignFP(pathrsapksc8512+"/"+privateRSAName, []byte(contentRSA), crypto.SHA256, RSAPKSC8(), RSASignPKCS()); nil != errRSA {
 		t.Skip("签名错误512：", errRSA)
 	} else {
 		t.Log("验签512：", signRSAResult)
-		if errRSA = CryptoRSA().VerifyFP(pathrsapksc8512+"/"+publicRSAName, []byte(contentRSA), signRSAResult, crypto.SHA256, CryptoRSA().SignPKCS()); nil != errRSA {
+		if errRSA = RSAVerifyFP(pathrsapksc8512+"/"+publicRSAName, []byte(contentRSA), signRSAResult, crypto.SHA256, RSASignPKCS()); nil != errRSA {
 			t.Skip("验签错误512：", errRSA)
 		} else {
 			t.Log("验签通过512")
 		}
 	}
 	t.Log("=================================")
-	if signRSAResult, errRSA = CryptoRSA().SignFP(pathrsapksc81024+"/"+privateRSAName, []byte(contentRSA), crypto.SHA512, CryptoRSA().PKSC8(), CryptoRSA().SignPKCS()); nil != errRSA {
+	if signRSAResult, errRSA = RSASignFP(pathrsapksc81024+"/"+privateRSAName, []byte(contentRSA), crypto.SHA512, RSAPKSC8(), RSASignPKCS()); nil != errRSA {
 		t.Skip("签名错误1024：", errRSA)
 	} else {
 		t.Log("验签1024：", signRSAResult)
-		if errRSA = CryptoRSA().VerifyFP(pathrsapksc81024+"/"+publicRSAName, []byte(contentRSA), signRSAResult, crypto.SHA512, CryptoRSA().SignPKCS()); nil != errRSA {
+		if errRSA = RSAVerifyFP(pathrsapksc81024+"/"+publicRSAName, []byte(contentRSA), signRSAResult, crypto.SHA512, RSASignPKCS()); nil != errRSA {
 			t.Skip("验签错误1024：", errRSA)
 		} else {
 			t.Log("验签通过1024")
 		}
 	}
 	t.Log("=================================")
-	if signRSAResult, errRSA = CryptoRSA().SignFP(pathrsapksc82048+"/"+privateRSAName, []byte(contentRSA), crypto.SHA384, CryptoRSA().PKSC8(), CryptoRSA().SignPKCS()); nil != errRSA {
+	if signRSAResult, errRSA = RSASignFP(pathrsapksc82048+"/"+privateRSAName, []byte(contentRSA), crypto.SHA384, RSAPKSC8(), RSASignPKCS()); nil != errRSA {
 		t.Skip("签名错误2048：", errRSA)
 	} else {
 		t.Log("验签2048：", signRSAResult)
-		if errRSA = CryptoRSA().VerifyFP(pathrsapksc82048+"/"+publicRSAName, []byte(contentRSA), signRSAResult, crypto.SHA384, CryptoRSA().SignPKCS()); nil != errRSA {
+		if errRSA = RSAVerifyFP(pathrsapksc82048+"/"+publicRSAName, []byte(contentRSA), signRSAResult, crypto.SHA384, RSASignPKCS()); nil != errRSA {
 			t.Skip("验签错误2048：", errRSA)
 		} else {
 			t.Log("验签通过2048")
@@ -364,33 +364,33 @@ func TestRSACommon_RsaPKSC8Sign(t *testing.T) {
 func TestRSACommon_RsaPKSC8SignPSS(t *testing.T) {
 	t.Log("签名：", contentRSA)
 	t.Log("=================================")
-	if signRSAResult, errRSA = CryptoRSA().SignFP(pathrsapksc8512+"/"+privateRSAName, []byte(contentRSA), crypto.SHA256, CryptoRSA().PKSC8(), CryptoRSA().SignPSS()); nil != errRSA {
+	if signRSAResult, errRSA = RSASignFP(pathrsapksc8512+"/"+privateRSAName, []byte(contentRSA), crypto.SHA256, RSAPKSC8(), RSASignPSS()); nil != errRSA {
 		t.Skip("签名错误512：", errRSA)
 	} else {
 		t.Log("验签512：", signRSAResult)
-		if errRSA = CryptoRSA().VerifyFP(pathrsapksc8512+"/"+publicRSAName, []byte(contentRSA), signRSAResult, crypto.SHA256, CryptoRSA().SignPSS()); nil != errRSA {
+		if errRSA = RSAVerifyFP(pathrsapksc8512+"/"+publicRSAName, []byte(contentRSA), signRSAResult, crypto.SHA256, RSASignPSS()); nil != errRSA {
 			t.Skip("验签错误512：", errRSA)
 		} else {
 			t.Log("验签通过512")
 		}
 	}
 	t.Log("=================================")
-	if signRSAResult, errRSA = CryptoRSA().SignFP(pathrsapksc81024+"/"+privateRSAName, []byte(contentRSA), crypto.SHA512, CryptoRSA().PKSC8(), CryptoRSA().SignPSS()); nil != errRSA {
+	if signRSAResult, errRSA = RSASignFP(pathrsapksc81024+"/"+privateRSAName, []byte(contentRSA), crypto.SHA512, RSAPKSC8(), RSASignPSS()); nil != errRSA {
 		t.Skip("签名错误1024：", errRSA)
 	} else {
 		t.Log("验签1024：", signRSAResult)
-		if errRSA = CryptoRSA().VerifyFP(pathrsapksc81024+"/"+publicRSAName, []byte(contentRSA), signRSAResult, crypto.SHA512, CryptoRSA().SignPSS()); nil != errRSA {
+		if errRSA = RSAVerifyFP(pathrsapksc81024+"/"+publicRSAName, []byte(contentRSA), signRSAResult, crypto.SHA512, RSASignPSS()); nil != errRSA {
 			t.Skip("验签错误1024：", errRSA)
 		} else {
 			t.Log("验签通过1024")
 		}
 	}
 	t.Log("=================================")
-	if signRSAResult, errRSA = CryptoRSA().SignFP(pathrsapksc82048+"/"+privateRSAName, []byte(contentRSA), crypto.SHA384, CryptoRSA().PKSC8(), CryptoRSA().SignPSS()); nil != errRSA {
+	if signRSAResult, errRSA = RSASignFP(pathrsapksc82048+"/"+privateRSAName, []byte(contentRSA), crypto.SHA384, RSAPKSC8(), RSASignPSS()); nil != errRSA {
 		t.Skip("签名错误2048：", errRSA)
 	} else {
 		t.Log("验签2048：", signRSAResult)
-		if errRSA = CryptoRSA().VerifyFP(pathrsapksc82048+"/"+publicRSAName, []byte(contentRSA), signRSAResult, crypto.SHA384, CryptoRSA().SignPSS()); nil != errRSA {
+		if errRSA = RSAVerifyFP(pathrsapksc82048+"/"+publicRSAName, []byte(contentRSA), signRSAResult, crypto.SHA384, RSASignPSS()); nil != errRSA {
 			t.Skip("验签错误2048：", errRSA)
 		} else {
 			t.Log("验签通过2048")
@@ -401,11 +401,11 @@ func TestRSACommon_RsaPKSC8SignPSS(t *testing.T) {
 func TestRSACommon_RsaSign_Fail(t *testing.T) {
 	t.Log("签名：", contentRSA)
 	t.Log("=================================")
-	if signRSAResult, errRSA = CryptoRSA().SignFP(pathrsapksc1256+"/"+privateRSAName, []byte(contentRSA), crypto.SHA384, CryptoRSA().PKSC1(), CryptoRSA().SignPKCS()); nil != errRSA {
+	if signRSAResult, errRSA = RSASignFP(pathrsapksc1256+"/"+privateRSAName, []byte(contentRSA), crypto.SHA384, RSAPKSC1(), RSASignPKCS()); nil != errRSA {
 		t.Skip("签名错误256：", errRSA)
 	} else {
 		t.Log("验签256：", signRSAResult)
-		if errRSA = CryptoRSA().VerifyFP(pathrsapksc1256+"/"+publicRSAName, []byte(contentRSA), signRSAResult, crypto.SHA384, CryptoRSA().SignPKCS()); nil != errRSA {
+		if errRSA = RSAVerifyFP(pathrsapksc1256+"/"+publicRSAName, []byte(contentRSA), signRSAResult, crypto.SHA384, RSASignPKCS()); nil != errRSA {
 			t.Skip("验签错误256：", errRSA)
 		} else {
 			t.Log("验签通过256")
@@ -416,11 +416,11 @@ func TestRSACommon_RsaSign_Fail(t *testing.T) {
 func TestRSACommon_RsaPKSC8Sign_Fail(t *testing.T) {
 	t.Log("签名：", contentRSA)
 	t.Log("=================================")
-	if signRSAResult, errRSA = CryptoRSA().SignFP(pathrsapksc8256+"/"+privateRSAName, []byte(contentRSA), crypto.SHA384, CryptoRSA().PKSC8(), CryptoRSA().SignPKCS()); nil != errRSA {
+	if signRSAResult, errRSA = RSASignFP(pathrsapksc8256+"/"+privateRSAName, []byte(contentRSA), crypto.SHA384, RSAPKSC8(), RSASignPKCS()); nil != errRSA {
 		t.Skip("签名错误256：", errRSA)
 	} else {
 		t.Log("验签256：", signRSAResult)
-		if errRSA = CryptoRSA().VerifyFP(pathrsapksc8256+"/"+publicRSAName, []byte(contentRSA), signRSAResult, crypto.SHA384, CryptoRSA().SignPKCS()); nil != errRSA {
+		if errRSA = RSAVerifyFP(pathrsapksc8256+"/"+publicRSAName, []byte(contentRSA), signRSAResult, crypto.SHA384, RSASignPKCS()); nil != errRSA {
 			t.Skip("验签错误256：", errRSA)
 		} else {
 			t.Log("验签通过256")

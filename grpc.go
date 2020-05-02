@@ -25,14 +25,11 @@ import (
 	"strings"
 )
 
-// GRPCCommon gRPC工具
-type GRPCCommon struct{}
-
 // Business 真实业务逻辑
 type Business func(conn *grpc.ClientConn) (interface{}, error)
 
-// Request RPC 通过rpc进行通信 protoc --go_out=plugins=grpc:. grpc/proto/*.proto
-func (g *GRPCCommon) Request(url string, business Business) (interface{}, error) {
+// GRPCRequest RPC 通过rpc进行通信 protoc --go_out=plugins=grpc:. grpc/proto/*.proto
+func GRPCRequest(url string, business Business) (interface{}, error) {
 	var (
 		conn *grpc.ClientConn
 		err  error
@@ -46,8 +43,8 @@ func (g *GRPCCommon) Request(url string, business Business) (interface{}, error)
 	return business(conn)
 }
 
-// RequestPool 通过rpc进行通信 protoc --go_out=plugins=grpc:. grpc/proto/*.proto
-func (g *GRPCCommon) RequestPool(pool *Pond, business Business) (interface{}, error) {
+// GRPCRequestPool 通过rpc进行通信 protoc --go_out=plugins=grpc:. grpc/proto/*.proto
+func GRPCRequestPool(pool *Pond, business Business) (interface{}, error) {
 	var (
 		c    Conn
 		conn *grpc.ClientConn
@@ -69,10 +66,10 @@ func (g *GRPCCommon) RequestPool(pool *Pond, business Business) (interface{}, er
 	return business(conn)
 }
 
-// GetClientIP 取出gRPC客户端的ip地址和端口号
+// GRPCGetClientIP 取出gRPC客户端的ip地址和端口号
 //
 // string form of address (for example, "192.0.2.1:25", "[2001:db8::1]:80")
-func (g *GRPCCommon) GetClientIP(ctx context.Context) (address string, port int, err error) {
+func GRPCGetClientIP(ctx context.Context) (address string, port int, err error) {
 	var (
 		pr *peer.Peer
 		ok bool

@@ -55,32 +55,31 @@ import (
 // 优点:1.隐藏了明文模式;2.分组密码转化为流模式;3.可以及时加密传送小于分组的数据;
 //
 // 缺点:1.不利于并行计算;2.对明文的主动攻击是可能的;3.误差传送：一个明文单元损坏影响多个单元;
-type AESCommon struct{}
 
 //--------------------------------------------------------------------------------------------------------------------
 
-// EncryptCBC AES CBC模式加密
-func (a *AESCommon) EncryptCBC(data []byte, key []byte) (encrypted []byte) {
+// AESEncryptCBC AES CBC模式加密
+func AESEncryptCBC(data []byte, key []byte) (encrypted []byte) {
 	// 分组密钥
 	// NewCipher该函数限制了输入k的长度必须为16, 24或者32
-	blockMode, blockSize := a.blockMode(key, true) // 加密模式
-	data = a.pkcs5Padding(data, blockSize)         // 补全码
-	encrypted = make([]byte, len(data))            // 创建数组
-	blockMode.CryptBlocks(encrypted, data)         // 加密
+	blockMode, blockSize := aesBlockMode(key, true) // 加密模式
+	data = aesPkcs5Padding(data, blockSize)         // 补全码
+	encrypted = make([]byte, len(data))             // 创建数组
+	blockMode.CryptBlocks(encrypted, data)          // 加密
 	return encrypted
 }
 
-// DecryptCBC AES CBC模式解密
-func (a *AESCommon) DecryptCBC(encrypted []byte, key []byte) []byte {
-	blockMode, _ := a.blockMode(key, false)     // 加密模式
+// AESDecryptCBC AES CBC模式解密
+func AESDecryptCBC(encrypted []byte, key []byte) []byte {
+	blockMode, _ := aesBlockMode(key, false)    // 加密模式
 	decrypted := make([]byte, len(encrypted))   // 创建数组
 	blockMode.CryptBlocks(decrypted, encrypted) // 解密
-	decrypted = a.pkcs5UnPadding(decrypted)     // 去除补全码
+	decrypted = aesPkcs5UnPadding(decrypted)    // 去除补全码
 	return decrypted
 }
 
-// blockMode 加密模式
-func (a *AESCommon) blockMode(key []byte, encrypt bool) (cipher.BlockMode, int) {
+// aesBlockMode 加密模式
+func aesBlockMode(key []byte, encrypt bool) (cipher.BlockMode, int) {
 	block, _ := aes.NewCipher(key) // 分组密钥
 	blockSize := block.BlockSize() // 获取密钥块的长度
 	if encrypt {
@@ -89,15 +88,15 @@ func (a *AESCommon) blockMode(key []byte, encrypt bool) (cipher.BlockMode, int) 
 	return cipher.NewCBCDecrypter(block, key[:blockSize]), blockSize // 加密模式
 }
 
-// pkcs5Padding 明文补码算法
-func (a *AESCommon) pkcs5Padding(ciphertext []byte, blockSize int) []byte {
+// aesPkcs5Padding 明文补码算法
+func aesPkcs5Padding(ciphertext []byte, blockSize int) []byte {
 	padding := blockSize - len(ciphertext)%blockSize
 	padText := bytes.Repeat([]byte{byte(padding)}, padding)
 	return append(ciphertext, padText...)
 }
 
-// pkcs5UnPadding 明文减码算法
-func (a *AESCommon) pkcs5UnPadding(origData []byte) []byte {
+// aesPkcs5UnPadding 明文减码算法
+func aesPkcs5UnPadding(origData []byte) []byte {
 	length := len(origData)
 	unPadding := int(origData[length-1])
 	return origData[:(length - unPadding)]
@@ -105,9 +104,9 @@ func (a *AESCommon) pkcs5UnPadding(origData []byte) []byte {
 
 //--------------------------------------------------------------------------------------------------------------------
 
-// EncryptECB AES ECB模式加密
-func (a *AESCommon) EncryptECB(data []byte, key []byte) (encrypted []byte) {
-	cpr, _ := aes.NewCipher(a.generateKey(key))
+// AESEncryptECB AES ECB模式加密
+func AESEncryptECB(data []byte, key []byte) (encrypted []byte) {
+	cpr, _ := aes.NewCipher(aesGenerateKey(key))
 	length := (len(data) + aes.BlockSize) / aes.BlockSize
 	plain := make([]byte, length*aes.BlockSize)
 	copy(plain, data)
@@ -123,9 +122,9 @@ func (a *AESCommon) EncryptECB(data []byte, key []byte) (encrypted []byte) {
 	return encrypted
 }
 
-// DecryptECB AES ECB模式解密
-func (a *AESCommon) DecryptECB(encrypted []byte, key []byte) (decrypted []byte) {
-	cpr, _ := aes.NewCipher(a.generateKey(key))
+// AESDecryptECB AES ECB模式解密
+func AESDecryptECB(encrypted []byte, key []byte) (decrypted []byte) {
+	cpr, _ := aes.NewCipher(aesGenerateKey(key))
 	decrypted = make([]byte, len(encrypted))
 	for bs, be := 0, cpr.BlockSize(); bs < len(encrypted); bs, be = bs+cpr.BlockSize(), be+cpr.BlockSize() {
 		cpr.Decrypt(decrypted[bs:be], encrypted[bs:be])
@@ -137,7 +136,7 @@ func (a *AESCommon) DecryptECB(encrypted []byte, key []byte) (decrypted []byte) 
 	return decrypted[:trim]
 }
 
-func (a *AESCommon) generateKey(key []byte) (genKey []byte) {
+func aesGenerateKey(key []byte) (genKey []byte) {
 	genKey = make([]byte, 16)
 	copy(genKey, key)
 	for i := 16; i < len(key); {
@@ -150,8 +149,8 @@ func (a *AESCommon) generateKey(key []byte) (genKey []byte) {
 
 //--------------------------------------------------------------------------------------------------------------------
 
-// EncryptCFB AES CFB模式加密
-func (a *AESCommon) EncryptCFB(data []byte, key []byte) (encrypted []byte) {
+// AESEncryptCFB AES CFB模式加密
+func AESEncryptCFB(data []byte, key []byte) (encrypted []byte) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		panic(err)
@@ -166,8 +165,8 @@ func (a *AESCommon) EncryptCFB(data []byte, key []byte) (encrypted []byte) {
 	return encrypted
 }
 
-// DecryptCFB AES CFB模式解密
-func (a *AESCommon) DecryptCFB(encrypted []byte, key []byte) (decrypted []byte) {
+// AESDecryptCFB AES CFB模式解密
+func AESDecryptCFB(encrypted []byte, key []byte) (decrypted []byte) {
 	block, _ := aes.NewCipher(key)
 	if len(encrypted) < aes.BlockSize {
 		panic("cipher text too short")
@@ -182,8 +181,8 @@ func (a *AESCommon) DecryptCFB(encrypted []byte, key []byte) (decrypted []byte) 
 
 //--------------------------------------------------------------------------------------------------------------------
 
-// EncryptOFB AES OFB模式加密
-func (a *AESCommon) EncryptOFB(data []byte, key []byte) (encrypted []byte) {
+// AESEncryptOFB AES OFB模式加密
+func AESEncryptOFB(data []byte, key []byte) (encrypted []byte) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		panic(err)
@@ -198,8 +197,8 @@ func (a *AESCommon) EncryptOFB(data []byte, key []byte) (encrypted []byte) {
 	return encrypted
 }
 
-// DecryptOFB AES OFB模式解密
-func (a *AESCommon) DecryptOFB(encrypted []byte, key []byte) (decrypted []byte) {
+// AESDecryptOFB AES OFB模式解密
+func AESDecryptOFB(encrypted []byte, key []byte) (decrypted []byte) {
 	block, _ := aes.NewCipher(key)
 	if len(encrypted) < aes.BlockSize {
 		panic("ciphertext too short")

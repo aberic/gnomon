@@ -21,26 +21,26 @@
 
 ### 使用工具
 ```go
-gnomon.Byte(). … // 字节
-gnomon.Command(). … // 命令行
-gnomon.Env(). … // 环境变量
-gnomon.File(). … // 文件操作
-gnomon.IP(). … // IP
-gnomon.JWT(). … // JWT
-gnomon.String(). … // 字符串
-gnomon.CryptoHash(). … // Hash/散列
-gnomon.CryptoRSA(). … // RSA
-gnomon.CryptoECC(). … // ECC
-gnomon.CryptoAES(). … // AES
-gnomon.CryptoDES(). … // DES
-gnomon.CA(). … // CA
-gnomon.Log(). … // 日志
-gnomon.Scale(). … // 算数/转换
-gnomon.Time(). … // 时间
-gnomon.Pool(). … // conn池
-gnomon.GRPC(). … // grpc请求
-gnomon.HTTPClient(). … // http请求
-gnomon.SQL(). … // 数据库
+gnomon.Byte… // 字节
+gnomon.Command… // 命令行
+gnomon.Env… // 环境变量
+gnomon.File… // 文件操作
+gnomon.IP… // IP
+gnomon.JWT… // JWT
+gnomon.String… // 字符串
+gnomon.Hash… // Hash/散列
+gnomon.RSA… // RSA
+gnomon.ECC… // ECC
+gnomon.AES… // AES
+gnomon.DES… // DES
+gnomon.CA… // CA
+gnomon.Scale… // 算数/转换
+gnomon.Time… // 时间
+gnomon.Pool… // conn池
+gnomon.GRPC… // grpc请求
+gnomon.HTTPClient… // http请求
+db.MySQL… // 数据库
+log.Debug… // 日志
 ```
 
 ### 使用HTTP Server

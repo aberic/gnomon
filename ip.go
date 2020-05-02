@@ -20,11 +20,8 @@ import (
 	"net/http"
 )
 
-// IPCommon ip工具
-type IPCommon struct{}
-
-// Get 返回客户端 IP
-func (i *IPCommon) Get(req *http.Request) string {
+// IPGet 返回客户端 IP
+func IPGet(req *http.Request) string {
 	remoteAddr := req.RemoteAddr
 	if ip := req.Header.Get("X-Real-IP"); ip != "" {
 		remoteAddr = ip

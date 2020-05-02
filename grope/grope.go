@@ -18,7 +18,7 @@ import (
 	"crypto/rand"
 	"crypto/tls"
 	"crypto/x509"
-	"github.com/aberic/gnomon/grope/log"
+	"github.com/aberic/gnomon/log"
 	"io/ioutil"
 	"net/http"
 	"time"

@@ -24,10 +24,7 @@ import (
 	"strings"
 )
 
-// CommandCommon 命令行工具
-type CommandCommon struct{}
-
-// ExecCommand 执行cmd命令
+// CommandExec 执行cmd命令
 //
 // commandName 命令执行文件名
 //
@@ -38,7 +35,7 @@ type CommandCommon struct{}
 // cmd cmd对象
 //
 // contentArray 执行命令后输出内容按行放入字符串数组
-func (c *CommandCommon) ExecCommand(commandName string, params ...string) (line int, cmd *exec.Cmd, contentArray []string, err error) {
+func CommandExec(commandName string, params ...string) (line int, cmd *exec.Cmd, contentArray []string, err error) {
 	var (
 		stdout   io.ReadCloser
 		stderr   io.ReadCloser
@@ -46,7 +43,7 @@ func (c *CommandCommon) ExecCommand(commandName string, params ...string) (line 
 	)
 	cmd = exec.Command(commandName, params...)
 	//显示运行的命令
-	Log().Debug("ExecCommand", Log().Field("cmd", strings.Join([]string{commandName, strings.Join(cmd.Args[1:], " ")}, " ")))
+	fmt.Println("ExecCommand", strings.Join([]string{commandName, strings.Join(cmd.Args[1:], " ")}, " "))
 	if stdout, err = cmd.StdoutPipe(); err != nil {
 		goto ERR
 	} else {
@@ -89,11 +86,10 @@ func (c *CommandCommon) ExecCommand(commandName string, params ...string) (line 
 		return line, cmd, contentArray, nil
 	}
 ERR:
-	Log().Error("ExecCommand", Log().Err(err))
 	return 0, nil, nil, err
 }
 
-// ExecCommandSilent 执行cmd命令
+// CommandExecSilent 执行cmd命令
 //
 // commandName 命令执行文件名
 //
@@ -104,7 +100,7 @@ ERR:
 // cmd cmd对象
 //
 // contentArray 执行命令后输出内容按行放入字符串数组
-func (c *CommandCommon) ExecCommandSilent(commandName string, params ...string) (line int, cmd *exec.Cmd, contentArray []string, err error) {
+func CommandExecSilent(commandName string, params ...string) (line int, cmd *exec.Cmd, contentArray []string, err error) {
 	var (
 		stdout   io.ReadCloser
 		stderr   io.ReadCloser
@@ -112,7 +108,7 @@ func (c *CommandCommon) ExecCommandSilent(commandName string, params ...string) 
 	)
 	cmd = exec.Command(commandName, params...)
 	//显示运行的命令
-	Log().Debug("ExecCommand", Log().Field("cmd", strings.Join([]string{commandName, strings.Join(cmd.Args[1:], " ")}, " ")))
+	fmt.Println("ExecCommand", strings.Join([]string{commandName, strings.Join(cmd.Args[1:], " ")}, " "))
 	if stdout, err = cmd.StdoutPipe(); err != nil {
 		goto ERR
 	} else {
@@ -150,11 +146,10 @@ func (c *CommandCommon) ExecCommandSilent(commandName string, params ...string) 
 		return line, cmd, contentArray, nil
 	}
 ERR:
-	Log().Error("ExecCommand", Log().Err(err))
 	return 0, nil, nil, err
 }
 
-// ExecCommandTail 实时打印执行脚本过程中的命令
+// CommandExecTail 实时打印执行脚本过程中的命令
 //
 // 命令后续参数以字符串数组的方式传入
 //
@@ -163,7 +158,7 @@ ERR:
 // cmd cmd对象
 //
 // contentArray 执行命令后输出内容按行放入字符串数组
-func (c *CommandCommon) ExecCommandTail(commandName string, params ...string) (line int, cmd *exec.Cmd, contentArray []string, err error) {
+func CommandExecTail(commandName string, params ...string) (line int, cmd *exec.Cmd, contentArray []string, err error) {
 	var (
 		stdout   io.ReadCloser
 		stderr   io.ReadCloser
@@ -171,7 +166,7 @@ func (c *CommandCommon) ExecCommandTail(commandName string, params ...string) (l
 	)
 	cmd = exec.Command(commandName, params...)
 	//显示运行的命令
-	Log().Debug("ExecCommandTail", Log().Field("cmd", strings.Join([]string{commandName, strings.Join(cmd.Args[1:], " ")}, " ")))
+	fmt.Println("ExecCommand", strings.Join([]string{commandName, strings.Join(cmd.Args[1:], " ")}, " "))
 	if stdout, err = cmd.StdoutPipe(); err != nil {
 		goto ERR
 	} else {
@@ -209,7 +204,6 @@ func (c *CommandCommon) ExecCommandTail(commandName string, params ...string) (l
 		return line, cmd, contentArray, nil
 	}
 ERR:
-	Log().Error("ExecCommand", Log().Err(err))
 	return 0, nil, nil, err
 }
 
@@ -220,14 +214,14 @@ type CommandAsync struct {
 	Err     error
 }
 
-// ExecCommandAsync 异步执行cmd命令
+// CommandExecAsync 异步执行cmd命令
 //
 // commandAsync CommandAsync通道对象
 //
 // commandName 命令执行文件名
 //
 // 命令后续参数以字符串数组的方式传入
-func (c *CommandCommon) ExecCommandAsync(commandAsync chan *CommandAsync, commandName string, params ...string) {
+func CommandExecAsync(commandAsync chan *CommandAsync, commandName string, params ...string) {
 	var (
 		stdout   io.ReadCloser
 		stderr   io.ReadCloser
@@ -239,7 +233,7 @@ func (c *CommandCommon) ExecCommandAsync(commandAsync chan *CommandAsync, comman
 	ca.Command = cmd
 	commandAsync <- ca
 	//显示运行的命令
-	Log().Debug("ExecCommandAsync", Log().Field("cmd", strings.Join([]string{commandName, strings.Join(cmd.Args[1:], " ")}, " ")))
+	fmt.Println("ExecCommand", strings.Join([]string{commandName, strings.Join(cmd.Args[1:], " ")}, " "))
 	if stdout, err = cmd.StdoutPipe(); err != nil {
 		goto ERR
 	} else {
@@ -278,7 +272,6 @@ func (c *CommandCommon) ExecCommandAsync(commandAsync chan *CommandAsync, comman
 		}
 	}
 ERR:
-	Log().Error("ExecCommandAsync", Log().Err(err))
 	ca.Err = err
 	commandAsync <- ca
 }

@@ -20,22 +20,19 @@ import (
 	"crypto/des"
 )
 
-// DESCommon DES工具
-type DESCommon struct{}
-
 //--------------------------------------------------------------------------------------------------------------------
 
-// EncryptCBC CBC加密
+// DESEncryptCBC CBC加密
 //
 // data 待加密数据
 //
 // key 自定义密钥，如：'[]byte("12345678")'，长度必须是8位
-func (d *DESCommon) EncryptCBC(data, key []byte) []byte {
+func DESEncryptCBC(data, key []byte) []byte {
 	block, err := des.NewCipher(key)
 	if err != nil {
 		panic(err)
 	}
-	data = d.pkcs5Padding(data, block.BlockSize())
+	data = desPkcs5Padding(data, block.BlockSize())
 	//获取CBC加密模式
 	iv := key //用密钥作为向量(不建议这样使用)
 	mode := cipher.NewCBCEncrypter(block, iv)
@@ -44,12 +41,12 @@ func (d *DESCommon) EncryptCBC(data, key []byte) []byte {
 	return out
 }
 
-// DecryptCBC CBC解密
+// DESDecryptCBC CBC解密
 //
 // data 待加密数据
 //
 // key 自定义密钥，如：'[]byte("12345678")'，长度必须是8位
-func (d *DESCommon) DecryptCBC(data, key []byte) []byte {
+func DESDecryptCBC(data, key []byte) []byte {
 	block, err := des.NewCipher(key)
 	if err != nil {
 		panic(err)
@@ -58,25 +55,25 @@ func (d *DESCommon) DecryptCBC(data, key []byte) []byte {
 	mode := cipher.NewCBCDecrypter(block, iv)
 	plaintext := make([]byte, len(data))
 	mode.CryptBlocks(plaintext, data)
-	plaintext = d.pkcs5UnPadding(plaintext)
+	plaintext = desPkcs5UnPadding(plaintext)
 	return plaintext
 }
 
 //--------------------------------------------------------------------------------------------------------------------
 
-// EncryptECB ECB加密
+// DESEncryptECB ECB加密
 //
 // data 待加密数据
 //
 // key 自定义密钥，如：'[]byte("12345678")'，长度必须是8位
-func (d *DESCommon) EncryptECB(data, key []byte) []byte {
+func DESEncryptECB(data, key []byte) []byte {
 	block, err := des.NewCipher(key)
 	if err != nil {
 		panic(err)
 	}
 	bs := block.BlockSize()
 	//对明文数据进行补码
-	data = d.pkcs5Padding(data, bs)
+	data = desPkcs5Padding(data, bs)
 	if len(data)%bs != 0 {
 		panic("Need a multiple of the block size")
 	}
@@ -92,12 +89,12 @@ func (d *DESCommon) EncryptECB(data, key []byte) []byte {
 	return out
 }
 
-// DecryptECB ECB解密
+// DESDecryptECB ECB解密
 //
 // data 待加密数据
 //
 // key 自定义密钥，如：'[]byte("12345678")'，长度必须是8位
-func (d *DESCommon) DecryptECB(data, key []byte) []byte {
+func DESDecryptECB(data, key []byte) []byte {
 	block, err := des.NewCipher(key)
 	if err != nil {
 		panic(err)
@@ -113,21 +110,21 @@ func (d *DESCommon) DecryptECB(data, key []byte) []byte {
 		data = data[bs:]
 		dst = dst[bs:]
 	}
-	out = d.pkcs5UnPadding(out)
+	out = desPkcs5UnPadding(out)
 	return out
 }
 
 //--------------------------------------------------------------------------------------------------------------------
 
-// pkcs5Padding 明文补码算法
-func (d *DESCommon) pkcs5Padding(ciphertext []byte, blockSize int) []byte {
+// desPkcs5Padding 明文补码算法
+func desPkcs5Padding(ciphertext []byte, blockSize int) []byte {
 	padding := blockSize - len(ciphertext)%blockSize
 	padText := bytes.Repeat([]byte{byte(padding)}, padding)
 	return append(ciphertext, padText...)
 }
 
-// pkcs5UnPadding 明文减码算法
-func (d *DESCommon) pkcs5UnPadding(origData []byte) []byte {
+// desPkcs5UnPadding 明文减码算法
+func desPkcs5UnPadding(origData []byte) []byte {
 	length := len(origData)
 	unPadding := int(origData[length-1])
 	return origData[:(length - unPadding)]

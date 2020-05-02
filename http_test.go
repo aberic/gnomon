@@ -26,7 +26,7 @@ type TestOne struct {
 }
 
 func TestHttpClientCommon_Get(t *testing.T) {
-	if resp, err := HTTPClient().Get("http://localhost:8888/two/test2/0/hello/word"); nil != err {
+	if resp, err := HTTPGet("http://localhost:8888/two/test2/0/hello/word"); nil != err {
 		t.Skip(err)
 	} else {
 		defer func() { _ = resp.Body.Close() }()
@@ -39,7 +39,7 @@ func TestHttpClientCommon_Get(t *testing.T) {
 }
 
 func TestHttpClientCommon_GetTLS(t *testing.T) {
-	if resp, err := HTTPClient().GetTLS("https://localhost:8888/two/test2/0/hello/word", &HTTPTLSConfig{
+	if resp, err := HTTPGetTLS("https://localhost:8888/two/test2/0/hello/word", &HTTPTLSConfig{
 		CACrtFilePath:      "./example/ca/server/rootCA.crt",
 		CertFilePath:       "./example/ca/client/rootCA.crt",
 		KeyFilePath:        "./example/ca/client/rootCA.key",
@@ -57,7 +57,7 @@ func TestHttpClientCommon_GetTLS(t *testing.T) {
 }
 
 func TestHttpClientCommon_Post(t *testing.T) {
-	if resp, err := HTTPClient().PostJSON("http://localhost:8888/one/test1", &TestOne{
+	if resp, err := HTTPPostJSON("http://localhost:8888/one/test1", &TestOne{
 		One:   "1",
 		Ones:  true,
 		OneGo: 1,
@@ -74,7 +74,7 @@ func TestHttpClientCommon_Post(t *testing.T) {
 }
 
 func TestHttpClientCommon_PostTLS(t *testing.T) {
-	if resp, err := HTTPClient().PostJSONTLS("https://localhost:8888/one/test1", &TestOne{
+	if resp, err := HTTPPostJSONTLS("https://localhost:8888/one/test1", &TestOne{
 		One:   "1",
 		Ones:  true,
 		OneGo: 1,
@@ -99,7 +99,7 @@ func TestHttpClientCommon_PostForm(t *testing.T) {
 	paramMap := map[string]string{}
 	paramMap["xxx"] = "111"
 	paramMap["yyy"] = "222"
-	if resp, err := HTTPClient().PostForm("http://localhost:8888/one/test3/x/y", paramMap, nil); nil != err {
+	if resp, err := HTTPPostForm("http://localhost:8888/one/test3/x/y", paramMap, nil); nil != err {
 		t.Skip(err)
 	} else {
 		defer func() { _ = resp.Body.Close() }()
@@ -118,7 +118,7 @@ func TestHttpClientCommon_PostForm1(t *testing.T) {
 	fileMap := map[string]string{}
 	fileMap["wk"] = "/Users/aberic/Downloads/plantuml4idea.zip"
 	fileMap["kw"] = "/Users/aberic/Documents/1400115281_report_pb.dump"
-	if resp, err := HTTPClient().PostForm("http://localhost:8888/one/test5/a/b", paramMap, fileMap); nil != err {
+	if resp, err := HTTPPostForm("http://localhost:8888/one/test5/a/b", paramMap, fileMap); nil != err {
 		t.Skip(err)
 	} else {
 		defer func() { _ = resp.Body.Close() }()

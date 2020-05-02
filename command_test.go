@@ -16,43 +16,43 @@ package gnomon
 
 import "testing"
 
-func TestCommandCommon_ExecCommand(t *testing.T) {
-	if line, cmd, strArr, err := Command().ExecCommand("ls", "-l"); err != nil {
+func TestCommandCommon_Exec(t *testing.T) {
+	if line, cmd, strArr, err := CommandExec("ls", "-l"); err != nil {
 		t.Skip(err)
 	} else {
 		t.Log("line =", line, ", strArr =", strArr, ", pid =", cmd.Process.Pid)
 	}
 
-	_, _, _, err := Command().ExecCommand("lss", "-l")
+	_, _, _, err := CommandExec("lss", "-l")
 	t.Skip(err)
 }
 
-func TestCommandCommon_ExecCommandSilent(t *testing.T) {
-	if line, cmd, strArr, err := Command().ExecCommandSilent("ls", "-l"); err != nil {
+func TestCommandCommon_ExecSilent(t *testing.T) {
+	if line, cmd, strArr, err := CommandExecSilent("ls", "-l"); err != nil {
 		t.Skip(err)
 	} else {
 		t.Log("line =", line, ", strArr =", strArr, ", pid =", cmd.Process.Pid)
 	}
 
-	_, _, _, err := Command().ExecCommandSilent("lss", "-l")
+	_, _, _, err := CommandExecSilent("lss", "-l")
 	t.Skip(err)
 }
 
-func TestCommandCommon_ExecCommandTail(t *testing.T) {
-	if line, cmd, strArr, err := Command().ExecCommandTail("ls", "-l"); err != nil {
+func TestCommandCommon_ExecTail(t *testing.T) {
+	if line, cmd, strArr, err := CommandExecTail("ls", "-l"); err != nil {
 		t.Skip(err)
 	} else {
 		t.Log("line =", line, ", strArr =", strArr, ", pid =", cmd.Process.Pid)
 	}
 
-	_, _, _, err := Command().ExecCommandTail("lss", "-l")
+	_, _, _, err := CommandExecTail("lss", "-l")
 	t.Skip(err)
 }
 
-func TestCommandCommon_ExecCommandAsync(t *testing.T) {
+func TestCommandCommon_ExecAsync(t *testing.T) {
 	commandAsync := make(chan *CommandAsync, 1)
 	var keep bool
-	go Command().ExecCommandAsync(commandAsync, "ls", "-l")
+	go CommandExecAsync(commandAsync, "ls", "-l")
 	keep = true
 	for {
 		ca := <-commandAsync
@@ -70,7 +70,7 @@ func TestCommandCommon_ExecCommandAsync(t *testing.T) {
 		}
 	}
 
-	go Command().ExecCommandAsync(commandAsync, "lls", "-l")
+	go CommandExecAsync(commandAsync, "lls", "-l")
 	keep = true
 	for {
 		ca := <-commandAsync

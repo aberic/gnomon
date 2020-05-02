@@ -26,16 +26,16 @@ func TestCryptoDES(t *testing.T) {
 	t.Log("原文：", string(data))
 
 	t.Log("------------------ CBC模式 --------------------")
-	encrypted := CryptoDES().EncryptCBC(data, key)
+	encrypted := DESEncryptCBC(data, key)
 	t.Log("密文(hex)：", hex.EncodeToString(encrypted))
 	t.Log("密文(base64)：", base64.StdEncoding.EncodeToString(encrypted))
-	decrypted := CryptoDES().DecryptCBC(encrypted, key)
+	decrypted := DESDecryptCBC(encrypted, key)
 	t.Log("解密结果：", string(decrypted))
 
 	t.Log("------------------ ECB模式 --------------------")
-	encrypted = CryptoDES().EncryptECB(data, key)
+	encrypted = DESEncryptECB(data, key)
 	t.Log("密文(hex)：", hex.EncodeToString(encrypted))
 	t.Log("密文(base64)：", base64.StdEncoding.EncodeToString(encrypted))
-	decrypted = CryptoDES().DecryptECB(encrypted, key)
+	decrypted = DESDecryptECB(encrypted, key)
 	t.Log("解密结果：", string(decrypted))
 }

@@ -21,84 +21,84 @@ import (
 
 func TestEnvCommon_Get(t *testing.T) {
 	_ = os.Setenv("HELLO", "hello")
-	t.Log("HELLO =", Env().Get("HELLO"))
+	t.Log("HELLO =", EnvGet("HELLO"))
 }
 
 func TestEnvCommon_GetD(t *testing.T) {
 	_ = os.Setenv("HELLO", "hello")
-	t.Log("HELLO =", Env().GetD("HELLO", "WORLD"))
-	t.Log("WORLD =", Env().GetD("WORLD", "HELLO"))
+	t.Log("HELLO =", EnvGetD("HELLO", "WORLD"))
+	t.Log("WORLD =", EnvGetD("WORLD", "HELLO"))
 }
 
 func TestEnvCommon_GetInt(t *testing.T) {
 	_ = os.Setenv("HELLO", "100")
-	i, _ := Env().GetInt("HELLO")
+	i, _ := EnvGetInt("HELLO")
 	t.Log("HELLO =", i)
 	_ = os.Setenv("HELLO", "WORLD")
-	_, err := Env().GetInt("HELLO")
+	_, err := EnvGetInt("HELLO")
 	t.Skip(err)
 }
 
 func TestEnvCommon_GetIntD(t *testing.T) {
 	_ = os.Setenv("HELLO", "100")
-	t.Log("HELLO =", Env().GetIntD("HELLO", 10))
+	t.Log("HELLO =", EnvGetIntD("HELLO", 10))
 	_ = os.Setenv("HELLO", "WORLD")
-	t.Log("HELLO =", Env().GetIntD("HELLO", 10))
+	t.Log("HELLO =", EnvGetIntD("HELLO", 10))
 }
 
 func TestEnvCommon_GetInt64(t *testing.T) {
 	_ = os.Setenv("HELLO", "100")
-	i, _ := Env().GetInt64("HELLO")
+	i, _ := EnvGetInt64("HELLO")
 	t.Log("HELLO =", i)
 	_ = os.Setenv("HELLO", "WORLD")
-	_, err := Env().GetInt64("HELLO")
+	_, err := EnvGetInt64("HELLO")
 	t.Skip(err)
 }
 
 func TestEnvCommon_GetInt64D(t *testing.T) {
 	_ = os.Setenv("HELLO", "100")
-	t.Log("HELLO =", Env().GetInt64D("HELLO", 10))
+	t.Log("HELLO =", EnvGetInt64D("HELLO", 10))
 	_ = os.Setenv("HELLO", "WORLD")
-	t.Log("HELLO =", Env().GetInt64D("HELLO", 10))
+	t.Log("HELLO =", EnvGetInt64D("HELLO", 10))
 }
 
 func TestEnvCommon_GetUint64(t *testing.T) {
 	_ = os.Setenv("HELLO", "100")
-	i, _ := Env().GetUint64("HELLO")
+	i, _ := EnvGetUint64("HELLO")
 	t.Log("HELLO =", i)
 	_ = os.Setenv("HELLO", "WORLD")
-	_, err := Env().GetUint64("HELLO")
+	_, err := EnvGetUint64("HELLO")
 	t.Skip(err)
 }
 
 func TestEnvCommon_GetUint64D(t *testing.T) {
 	_ = os.Setenv("HELLO", "100")
-	t.Log("HELLO =", Env().GetUint64D("HELLO", 10))
+	t.Log("HELLO =", EnvGetUint64D("HELLO", 10))
 	_ = os.Setenv("HELLO", "WORLD")
-	t.Log("HELLO =", Env().GetUint64D("HELLO", 10))
+	t.Log("HELLO =", EnvGetUint64D("HELLO", 10))
 }
 
 func TestEnvCommon_GetFloat64(t *testing.T) {
 	_ = os.Setenv("HELLO", "100.3254")
-	i, _ := Env().GetFloat64("HELLO")
+	i, _ := EnvGetFloat64("HELLO")
 	t.Log("HELLO =", i)
 	_ = os.Setenv("HELLO", "WORLD")
-	_, err := Env().GetFloat64("HELLO")
+	_, err := EnvGetFloat64("HELLO")
 	t.Skip(err)
 }
 
 func TestEnvCommon_GetFloat64D(t *testing.T) {
 	_ = os.Setenv("HELLO", "100.3254")
-	t.Log("HELLO =", Env().GetFloat64D("HELLO", 100.3254))
+	t.Log("HELLO =", EnvGetFloat64D("HELLO", 100.3254))
 	_ = os.Setenv("HELLO", "WORLD")
-	t.Log("HELLO =", Env().GetFloat64D("HELLO", 100.32541))
+	t.Log("HELLO =", EnvGetFloat64D("HELLO", 100.32541))
 }
 
 func TestEnvCommon_GetBool(t *testing.T) {
 	_ = os.Setenv("HELLO", "true")
-	t.Log("HELLO =", Env().GetBool("HELLO"))
+	t.Log("HELLO =", EnvGetBool("HELLO"))
 	_ = os.Setenv("HELLO", "false")
-	t.Log("HELLO =", Env().GetBool("HELLO"))
+	t.Log("HELLO =", EnvGetBool("HELLO"))
 	_ = os.Setenv("HELLO", "WORLD")
-	t.Log("HELLO =", Env().GetBool("HELLO"))
+	t.Log("HELLO =", EnvGetBool("HELLO"))
 }

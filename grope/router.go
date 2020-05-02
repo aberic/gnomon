@@ -41,7 +41,7 @@ type GHttpRouter struct {
 }
 
 func (ghr *GHttpRouter) repo(method, pattern string, extend *Extend, handler Handler, filters ...Filter) {
-	ghr.nodal.add(gnomon.String().StringBuilder(ghr.pattern, pattern), method, extend, handler, filters...)
+	ghr.nodal.add(gnomon.StringBuild(ghr.pattern, pattern), method, extend, handler, filters...)
 }
 
 // execURL 特殊处理Url

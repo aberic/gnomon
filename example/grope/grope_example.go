@@ -16,9 +16,9 @@ package main
 
 import (
 	"github.com/aberic/gnomon"
-	"github.com/aberic/gnomon/example/log"
 	"github.com/aberic/gnomon/grope"
 	"github.com/aberic/gnomon/grope/tune"
+	"github.com/aberic/gnomon/log"
 	"net/http"
 )
 
@@ -131,7 +131,7 @@ func one4(ctx *grope.Context) {
 		log.Field("url", ctx.Request().URL.String()),
 		log.Field("a", ctx.Values()["a"]), log.Field("b", ctx.Values()["b"]))
 	file := ones["file1"].(*tune.FormFile)
-	gnomon.File().Append("tmp/httpFileTest/"+file.FileName, file.Data, true)
+	gnomon.FileAppend("tmp/httpFileTest/"+file.FileName, file.Data, true)
 	log.Info("one1", log.Field("resp", ctx.ResponseJSON(http.StatusOK, &TestTwo{
 		Two:   "2",
 		Twos:  false,
@@ -147,8 +147,8 @@ func one5(ctx *grope.Context) {
 
 	file1 := ones["wk"].(*tune.FormFile)
 	file2 := ones["kw"].(*tune.FormFile)
-	gnomon.File().Append("tmp/httpFileTest/"+file1.FileName, file1.Data, true)
-	gnomon.File().Append("tmp/httpFileTest/"+file2.FileName, file2.Data, true)
+	gnomon.FileAppend("tmp/httpFileTest/"+file1.FileName, file1.Data, true)
+	gnomon.FileAppend("tmp/httpFileTest/"+file2.FileName, file2.Data, true)
 	log.Info("one1", log.Field("resp", ctx.ResponseJSON(http.StatusOK, &TestTwo{
 		Two:   "2",
 		Twos:  false,

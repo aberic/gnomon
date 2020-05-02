@@ -37,121 +37,118 @@ const (
 	certificateType        = "CERTIFICATE"
 )
 
-// CACommon CA工具
-type CACommon struct{}
-
-// GenerateRSACertificateRequest 生成证书签名请求文件
+// CAGenerateRSACertificateRequest 生成证书签名请求文件
 //
 // cert 证书生成请求对象
 //
-// pks 私钥格式，默认提供PKCS1和PKCS8，通过调用‘CryptoRSA().PKSC1()’和‘CryptoRSA().PKSC8()’方法赋值
-func (ca *CACommon) GenerateRSACertificateRequest(cert *CertRequest, pks PKSCType) (csr []byte, err error) {
-	priRSAKey, err := CryptoRSA().LoadPri(cert.PrivateKeyData, pks)
+// pks 私钥格式，默认提供PKCS1和PKCS8，通过调用‘RSAPKSC1()’和‘RSAPKSC8()’方法赋值
+func CAGenerateRSACertificateRequest(cert *CertRequest, pks PKSCType) (csr []byte, err error) {
+	priRSAKey, err := RSALoadPri(cert.PrivateKeyData, pks)
 	if err != nil {
 		return nil, err
 	}
 	certModel := cert.init()
 	certModel.PrivateKey = priRSAKey
-	return ca.GenerateCertificateRequest(certModel)
+	return CAGenerateCertificateRequest(certModel)
 }
 
-// GenerateRSACertificateRequestWithPass 生成证书签名请求文件
+// CAGenerateRSACertificateRequestWithPass 生成证书签名请求文件
 //
 // cert 证书生成请求对象
 //
 // password 生成时输入的密码
 //
-// pks 私钥格式，默认提供PKCS1和PKCS8，通过调用‘CryptoRSA().PKSC1()’和‘CryptoRSA().PKSC8()’方法赋值
-func (ca *CACommon) GenerateRSACertificateRequestWithPass(cert *CertRequest, password string, pks PKSCType) (csr []byte, err error) {
-	priRSAKey, err := CryptoRSA().LoadPriWithPass(cert.PrivateKeyData, password, pks)
+// pks 私钥格式，默认提供PKCS1和PKCS8，通过调用‘RSAPKSC1()’和‘RSAPKSC8()’方法赋值
+func CAGenerateRSACertificateRequestWithPass(cert *CertRequest, password string, pks PKSCType) (csr []byte, err error) {
+	priRSAKey, err := RSALoadPriWithPass(cert.PrivateKeyData, password, pks)
 	if err != nil {
 		return nil, err
 	}
 	certModel := cert.init()
 	certModel.PrivateKey = priRSAKey
-	return ca.GenerateCertificateRequest(certModel)
+	return CAGenerateCertificateRequest(certModel)
 }
 
-// GenerateRSACertificateRequestFP 生成证书签名请求文件
+// CAGenerateRSACertificateRequestFP 生成证书签名请求文件
 //
 // cert 证书生成请求对象
 //
-// pks 私钥格式，默认提供PKCS1和PKCS8，通过调用‘CryptoRSA().PKSC1()’和‘CryptoRSA().PKSC8()’方法赋值
-func (ca *CACommon) GenerateRSACertificateRequestFP(cert *CertRequestFP, pks PKSCType) (csr []byte, err error) {
-	priRSAKey, err := CryptoRSA().LoadPriFP(cert.PrivateKeyFilePath, pks)
+// pks 私钥格式，默认提供PKCS1和PKCS8，通过调用‘RSAPKSC1()’和‘RSAPKSC8()’方法赋值
+func CAGenerateRSACertificateRequestFP(cert *CertRequestFP, pks PKSCType) (csr []byte, err error) {
+	priRSAKey, err := RSALoadPriFP(cert.PrivateKeyFilePath, pks)
 	if err != nil {
 		return nil, err
 	}
 	certModel := cert.init()
 	certModel.PrivateKey = priRSAKey
-	return ca.GenerateCertificateRequest(certModel)
+	return CAGenerateCertificateRequest(certModel)
 }
 
-// GenerateRSACertificateRequestFPWithPass 生成证书签名请求文件
+// CAGenerateRSACertificateRequestFPWithPass 生成证书签名请求文件
 //
 // cert 证书生成请求对象
 //
 // password 生成时输入的密码
 //
-// pks 私钥格式，默认提供PKCS1和PKCS8，通过调用‘CryptoRSA().PKSC1()’和‘CryptoRSA().PKSC8()’方法赋值
-func (ca *CACommon) GenerateRSACertificateRequestFPWithPass(cert *CertRequestFP, password string, pks PKSCType) (csr []byte, err error) {
-	priRSAKey, err := CryptoRSA().LoadPriFPWithPass(cert.PrivateKeyFilePath, password, pks)
+// pks 私钥格式，默认提供PKCS1和PKCS8，通过调用‘RSAPKSC1()’和‘RSAPKSC8()’方法赋值
+func CAGenerateRSACertificateRequestFPWithPass(cert *CertRequestFP, password string, pks PKSCType) (csr []byte, err error) {
+	priRSAKey, err := RSALoadPriFPWithPass(cert.PrivateKeyFilePath, password, pks)
 	if err != nil {
 		return nil, err
 	}
 	certModel := cert.init()
 	certModel.PrivateKey = priRSAKey
-	return ca.GenerateCertificateRequest(certModel)
+	return CAGenerateCertificateRequest(certModel)
 }
 
-// GenerateECCCertificateRequest 生成证书签名请求文件
+// CAGenerateECCCertificateRequest 生成证书签名请求文件
 //
 // cert 证书生成请求对象
-func (ca *CACommon) GenerateECCCertificateRequest(cert *CertRequest) (csr []byte, err error) {
-	return ca.GenerateECCCertificateRequestWithPass(cert, "")
+func CAGenerateECCCertificateRequest(cert *CertRequest) (csr []byte, err error) {
+	return CAGenerateECCCertificateRequestWithPass(cert, "")
 }
 
-// GenerateECCCertificateRequestWithPass 生成证书签名请求文件
+// CAGenerateECCCertificateRequestWithPass 生成证书签名请求文件
 //
 // cert 证书生成请求对象
 //
 // password 生成时输入的密码
-func (ca *CACommon) GenerateECCCertificateRequestWithPass(cert *CertRequest, password string) (csr []byte, err error) {
-	priECCKey, err := CryptoECC().LoadPriPemWithPass(cert.PrivateKeyData, password)
+func CAGenerateECCCertificateRequestWithPass(cert *CertRequest, password string) (csr []byte, err error) {
+	priECCKey, err := ECCLoadPriPemWithPass(cert.PrivateKeyData, password)
 	if err != nil {
 		return nil, err
 	}
 	certModel := cert.init()
 	certModel.PrivateKey = priECCKey
-	return ca.GenerateCertificateRequest(certModel)
+	return CAGenerateCertificateRequest(certModel)
 }
 
-// GenerateECCCertificateRequestFP 生成证书签名请求文件
+// CAGenerateECCCertificateRequestFP 生成证书签名请求文件
 //
 // cert 证书生成请求对象
-func (ca *CACommon) GenerateECCCertificateRequestFP(cert *CertRequestFP) (csr []byte, err error) {
-	return ca.GenerateECCCertificateRequestFPWithPass(cert, "")
+func CAGenerateECCCertificateRequestFP(cert *CertRequestFP) (csr []byte, err error) {
+	return CAGenerateECCCertificateRequestFPWithPass(cert, "")
 }
 
-// GenerateECCCertificateRequestFPWithPass 生成证书签名请求文件
+// CAGenerateECCCertificateRequestFPWithPass 生成证书签名请求文件
 //
 // cert 证书生成请求对象
 //
 // password 生成时输入的密码
-func (ca *CACommon) GenerateECCCertificateRequestFPWithPass(cert *CertRequestFP, password string) (csr []byte, err error) {
-	priECCKey, err := CryptoECC().LoadPriPemFPWithPass(cert.PrivateKeyFilePath, password)
+func CAGenerateECCCertificateRequestFPWithPass(cert *CertRequestFP, password string) (csr []byte, err error) {
+	priECCKey, err := ECCLoadPriPemFPWithPass(cert.PrivateKeyFilePath, password)
 	if err != nil {
 		return nil, err
 	}
 	certModel := cert.init()
 	certModel.PrivateKey = priECCKey
-	return ca.GenerateCertificateRequest(certModel)
+	return CAGenerateCertificateRequest(certModel)
 }
 
-// GenerateCertificateRequest 生成证书签名请求文件
+// CAGenerateCertificateRequest 生成证书签名请求文件
 //
 // cert 证书生成请求对象
-func (ca *CACommon) GenerateCertificateRequest(cert *CertRequestModel) (csr []byte, err error) {
+func CAGenerateCertificateRequest(cert *CertRequestModel) (csr []byte, err error) {
 	csrData, err := x509.CreateCertificateRequest(rand.Reader, cert.Template, cert.PrivateKey)
 	if nil != err {
 		return nil, err
@@ -167,8 +164,8 @@ func (ca *CACommon) GenerateCertificateRequest(cert *CertRequestModel) (csr []by
 	return csrData, nil
 }
 
-// LoadCsrPemFromFP 从文件中读取csr信息
-func (ca *CACommon) LoadCsrPemFromFP(csrFilePath string) (cert *x509.CertificateRequest, err error) {
+// CALoadCsrPemFromFP 从文件中读取csr信息
+func CALoadCsrPemFromFP(csrFilePath string) (cert *x509.CertificateRequest, err error) {
 	data, err := ioutil.ReadFile(csrFilePath)
 	if nil != err {
 		return nil, err
@@ -177,10 +174,10 @@ func (ca *CACommon) LoadCsrPemFromFP(csrFilePath string) (cert *x509.Certificate
 	return x509.ParseCertificateRequest(csrData.Bytes)
 }
 
-// GenerateCertificateSelf 对签名请求进行处理并生成自签名数字证书
+// CAGenerateCertificateSelf 对签名请求进行处理并生成自签名数字证书
 //
 // cert 签名数字证书对象
-func (ca *CACommon) GenerateCertificateSelf(cert *CertSelf) (certData []byte, err error) {
+func CAGenerateCertificateSelf(cert *CertSelf) (certData []byte, err error) {
 	template := &x509.Certificate{
 		SerialNumber:          big.NewInt(rd.Int63()), // 证书序列号
 		Subject:               cert.Subject,
@@ -197,9 +194,9 @@ func (ca *CACommon) GenerateCertificateSelf(cert *CertSelf) (certData []byte, er
 	if err != nil {
 		return nil, err
 	}
-	path := File().ParentPath(cert.CertificateFilePath)
+	path := FileParentPath(cert.CertificateFilePath)
 	// 创建生成目录
-	if !File().PathExists(path) {
+	if !FilePathExists(path) {
 		if err = os.MkdirAll(path, os.ModePerm); nil != err {
 			return nil, err
 		}
@@ -215,10 +212,10 @@ func (ca *CACommon) GenerateCertificateSelf(cert *CertSelf) (certData []byte, er
 	return certData, nil
 }
 
-// GenerateCertificate 对签名请求进行处理并生成签名数字证书
+// CAGenerateCertificate 对签名请求进行处理并生成签名数字证书
 //
 // cert 签名数字证书对象
-func (ca *CACommon) GenerateCertificate(cert *Cert) (certData []byte, err error) {
+func CAGenerateCertificate(cert *Cert) (certData []byte, err error) {
 	template := &x509.Certificate{
 		SerialNumber:          big.NewInt(rd.Int63()), // 证书序列号
 		Subject:               cert.Subject,
@@ -235,9 +232,9 @@ func (ca *CACommon) GenerateCertificate(cert *Cert) (certData []byte, err error)
 	if err != nil {
 		return nil, err
 	}
-	path := File().ParentPath(cert.CertificateFilePath)
+	path := FileParentPath(cert.CertificateFilePath)
 	// 创建生成目录
-	if !File().PathExists(path) {
+	if !FilePathExists(path) {
 		if err = os.MkdirAll(path, os.ModePerm); nil != err {
 			return nil, err
 		}
@@ -253,8 +250,8 @@ func (ca *CACommon) GenerateCertificate(cert *Cert) (certData []byte, err error)
 	return certData, nil
 }
 
-// LoadCrtFromFP 从文件中加载Crt对象
-func (ca *CACommon) LoadCrtFromFP(crtFilePath string) (certificate *x509.Certificate, err error) {
+// CALoadCrtFromFP 从文件中加载Crt对象
+func CALoadCrtFromFP(crtFilePath string) (certificate *x509.Certificate, err error) {
 	data, err := ioutil.ReadFile(crtFilePath)
 	if nil != err {
 		return nil, err

@@ -2,6 +2,7 @@ package db
 
 import (
 	"github.com/aberic/gnomon"
+	"github.com/aberic/gnomon/db"
 )
 
 const (
@@ -13,19 +14,19 @@ const (
 
 var (
 	// sql 数据库操作对象
-	sql *gnomon.SQLCommon
+	sql *db.MySQL
 )
 
 func init() {
-	sql = gnomon.SQL()
+	sql = &db.MySQL{}
 	connect()
 }
 
 func connect() {
-	dbURL := gnomon.Env().GetD(GDBUrl, "127.0.0.1:3306")
-	dbUser := gnomon.Env().GetD(GDBUser, "root")
-	dbPass := gnomon.Env().GetD(GDBPass, "root")
-	dbName := gnomon.Env().GetD(GDBName, "baas")
+	dbURL := gnomon.EnvGetD(GDBUrl, "127.0.0.1:3306")
+	dbUser := gnomon.EnvGetD(GDBUser, "root")
+	dbPass := gnomon.EnvGetD(GDBPass, "root")
+	dbName := gnomon.EnvGetD(GDBName, "baas")
 	if err := sql.Connect(dbURL, dbUser, dbPass, dbName, false, 5, 20); err != nil {
 		connect()
 	}

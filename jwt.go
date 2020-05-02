@@ -18,9 +18,6 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
-// JWTCommon jwt工具
-type JWTCommon struct{}
-
 const (
 	// signingMethodHS256 HS256
 	signingMethodHS256 = iota
@@ -30,7 +27,7 @@ const (
 	signingMethodHS512
 )
 
-// Build 创建一个 jwt token
+// JWTBuild 创建一个 jwt token
 //
 // "sub": "1",  该JWT所面向的用户
 //
@@ -43,7 +40,7 @@ const (
 // "nbf": 1451888119, token在此时间之前不能被接收处理
 //
 // "jti": "37c107e4609ddbcc9c096ea5ee76c667" token提供唯一标识
-func (j *JWTCommon) Build(method int, key interface{}, sub, iss, jti string, iat, nbf, exp int64) (string, error) {
+func JWTBuild(method int, key interface{}, sub, iss, jti string, iat, nbf, exp int64) (string, error) {
 	var jwtMethod jwt.SigningMethod
 	switch method {
 	case signingMethodHS256:
@@ -53,10 +50,10 @@ func (j *JWTCommon) Build(method int, key interface{}, sub, iss, jti string, iat
 	case signingMethodHS512:
 		jwtMethod = jwt.SigningMethodHS512
 	}
-	return j.token(jwtMethod, key, sub, iss, jti, iat, nbf, exp)
+	return token(jwtMethod, key, sub, iss, jti, iat, nbf, exp)
 }
 
-func (j *JWTCommon) token(jwtMethod jwt.SigningMethod, key interface{}, sub, iss, jti string, iat, nbf, exp int64) (tokenString string, err error) {
+func token(jwtMethod jwt.SigningMethod, key interface{}, sub, iss, jti string, iat, nbf, exp int64) (tokenString string, err error) {
 	token := &jwt.Token{
 		Header: map[string]interface{}{
 			"typ": "JWT",
@@ -74,20 +71,13 @@ func (j *JWTCommon) token(jwtMethod jwt.SigningMethod, key interface{}, sub, iss
 	}
 
 	// Sign and get the complete encoded token as a string using the secret
-	tokenString, err = token.SignedString(key)
-
-	Log().Debug("token", Log().Field("token", tokenString), Log().Err(err))
-	return
+	return token.SignedString(key)
 }
 
-// Check 验证传入 token 是否合法
-func (j *JWTCommon) Check(key interface{}, token string) bool {
+// JWTCheck 验证传入 token 是否合法
+func JWTCheck(key interface{}, token string) bool {
 	_, err := jwt.Parse(token, func(*jwt.Token) (interface{}, error) {
 		return key, nil
 	})
-	if err != nil {
-		Log().Warn("parase with claims failed.", Log().Err(err))
-		return false
-	}
-	return true
+	return err == nil
 }

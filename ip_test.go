@@ -26,7 +26,7 @@ const ballotX = " ERROR! "
 
 func mockServer() *httptest.Server {
 	f := func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("ip address", IP().Get(r))
+		fmt.Println("ip address", IPGet(r))
 	}
 	return httptest.NewServer(http.HandlerFunc(f))
 }

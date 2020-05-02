@@ -20,10 +20,13 @@ gen### Go template
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
-/log/
 /profile.coverprofile
 /overalls.coverprofile
 /coverage.txt
 /tmp/
 /grope/profile.coverprofile
 /balance/profile.coverprofile
+/log/tmp/
+/example/log/tmp/
+/example/log/profile.coverprofile
+/log/profile.coverprofile

@@ -105,7 +105,7 @@ func (n *node) addFunc(pattern, method string, patternSplitArr []string, index i
 	index++
 	for _, nd := range n.nextNodes {
 		if nd.patternPiece == patternPiece {
-			if gnomon.String().IsNotEmpty(nd.method) && nd.method != method {
+			if gnomon.StringIsNotEmpty(nd.method) && nd.method != method {
 				break
 			} else {
 				nd.addSplitArr(pattern, method, patternSplitArr, index, extend, handler, filters...)
@@ -122,7 +122,7 @@ func (n *node) addFunc(pattern, method string, patternSplitArr []string, index i
 
 // fill
 func (n *node) fill(pattern, method string, extend *Extend, handler Handler, filters ...Filter) {
-	if gnomon.String().IsNotEmpty(n.method) {
+	if gnomon.StringIsNotEmpty(n.method) {
 		return
 	}
 	n.filters = append(n.filters, filters...)
@@ -130,7 +130,7 @@ func (n *node) fill(pattern, method string, extend *Extend, handler Handler, fil
 	n.method = method
 	n.extend = extend
 	n.handler = handler
-	if gnomon.String().IsNotEmpty(method) {
+	if gnomon.StringIsNotEmpty(method) {
 		fmt.Printf("grope url %s %s \n", method, pattern)
 	}
 	if nil != extend && nil != extend.Limit {

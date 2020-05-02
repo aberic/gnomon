@@ -27,17 +27,14 @@ import (
 	"strings"
 )
 
-// FileCommon 文件操作工具
-type FileCommon struct{}
-
-// PathExists 判断路径是否存在
-func (f *FileCommon) PathExists(path string) bool {
+// FilePathExists 判断路径是否存在
+func FilePathExists(path string) bool {
 	_, err := os.Stat(path)
 	return err == nil
 }
 
-// ReadFirstLine 从文件中读取第一行并返回字符串数组
-func (f *FileCommon) ReadFirstLine(filePath string) (string, error) {
+// FileReadFirstLine 从文件中读取第一行并返回字符串数组
+func FileReadFirstLine(filePath string) (string, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
 		return "", err
@@ -47,11 +44,11 @@ func (f *FileCommon) ReadFirstLine(filePath string) (string, error) {
 	}()
 	finReader := bufio.NewReader(file)
 	inputString, _ := finReader.ReadString('\n')
-	return String().TrimN(inputString), nil
+	return StringTrimN(inputString), nil
 }
 
-// ReadPointLine 从文件中读取指定行并返回字符串数组
-func (f *FileCommon) ReadPointLine(filePath string, line int) (string, error) {
+// FileReadPointLine 从文件中读取指定行并返回字符串数组
+func FileReadPointLine(filePath string, line int) (string, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
 		return "", err
@@ -77,8 +74,8 @@ func (f *FileCommon) ReadPointLine(filePath string, line int) (string, error) {
 	}
 }
 
-// ReadLines 从文件中逐行读取并返回字符串数组
-func (f *FileCommon) ReadLines(filePath string) ([]string, error) {
+// FileReadLines 从文件中逐行读取并返回字符串数组
+func FileReadLines(filePath string) ([]string, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
 		return nil, err
@@ -92,21 +89,21 @@ func (f *FileCommon) ReadLines(filePath string) ([]string, error) {
 		inputString, err := finReader.ReadString('\n')
 		//fmt.Println(inputString)
 		if err == io.EOF {
-			fileList = append(fileList, String().TrimN(inputString))
+			fileList = append(fileList, StringTrimN(inputString))
 			break
 		}
-		fileList = append(fileList, String().TrimN(inputString))
+		fileList = append(fileList, StringTrimN(inputString))
 	}
 	//fmt.Println("fileList",fileList)
 	return fileList, nil
 }
 
-// ParentPath 文件父路径
-func (f *FileCommon) ParentPath(filePath string) string {
+// FileParentPath 文件父路径
+func FileParentPath(filePath string) string {
 	return filePath[0:strings.LastIndex(filePath, "/")]
 }
 
-// Append 追加内容到文件中
+// FileAppend 追加内容到文件中
 //
 // filePath 文件地址
 //
@@ -115,13 +112,13 @@ func (f *FileCommon) ParentPath(filePath string) string {
 // force 如果文件已存在，会将文件清空
 //
 // It returns the number of bytes written and an error
-func (f *FileCommon) Append(filePath string, data []byte, force bool) (int, error) {
+func FileAppend(filePath string, data []byte, force bool) (int, error) {
 	var (
 		file *os.File
 		n    int
 		err  error
 	)
-	exist := f.PathExists(filePath)
+	exist := FilePathExists(filePath)
 	if exist {
 		if force {
 			// 创建文件，如果文件已存在，会将文件清空
@@ -134,7 +131,7 @@ func (f *FileCommon) Append(filePath string, data []byte, force bool) (int, erro
 			}
 		}
 	} else {
-		parentPath := f.ParentPath(filePath)
+		parentPath := FileParentPath(filePath)
 		if err = os.MkdirAll(parentPath, os.ModePerm); nil != err {
 			return 0, err
 		}
@@ -153,7 +150,7 @@ func (f *FileCommon) Append(filePath string, data []byte, force bool) (int, erro
 	return n, nil
 }
 
-// Modify 修改文件中指定位置的内容
+// FileModify 修改文件中指定位置的内容
 //
 // filePath 文件地址
 //
@@ -164,13 +161,13 @@ func (f *FileCommon) Append(filePath string, data []byte, force bool) (int, erro
 // force 如果文件已存在，会将文件清空
 //
 // It returns the number of bytes written and an error
-func (f *FileCommon) Modify(filePath string, offset int64, data []byte, force bool) (int, error) {
+func FileModify(filePath string, offset int64, data []byte, force bool) (int, error) {
 	var (
 		file *os.File
 		n    int
 		err  error
 	)
-	exist := f.PathExists(filePath)
+	exist := FilePathExists(filePath)
 	if exist {
 		if force {
 			// 创建文件，如果文件已存在，会将文件清空
@@ -183,7 +180,7 @@ func (f *FileCommon) Modify(filePath string, offset int64, data []byte, force bo
 			}
 		}
 	} else {
-		parentPath := f.ParentPath(filePath)
+		parentPath := FileParentPath(filePath)
 		if err = os.MkdirAll(parentPath, os.ModePerm); nil != err {
 			return 0, err
 		}
@@ -206,12 +203,11 @@ func (f *FileCommon) Modify(filePath string, offset int64, data []byte, force bo
 	return n, nil
 }
 
-// LoopDirs 遍历文件夹下的所有子文件夹
-func (f *FileCommon) LoopDirs(pathname string) ([]string, error) {
+// FileLoopDirs 遍历文件夹下的所有子文件夹
+func FileLoopDirs(pathname string) ([]string, error) {
 	var s []string
 	rd, err := ioutil.ReadDir(pathname)
 	if err != nil {
-		Log().Debug("read dir fail", Log().Err(err))
 		return s, err
 	}
 	for _, fi := range rd {
@@ -223,12 +219,11 @@ func (f *FileCommon) LoopDirs(pathname string) ([]string, error) {
 	return s, nil
 }
 
-// LoopOneDirs 遍历文件夹下一层的所有子文件夹
-func (f *FileCommon) LoopOneDirs(pathname string) ([]string, error) {
+// FileLoopOneDirs 遍历文件夹下一层的所有子文件夹
+func FileLoopOneDirs(pathname string) ([]string, error) {
 	var s []string
 	rd, err := ioutil.ReadDir(pathname)
 	if err != nil {
-		Log().Debug("read dir fail", Log().Err(err))
 		return s, err
 	}
 	for _, fi := range rd {
@@ -239,20 +234,18 @@ func (f *FileCommon) LoopOneDirs(pathname string) ([]string, error) {
 	return s, nil
 }
 
-// LoopFiles 遍历文件夹及子文件夹下的所有文件
-func (f *FileCommon) LoopFiles(pathname string) ([]string, error) {
+// FileLoopFiles 遍历文件夹及子文件夹下的所有文件
+func FileLoopFiles(pathname string) ([]string, error) {
 	var s []string
 	rd, err := ioutil.ReadDir(pathname)
 	if err != nil {
-		Log().Debug("read dir fail", Log().Err(err))
 		return s, err
 	}
 	for _, fi := range rd {
 		if fi.IsDir() {
 			fullDir := path.Join(pathname, fi.Name())
-			sNew, err := f.LoopFiles(fullDir)
+			sNew, err := FileLoopFiles(fullDir)
 			if err != nil {
-				Log().Debug("read dir fail", Log().Err(err))
 				return s, err
 			}
 			s = append(s, sNew...)
@@ -264,20 +257,18 @@ func (f *FileCommon) LoopFiles(pathname string) ([]string, error) {
 	return s, nil
 }
 
-// LoopFileNames 遍历文件夹及子文件夹下的所有文件名
-func (f *FileCommon) LoopFileNames(pathname string) ([]string, error) {
+// FileLoopFileNames 遍历文件夹及子文件夹下的所有文件名
+func FileLoopFileNames(pathname string) ([]string, error) {
 	var s []string
 	rd, err := ioutil.ReadDir(pathname)
 	if err != nil {
-		Log().Debug("read dir fail", Log().Err(err))
 		return s, err
 	}
 	for _, fi := range rd {
 		if fi.IsDir() {
 			fullDir := path.Join(pathname, fi.Name())
-			sNew, err := f.LoopFileNames(fullDir)
+			sNew, err := FileLoopFileNames(fullDir)
 			if err != nil {
-				Log().Error("read dir fail", Log().Err(err))
 				return s, err
 			}
 			s = append(s, sNew...)
@@ -288,16 +279,16 @@ func (f *FileCommon) LoopFileNames(pathname string) ([]string, error) {
 	return s, nil
 }
 
-// Compress 压缩文件
+// FileCompress 压缩文件
 // files 文件数组，可以是不同dir下的文件或者文件夹
 // dest 压缩文件存放地址
-func (f *FileCommon) Compress(files []*os.File, dest string) error {
+func FileCompress(files []*os.File, dest string) error {
 	d, _ := os.Create(dest)
 	defer func() { _ = d.Close() }()
 	w := zip.NewWriter(d)
 	defer func() { _ = w.Close() }()
 	for _, file := range files {
-		err := f.compress(file, "", w)
+		err := compress(file, "", w)
 		if err != nil {
 			return err
 		}
@@ -305,7 +296,7 @@ func (f *FileCommon) Compress(files []*os.File, dest string) error {
 	return nil
 }
 
-func (f *FileCommon) compress(file *os.File, prefix string, zw *zip.Writer) error {
+func compress(file *os.File, prefix string, zw *zip.Writer) error {
 	var (
 		info   os.FileInfo
 		header *zip.FileHeader
@@ -328,7 +319,7 @@ func (f *FileCommon) compress(file *os.File, prefix string, zw *zip.Writer) erro
 			if err != nil {
 				return err
 			}
-			err = f.compress(fil, prefix, zw)
+			err = compress(fil, prefix, zw)
 			if err != nil {
 				return err
 			}
@@ -349,13 +340,12 @@ func (f *FileCommon) compress(file *os.File, prefix string, zw *zip.Writer) erro
 	return nil
 }
 
-// DeCompressTar 压缩文件
+// FileDeCompressTar 压缩文件
 // 压缩文件路径
 // 解压文件夹
-func (f *FileCommon) DeCompressTar(tarFile, dest string) error {
+func FileDeCompressTar(tarFile, dest string) error {
 	srcFile, err := os.Open(tarFile)
 	if err != nil {
-		Log().Error("DeCompressTar", Log().Err(err))
 		return err
 	}
 	defer func() { _ = srcFile.Close() }()
@@ -363,31 +353,29 @@ func (f *FileCommon) DeCompressTar(tarFile, dest string) error {
 	if nil != err {
 		return err
 	}
-	return f.deCompress(reader, dest)
+	return deCompress(reader, dest)
 }
 
-// DeCompressZip 解压
-func (f *FileCommon) DeCompressZip(zipFile, dest string) error {
+// FileDeCompressZip 解压
+func FileDeCompressZip(zipFile, dest string) error {
 	var (
 		reader *zip.ReadCloser
 		err    error
 	)
 	if reader, err = zip.OpenReader(zipFile); nil != err {
-		Log().Error("DeCompressZip", Log().Err(err))
 		return err
 	}
-	return f.deCompress(reader, dest)
+	return deCompress(reader, dest)
 }
 
 // deCompress 压缩文件
-func (f *FileCommon) deCompress(reader *zip.ReadCloser, dest string) error {
+func deCompress(reader *zip.ReadCloser, dest string) error {
 	defer func() { _ = reader.Close() }()
 	for _, innerFile := range reader.File {
 		info := innerFile.FileInfo()
 		if info.IsDir() {
 			err := os.MkdirAll(innerFile.Name, os.ModePerm)
 			if err != nil {
-				Log().Error("deCompress1", Log().Err(err))
 				return err
 			}
 			continue
@@ -398,28 +386,24 @@ func (f *FileCommon) deCompress(reader *zip.ReadCloser, dest string) error {
 		}
 		err = os.MkdirAll(dest, 0755)
 		if err != nil {
-			Log().Error("deCompress2", Log().Err(err))
 			return err
 		}
 		filePath := filepath.Join(dest, innerFile.Name)
-		if exist := f.PathExists(filePath); !exist {
+		if exist := FilePathExists(filePath); !exist {
 			lastIndex := strings.LastIndex(filePath, "/")
 			parentPath := filePath[0:lastIndex]
 			if err := os.MkdirAll(parentPath, os.ModePerm); nil != err {
-				Log().Error("deCompress3", Log().Err(err))
 				return err
 			}
 		}
 		newFile, err := os.Create(filePath)
 		if err != nil {
-			Log().Error("deCompress4", Log().Err(err))
 			_ = srcFile.Close()
 			continue
 		}
 		if _, err = io.Copy(newFile, srcFile); nil != err {
 			_ = newFile.Close()
 			_ = srcFile.Close()
-			Log().Error("deCompress5", Log().Err(err))
 			return err
 		}
 		_ = newFile.Close()
@@ -428,22 +412,21 @@ func (f *FileCommon) deCompress(reader *zip.ReadCloser, dest string) error {
 	return nil
 }
 
-// Copy 拷贝文件
+// FileCopy 拷贝文件
 //
 // srcFilePath 源文件路径
 //
 // dstFilePath 目标文件路径
-func (f *FileCommon) Copy(srcFilePath, dstFilePath string) (written int64, err error) {
+func FileCopy(srcFilePath, dstFilePath string) (written int64, err error) {
 	srcFile, err := os.Open(srcFilePath)
 	if err != nil {
-		Log().Error("Copy", Log().Err(err))
+		return -1, err
 	}
 	defer func() { _ = srcFile.Close() }()
 
 	dstFile, err := os.OpenFile(dstFilePath, os.O_WRONLY|os.O_CREATE, 0777)
 	if err != nil {
-		Log().Error("Copy", Log().Err(err))
-		return
+		return -1, err
 	}
 	defer func() { _ = dstFile.Close() }()
 	return io.Copy(dstFile, srcFile)

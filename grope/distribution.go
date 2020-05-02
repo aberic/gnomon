@@ -87,7 +87,7 @@ func (c *Context) Distributions(addr string, transport *Transport, fusing Fusing
 	if patternURL, err = url.Parse(c.request.URL.String()); nil != err {
 		goto ERR
 	}
-	realURL = gnomon.String().StringBuilder(addr, patternURL.String())
+	realURL = gnomon.StringBuild(addr, patternURL.String())
 	if client, err = getTLSClient(transport); nil != err {
 		goto ERR
 	}
@@ -126,7 +126,7 @@ func getTLSClient(transport *Transport) (*http.Client, error) {
 	if nil == transport.TLSConfig {
 		tlsClientKey = ""
 	} else {
-		tlsClientKey = gnomon.CryptoHash().MD516(gnomon.String().StringBuilder(
+		tlsClientKey = gnomon.HashMD516(gnomon.StringBuild(
 			transport.TLSConfig.CACrtFilePath,
 			transport.TLSConfig.CertFilePath,
 			transport.TLSConfig.KeyFilePath))
@@ -177,7 +177,7 @@ func getTLSTransport(transport *Transport) (ht *http.Transport, err error) {
 	if nil == transport.TLSConfig {
 		return
 	}
-	if gnomon.String().IsNotEmpty(transport.TLSConfig.CACrtFilePath) {
+	if gnomon.StringIsNotEmpty(transport.TLSConfig.CACrtFilePath) {
 		// 用于我方验证对方证书合法性
 		if caCrtBytes, err = ioutil.ReadFile(transport.TLSConfig.CACrtFilePath); nil != err {
 			return
@@ -186,7 +186,7 @@ func getTLSTransport(transport *Transport) (ht *http.Transport, err error) {
 	} else {
 		transport.TLSConfig.InsecureSkipVerify = false
 	}
-	if gnomon.String().IsNotEmpty(transport.TLSConfig.CertFilePath) && gnomon.String().IsNotEmpty(transport.TLSConfig.KeyFilePath) {
+	if gnomon.StringIsNotEmpty(transport.TLSConfig.CertFilePath) && gnomon.StringIsNotEmpty(transport.TLSConfig.KeyFilePath) {
 		// 用于对方验证我方证书合法性
 		if cert, err = tls.LoadX509KeyPair(transport.TLSConfig.CertFilePath, transport.TLSConfig.KeyFilePath); nil != err {
 			return

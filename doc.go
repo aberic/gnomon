@@ -16,37 +16,43 @@
 //
 // 目前提供的方法包如下：
 //
-// gnomon.Byte(). … // 字节
+// gnomon.Byte… // 字节
 //
-// gnomon.Command(). … // 命令行
+// gnomon.Command… // 命令行
 //
-// gnomon.Env(). … // 环境变量
+// gnomon.Env… // 环境变量
 //
-// gnomon.File(). … // 文件操作
+// gnomon.File… // 文件操作
 //
-// gnomon.IP(). … // IP
+// gnomon.IP… // IP
 //
-// gnomon.JWT(). … // JWT
+// gnomon.JWT… // JWT
 //
-// gnomon.String(). … // 字符串
+// gnomon.String… // 字符串
 //
-// gnomon.CryptoHash(). … // Hash/散列
+// gnomon.CryptoHash… // Hash/散列
 //
-// gnomon.CryptoRSA(). … // RSA
+// gnomon.CryptoRSA… // RSA
 //
-// gnomon.CryptoECC(). … // ECC
+// gnomon.CryptoECC… // ECC
 //
-// gnomon.CryptoAES(). … // AES
+// gnomon.CryptoAES… // AES
 //
-// gnomon.CryptoDES(). … // DES
+// gnomon.CryptoDES… // DES
 //
-// gnomon.CA(). … // CA
+// gnomon.CA… // CA
 //
-// gnomon.Log(). … // 日志
+// gnomon.Log… // 日志
 //
-// gnomon.Scale(). … // 算数/转换
+// gnomon.Scale… // 算数/转换
 //
-// gnomon.Time(). … // 时间
+// gnomon.Time… // 时间
+//
+// SQLCommon sql 连接对象
+//
+// Pool io.Closer连接池工具
+//
+// gnomon.HTTPClientCommon http客户端工具
 //
 // 未来会陆续添加新的方法或类型，对于已经编写的内容会尽量覆盖其测试范围。如果有新的需求可以提出，以便后续加进去，或直接提交代码对该库进行补充
 package gnomon

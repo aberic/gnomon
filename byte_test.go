@@ -32,27 +32,27 @@ type BTest struct {
 }
 
 func TestByteCommon_GetBytes(t *testing.T) {
-	if data, err := Byte().GetBytes(&bTest{name: "test", age: 18, male: true}); nil != err {
+	if data, err := GetBytes(&bTest{name: "test", age: 18, male: true}); nil != err {
 		t.Log(err)
 	} else {
 		t.Log(data)
 	}
-	if data, err := Byte().GetBytes(&BTest{Name: "test", Age: 18, Male: true}); nil != err {
+	if data, err := GetBytes(&BTest{Name: "test", Age: 18, Male: true}); nil != err {
 		t.Log(err)
 	} else {
 		t.Log(data)
 	}
-	if data, err := Byte().GetBytes(100); nil != err { // [4 4 0 255 200]
+	if data, err := GetBytes(100); nil != err { // [4 4 0 255 200]
 		t.Log(err)
 	} else {
 		t.Log(data)
 	}
-	if data, err := Byte().GetBytes(true); nil != err {
+	if data, err := GetBytes(true); nil != err {
 		t.Log(err)
 	} else {
 		t.Log(data)
 	}
-	if data, err := Byte().GetBytes("100"); nil != err {
+	if data, err := GetBytes("100"); nil != err {
 		t.Log(err)
 	} else {
 		t.Log(data)
@@ -60,7 +60,7 @@ func TestByteCommon_GetBytes(t *testing.T) {
 }
 
 func TestByteCommon_IntToBytes(t *testing.T) {
-	if data, err := Byte().IntToBytes(100); nil != err { // [0 0 0 100]
+	if data, err := IntToBytes(100); nil != err { // [0 0 0 100]
 		t.Log(err)
 	} else {
 		t.Log(data)
@@ -68,11 +68,11 @@ func TestByteCommon_IntToBytes(t *testing.T) {
 }
 
 func TestByteCommon_BytesToInt(t *testing.T) {
-	if data, err := Byte().IntToBytes(100); nil != err { // [0 0 0 100]
+	if data, err := IntToBytes(100); nil != err { // [0 0 0 100]
 		t.Log(err)
 	} else {
 		t.Log(data)
-		if dataInt, err := Byte().BytesToInt(data); nil != err { // [0 0 0 100]
+		if dataInt, err := BytesToInt(data); nil != err { // [0 0 0 100]
 			t.Log(err)
 		} else {
 			t.Log(dataInt)
@@ -82,28 +82,28 @@ func TestByteCommon_BytesToInt(t *testing.T) {
 }
 
 func TestByteCommon_Uint16ToBytes(t *testing.T) {
-	t.Log(Byte().Uint16ToBytes(100))
+	t.Log(Uint16ToBytes(100))
 }
 
 func TestByteCommon_BytesToUint16(t *testing.T) {
-	data := Byte().Uint16ToBytes(100)
-	t.Log(Byte().BytesToUint16(data))
+	data := Uint16ToBytes(100)
+	t.Log(BytesToUint16(data))
 }
 
 func TestByteCommon_Uint32ToBytes(t *testing.T) {
-	t.Log(Byte().Uint32ToBytes(100))
+	t.Log(Uint32ToBytes(100))
 }
 
 func TestByteCommon_BytesToUint32(t *testing.T) {
-	data := Byte().Uint32ToBytes(100)
-	t.Log(Byte().BytesToUint32(data))
+	data := Uint32ToBytes(100)
+	t.Log(BytesToUint32(data))
 }
 
 func TestByteCommon_Uint64ToBytes(t *testing.T) {
-	t.Log(Byte().Uint64ToBytes(100))
+	t.Log(Uint64ToBytes(100))
 }
 
 func TestByteCommon_BytesToUint64(t *testing.T) {
-	data := Byte().Uint64ToBytes(100)
-	t.Log(Byte().BytesToUint64(data))
+	data := Uint64ToBytes(100)
+	t.Log(BytesToUint64(data))
 }
