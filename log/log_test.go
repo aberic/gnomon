@@ -70,10 +70,10 @@ func TestLogCommon_Fatal(t *testing.T) {
 	time.Sleep(3 * time.Second)
 }
 
-func TestLogCommon_Fatal_BigStorage(t *testing.T) {
+func TestLogCommon_BigStorage(t *testing.T) {
 	Set(DebugLevel(), logDir, 1, 1, false, true)
-	for i := 0; i < 100000; i++ {
+	for i := 0; i < 10000; i++ {
 		go logDo()
 	}
-	time.Sleep(10 * time.Second)
+	time.Sleep(2 * time.Second)
 }

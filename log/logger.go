@@ -334,14 +334,11 @@ func (l *logger) useFiled(level Level, printString string) (fd *filed, err error
 				return
 			}
 			fd.file = f
-			if err = l.config.checkFiled(level, fd, int64(len(printString)), false); nil != err {
-				return
-			}
 			go fd.running()
 			return
 		}
 	}
-	if err = l.config.checkFiled(level, fd, int64(len(printString)), true); nil != err {
+	if err = l.config.checkFiled(level, fd, int64(len(printString))); nil != err {
 		return
 	}
 	return

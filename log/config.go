@@ -158,18 +158,15 @@ func (l *config) logFileName(name, index string) string {
 // printStringLength 输出到文件中字节数长度
 //
 // lock 该操作是否需要给filed文件对象上锁。如果是复用对象，则需要上锁；如果是新建对象，则新建过程中本身就已经上锁，此处无需锁定
-func (l *config) checkFiled(level Level, fd *filed, printStringLength int64, lock bool) (err error) {
+func (l *config) checkFiled(level Level, fd *filed, printStringLength int64) (err error) {
 	var ret int64
 	if ret, err = fd.file.Seek(0, io.SeekEnd); nil != err { // 当前文件已用字节数
 		return
 	}
 	// 文件字节数上限 - 当前文件已用字节数 - 即将消耗文件字节数
 	if l.maxSizeByte-ret-printStringLength < 0 { // 如果小于0，则说明文件长度不足，需要新建文件
-		if lock {
-			defer fd.lock.Unlock()
-			fd.lock.Lock()
-			return l.findAvailableFile(level, fd, printStringLength)
-		}
+		defer fd.lock.Unlock()
+		fd.lock.Lock()
 		return l.findAvailableFile(level, fd, printStringLength)
 	}
 	return
