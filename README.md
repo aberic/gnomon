@@ -39,8 +39,6 @@ gnomon.Time… // 时间
 gnomon.Pool… // conn池
 gnomon.GRPC… // grpc请求
 gnomon.HTTPClient… // http请求
-db.MySQL… // 数据库
-log.Debug… // 日志
 ```
 
 ### 使用HTTP Server
@@ -87,6 +85,29 @@ func one1(ctx *grope.Context) {
 ……
 ```
 更多详情参考：https://github.com/aberic/gnomon/blob/master/example/grope/grope_example.go
+
+### 使用MySQL
+```go
+func SQL() {
+	sql = &db.MySQL{}
+	_ = sql.Connect(dbURL, dbUser, dbPass, dbName, false, 5, 20)
+	row := sql.DB.Raw("select * from table where id=?", id).Row()
+}
+```
+更多详情参考：https://github.com/aberic/gnomon/blob/master/example/sql/init.go
+
+### 使用log
+```go
+func LogDebug() {
+	log.Set(log.DebugLevel(), "tmp/log", 1, 1, false, false)
+	log.Debug("test", log.Field("1", "2"), log.Field("2", 3), log.Field("3", true))
+	log.Debug("test", nil)
+	log.Info("test", log.Field("1", "2"), log.Field("2", 3), log.Field("3", true))
+	log.Warn("test", log.Field("1", "2"), log.Field("2", 3), log.Field("3", true))
+	log.Error("test", log.Field("1", "2"), log.Field("2", 3), log.Field("3", true), log.Err(errors.New("yes")))
+}
+```
+更多详情参考：https://github.com/aberic/gnomon/blob/master/example/log/log_test.go
 
 ### 使用Balance
 ```go
