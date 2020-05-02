@@ -202,16 +202,16 @@ func (l *logger) logStandard(file, levelName, msg string, line int, level Level,
 	} else {
 		fileString = logArr[0]
 	}
-	customContent := l.customContent(msg, timeString, levelName, fileString, fields...)
+	customContent, systemContent := l.customContent(msg, timeString, levelName, fileString, fields...)
 	if customContentJSON, err = json.Marshal(customContent); nil != err {
 		panic(fmt.Sprint("json Marshal error", err))
 	}
 	customContentString := string(customContentJSON) // 即将输出的自定义日志信息JSON字符串
 	if !l.config.production {
 		fmt.Println(timeString, levelName, fileString, customContentString) // 日志输出到控制台
-		l.unProduction(customContentString, level)
+		l.unProduction(systemContent, level)
 	} else {
-		l.production(customContentString, level)
+		l.production(systemContent, level)
 	}
 }
 
@@ -226,19 +226,22 @@ func (l *logger) logStandard(file, levelName, msg string, line int, level Level,
 // fileString 即将输出的文件地址信息
 //
 // fields 日志输出对象子集
-func (l *logger) customContent(msg, timeString, levelName, fileString string, fields ...FieldInter) map[string]interface{} {
-	logCustomContent := make(map[string]interface{}) // 即将输出的日志信息集合
-	logCustomContent["msg"] = msg                    // 默认集合第一个参数为msg
-	logCustomContent["level"] = strings.ToLower(levelName)
-	logCustomContent["time"] = timeString
-	logCustomContent["file"] = fileString
+func (l *logger) customContent(msg, timeString, levelName, fileString string, fields ...FieldInter) (logCustomContent map[string]interface{}, logSystemContent map[string]interface{}) {
+	logCustomContent = make(map[string]interface{}) // 即将输出到控制台的日志信息集合
+	logSystemContent = make(map[string]interface{}) // 即将输出到文件的日志信息集合
+	logCustomContent["msg"] = msg                   // 默认集合第一个参数为msg
+	logSystemContent["msg"] = msg                   // 默认集合第一个参数为msg
+	logSystemContent["level"] = strings.ToLower(levelName)
+	logSystemContent["time"] = timeString
+	logSystemContent["file"] = fileString
 	for _, field := range fields {
 		if nil == field {
 			continue
 		}
 		logCustomContent[field.GetKey()] = field.GetValue()
+		logSystemContent[field.GetKey()] = field.GetValue()
 	}
-	return logCustomContent
+	return logCustomContent, logSystemContent
 }
 
 // unProduction 非生产环境处理策略
@@ -246,7 +249,7 @@ func (l *logger) customContent(msg, timeString, levelName, fileString string, fi
 // customContentString 即将输出的自定义日志信息JSON字符串
 //
 // level 日志级别
-func (l *logger) unProduction(customContentString string, level Level) {
+func (l *logger) unProduction(systemContent map[string]interface{}, level Level) {
 	var stackString string // 即将输出的堆栈信息
 	switch level {
 	case errorLevel: // 如果是error级别，打印堆栈信息
@@ -269,7 +272,7 @@ func (l *logger) unProduction(customContentString string, level Level) {
 	if nil == l.files {
 		return
 	}
-	go l.logFile(customContentString, stackString, level)
+	go l.logFile(systemContent, stackString, level)
 }
 
 // production 生产环境处理策略
@@ -277,7 +280,7 @@ func (l *logger) unProduction(customContentString string, level Level) {
 // customContentString 即将输出的自定义日志信息JSON字符串
 //
 // level 日志级别
-func (l *logger) production(customContentString string, level Level) {
+func (l *logger) production(systemContent map[string]interface{}, level Level) {
 	if nil == l.files {
 		return
 	}
@@ -285,7 +288,7 @@ func (l *logger) production(customContentString string, level Level) {
 	if level == errorLevel || level == panicLevel || level == fatalLevel {
 		stackString = string(debug.Stack())
 	}
-	go l.logFile(customContentString, stackString, level)
+	go l.logFile(systemContent, stackString, level)
 }
 
 // logFile 将日志内容输入文件中存储
@@ -295,13 +298,19 @@ func (l *logger) production(customContentString string, level Level) {
 // stackString 日志堆栈信息
 //
 // level 日志级别
-func (l *logger) logFile(customContentString, stackString string, level Level) {
+func (l *logger) logFile(systemContent map[string]interface{}, stackString string, level Level) {
 	var (
-		printString string
-		err         error
-		fd          *filed
+		systemContentJSON []byte
+		printString       string
+		err               error
+		fd                *filed
 	)
-	printString = strings.Join([]string{customContentString, stackString}, "\n")
+	systemContent["stack"] = stackString
+
+	if systemContentJSON, err = json.Marshal(systemContent); nil != err {
+		panic(fmt.Sprint("json Marshal error", err))
+	}
+	printString = string(systemContentJSON) // 即将输出的自定义及系统日志信息JSON字符串
 	if fd, err = l.useFiled(level, printString); nil == err {
 		fd.tasks <- printString
 	}
