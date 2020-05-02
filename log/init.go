@@ -17,6 +17,7 @@ package log
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 )
 
@@ -48,6 +49,44 @@ func Set(level Level, logDir string, maxSize, maxAge int, utc bool, production b
 	once.Do(func() {
 		logPhysical.init(level, logDir, maxSize, maxAge, utc, production)
 	})
+}
+
+// Fit log初始化
+//
+// level 日志级别(debugLevel/infoLevel/warnLevel/ErrorLevel/panicLevel/fatalLevel)
+//
+// logDir 日志文件目录
+//
+// maxSize 每个日志文件保存的最大尺寸 单位：M
+//
+// maxAge 文件最多保存多少天
+//
+// utc CST & UTC 时间
+//
+// production 是否生产环境，在生产环境下控制台不会输出任何日志
+func Fit(level string, logDir string, maxSize, maxAge int, utc bool, production bool) {
+	once.Do(func() {
+		logPhysical.init(getLevel(level), logDir, maxSize, maxAge, utc, production)
+	})
+}
+
+func getLevel(level string) Level {
+	switch strings.ToLower(level) {
+	case "debug":
+		return DebugLevel()
+	case "info":
+		return InfoLevel()
+	case "warn":
+		return WarnLevel()
+	case "error":
+		return ErrorLevel()
+	case "panic":
+		return PanicLevel()
+	case "fatal":
+		return FatalLevel()
+	default:
+		return DebugLevel()
+	}
 }
 
 // Debug 输出指定级别日志
