@@ -22,8 +22,8 @@ import (
 	"strings"
 )
 
-// NewGHttpServe 新建一个Http服务
-func NewGHttpServe(filters ...Filter) *GHttpServe {
+// newGHttpServe 新建一个Http服务
+func newGHttpServe(filters ...Filter) *GHttpServe {
 	nodal := newNode(filters...)
 	return &GHttpServe{nodal: nodal}
 }

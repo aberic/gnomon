@@ -26,7 +26,7 @@ import (
 
 // NewHTTPServe 新建一个Http服务
 func NewHTTPServe(filters ...Filter) *GHttpServe {
-	return NewGHttpServe(filters...)
+	return newGHttpServe(filters...)
 }
 
 // ListenAndServe 启动监听
