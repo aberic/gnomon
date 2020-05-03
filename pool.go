@@ -18,7 +18,6 @@ import (
 	"errors"
 	"io"
 	"sync"
-	"time"
 )
 
 var errPoolClosed = errors.New("pond closed")
@@ -66,13 +65,12 @@ func NewPond(minOpen, maxOpen int, factory factory) *Pond {
 // Pond 连接池对象
 type Pond struct {
 	sync.Mutex
-	conn        chan Conn
-	maxOpen     int  // 池中最大资源数
-	nowOpen     int  // 当前池中资源数
-	minOpen     int  // 池中最少资源数
-	closed      bool // 池是否已关闭
-	maxLifetime time.Duration
-	factory     factory // 创建连接的方法
+	conn    chan Conn
+	maxOpen int     // 池中最大资源数
+	nowOpen int     // 当前池中资源数
+	minOpen int     // 池中最少资源数
+	closed  bool    // 池是否已关闭
+	factory factory // 创建连接的方法
 }
 
 func (p *Pond) getOrCreate() (Conn, error) {

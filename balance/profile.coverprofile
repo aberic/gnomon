@@ -29,8 +29,8 @@ github.com/aberic/gnomon/balance/random.go:71.2,71.43 1 100
 github.com/aberic/gnomon/balance/random.go:68.15,70.3 1 0
 github.com/aberic/gnomon/balance/round.go:28.24,35.2 3 1
 github.com/aberic/gnomon/balance/round.go:38.31,40.6 2 1
-github.com/aberic/gnomon/balance/round.go:40.6,42.17 2 62321
-github.com/aberic/gnomon/balance/round.go:45.3,45.6 1 62520
+github.com/aberic/gnomon/balance/round.go:40.6,42.17 2 62966
+github.com/aberic/gnomon/balance/round.go:45.3,45.6 1 63171
 github.com/aberic/gnomon/balance/round.go:42.17,44.4 1 0
 github.com/aberic/gnomon/balance/round.go:50.38,54.2 3 5
 github.com/aberic/gnomon/balance/round.go:57.53,59.30 2 0
