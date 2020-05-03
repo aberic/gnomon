@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package gnomon
+package rpc
 
 import (
 	"google.golang.org/grpc"
@@ -21,11 +21,7 @@ import (
 )
 
 func TestNewPond(t *testing.T) {
-	if p, err := NewPond(10, 100, 5*time.Second, func() (conn Conn, e error) {
+	t.Log(NewPond(10, 100, 5*time.Second, func() (conn Conn, e error) {
 		return grpc.Dial("http://wwww.gnomon.com", grpc.WithInsecure())
-	}); nil != err {
-		t.Skip(err)
-	} else {
-		t.Log(p)
-	}
+	}))
 }

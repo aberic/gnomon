@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019. aberic - All Rights Reserved.
+ *  Copyright (c) 2020. aberic - All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -10,10 +10,9 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
-package gnomon
+package rpc
 
 import (
 	"errors"
@@ -22,10 +21,7 @@ import (
 	"time"
 )
 
-var (
-	errInvalidParams = errors.New("invalid pond params")
-	errPoolClosed    = errors.New("pond closed")
-)
+var errPoolClosed = errors.New("pond closed")
 
 // Conn 连接单体接口
 type Conn interface {
@@ -44,9 +40,12 @@ type factory func() (Conn, error)
 // maxLifetime
 //
 // factory
-func NewPond(minOpen, maxOpen int, maxLifetime time.Duration, factory factory) (*Pond, error) {
-	if maxOpen <= 0 || minOpen > maxOpen {
-		return nil, errInvalidParams
+func NewPond(minOpen, maxOpen int, maxLifetime time.Duration, factory factory) *Pond {
+	if maxOpen <= 0 {
+		maxOpen = 5
+	}
+	if minOpen > maxOpen {
+		maxOpen = minOpen + 1
 	}
 	p := &Pond{
 		maxOpen:     maxOpen,
@@ -64,7 +63,7 @@ func NewPond(minOpen, maxOpen int, maxLifetime time.Duration, factory factory) (
 		p.nowOpen++
 		p.conn <- connect
 	}
-	return p, nil
+	return p
 }
 
 // Pond 连接池对象

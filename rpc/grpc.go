@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020. Aberic - All Rights Reserved.
+ *  Copyright (c) 2020. aberic - All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package gnomon
+package rpc
 
 import (
 	"context"
@@ -23,7 +23,18 @@ import (
 	"net"
 	"strconv"
 	"strings"
+	"sync"
+	"time"
 )
+
+var (
+	reqs map[string]*Pond
+	mu   sync.Mutex
+)
+
+func init() {
+	reqs = map[string]*Pond{}
+}
 
 // Business 真实业务逻辑
 type Business func(conn *grpc.ClientConn) (interface{}, error)
@@ -40,6 +51,38 @@ func GRPCRequest(url string, business Business) (interface{}, error) {
 	}
 	// 请求完毕后关闭连接
 	defer func() { _ = conn.Close() }()
+	return business(conn)
+}
+
+// GRPCRequestPools 通过rpc进行通信 protoc --go_out=plugins=grpc:. grpc/proto/*.proto
+func GRPCRequestPools(url string, business Business) (interface{}, error) {
+	var (
+		c    Conn
+		conn *grpc.ClientConn
+		pond = reqs[url]
+		err  error
+	)
+	if nil == pond {
+		mu.Lock()
+		pond = NewPond(10, 100, 5*time.Second, func() (conn Conn, e error) {
+			return grpc.Dial(url, grpc.WithInsecure())
+		})
+		reqs[url] = pond
+		mu.Unlock()
+	}
+	for {
+		// 创建一个grpc连接器
+		if c, err = pond.Acquire(); nil != err {
+			return nil, err
+		}
+		conn = c.(*grpc.ClientConn)
+		if conn.GetState() != connectivity.Shutdown && conn.GetState() != connectivity.TransientFailure {
+			break
+		}
+		pond.Close(c)
+	}
+	// 请求完毕后释放连接
+	defer func() { _ = pond.Release(c) }()
 	return business(conn)
 }
 
