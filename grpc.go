@@ -24,7 +24,6 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-	"time"
 )
 
 var (
@@ -64,7 +63,7 @@ func GRPCRequestPools(url string, business Business) (interface{}, error) {
 	)
 	if nil == pond {
 		mu.Lock()
-		pond = NewPond(10, 100, 5*time.Second, func() (conn Conn, e error) {
+		pond = NewPond(1, 10, func() (conn Conn, e error) {
 			return grpc.Dial(url, grpc.WithInsecure())
 		})
 		reqs[url] = pond

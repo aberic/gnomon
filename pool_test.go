@@ -17,11 +17,10 @@ package gnomon
 import (
 	"google.golang.org/grpc"
 	"testing"
-	"time"
 )
 
 func TestNewPond(t *testing.T) {
-	t.Log(NewPond(10, 100, 5*time.Second, func() (conn Conn, e error) {
+	t.Log(NewPond(10, 100, func() (conn Conn, e error) {
 		return grpc.Dial("http://wwww.gnomon.com", grpc.WithInsecure())
 	}))
 }

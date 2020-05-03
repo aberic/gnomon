@@ -37,10 +37,8 @@ type factory func() (Conn, error)
 //
 // maxOpen 池中最大资源数
 //
-// maxLifetime
-//
 // factory
-func NewPond(minOpen, maxOpen int, maxLifetime time.Duration, factory factory) *Pond {
+func NewPond(minOpen, maxOpen int, factory factory) *Pond {
 	if maxOpen <= 0 {
 		maxOpen = 5
 	}
@@ -48,11 +46,10 @@ func NewPond(minOpen, maxOpen int, maxLifetime time.Duration, factory factory) *
 		maxOpen = minOpen + 1
 	}
 	p := &Pond{
-		maxOpen:     maxOpen,
-		minOpen:     minOpen,
-		maxLifetime: maxLifetime,
-		factory:     factory,
-		conn:        make(chan Conn, maxOpen),
+		maxOpen: maxOpen,
+		minOpen: minOpen,
+		factory: factory,
+		conn:    make(chan Conn, maxOpen),
 	}
 
 	for i := 0; i < minOpen; i++ {
@@ -122,7 +119,11 @@ func (p *Pond) Release(conn Conn) error {
 	if p.closed {
 		return errPoolClosed
 	}
-	p.conn <- conn
+	if len(p.conn) < p.minOpen {
+		p.conn <- conn
+	} else {
+		p.Close(conn)
+	}
 	return nil
 }
 
