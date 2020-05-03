@@ -36,9 +36,8 @@ gnomon.DES… // DES
 gnomon.CA… // CA
 gnomon.Scale… // 算数/转换
 gnomon.Time… // 时间
-gnomon.Pool… // conn池
-gnomon.GRPC… // grpc请求
-gnomon.HTTPClient… // http请求
+gnomon.HTTP… // http请求
+rpc.GRPCRequest… // gRPC请求
 ```
 
 ### 使用HTTP Server
