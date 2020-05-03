@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package rpc
+package gnomon
 
 import (
 	"context"
