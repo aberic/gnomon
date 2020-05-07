@@ -27,8 +27,10 @@ import (
 )
 
 var (
-	reqs map[string]*Pond
-	mu   sync.Mutex
+	connections = map[string]*grpc.ClientConn{}
+	muConn      sync.Mutex
+	reqs        map[string]*Pond
+	mu          sync.Mutex
 )
 
 func init() {
@@ -51,6 +53,11 @@ func GRPCRequest(url string, business Business) (interface{}, error) {
 	// 请求完毕后关闭连接
 	defer func() { _ = conn.Close() }()
 	return business(conn)
+}
+
+// GRPCRequestSingleConn RPC 通过rpc进行通信 protoc --go_out=plugins=grpc:. grpc/proto/*.proto
+func GRPCRequestSingleConn(url string, business Business) (interface{}, error) {
+	return business(getGRPCConn(url))
 }
 
 // GRPCRequestPools 通过rpc进行通信 protoc --go_out=plugins=grpc:. grpc/proto/*.proto
@@ -131,4 +138,19 @@ func GRPCGetClientIP(ctx context.Context) (address string, port int, err error) 
 		return
 	}
 	return
+}
+
+func getGRPCConn(url string) *grpc.ClientConn {
+	if conn, ok := connections[url]; ok && conn.GetState() != connectivity.Shutdown && conn.GetState() != connectivity.TransientFailure {
+		return conn
+	}
+	defer muConn.Unlock()
+	muConn.Lock()
+	// 创建一个grpc连接器
+	if conn, err := grpc.Dial(url, grpc.WithInsecure()); nil != err {
+		panic(err)
+	} else {
+		connections[url] = conn
+		return conn
+	}
 }
