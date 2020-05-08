@@ -35,7 +35,7 @@ type TestTwo struct {
 }
 
 func main() {
-	httpServe := grope.NewHTTPServe(doFilter1)
+	httpServe := grope.NewHTTPServe()
 	router1(httpServe)
 	router2(httpServe)
 	grope.ListenAndServe(":8888", httpServe)
@@ -98,7 +98,8 @@ func one2(ctx *grope.Context) {
 	_ = ctx.ReceiveJSON(ones)
 	log.Info("one", log.Field("one", &ones),
 		log.Field("url", ctx.Request().URL.String()),
-		log.Field("a", ctx.Values()["a"]), log.Field("b", ctx.Values()["b"]))
+		log.Field("a", ctx.Value("a")), log.Field("b", ctx.Value("b")),
+		log.Field("c", ctx.Param("c")), log.Field("d", ctx.Param("d")))
 	log.Info("one1", log.Field("resp", ctx.ResponseJSON(http.StatusOK, &TestTwo{
 		Two:   "2",
 		Twos:  false,
@@ -113,7 +114,8 @@ func one3(ctx *grope.Context) {
 	}
 	log.Info("one", log.Field("one", &ones),
 		log.Field("url", ctx.Request().URL.String()),
-		log.Field("a", ctx.Values()["a"]), log.Field("b", ctx.Values()["b"]))
+		log.Field("a", ctx.Value("a")), log.Field("b", ctx.Value("b")),
+		log.Field("xxx", ctx.Param("xxx")), log.Field("yyy", ctx.Param("yyy")))
 	log.Info("one1", log.Field("resp", ctx.ResponseJSON(http.StatusOK, &TestTwo{
 		Two:   "2",
 		Twos:  false,
