@@ -19,6 +19,7 @@ import (
 	"github.com/aberic/gnomon/grope/tune"
 	"github.com/aberic/gnomon/log"
 	"net/http"
+	"net/url"
 	"strings"
 )
 
@@ -106,11 +107,15 @@ func (ghs *GHttpServe) parseURLParams(r *http.Request) (pattern string, paramMap
 
 func (ghs *GHttpServe) execURLParams(paramStr string) map[string]string {
 	paramMap := map[string]string{}
+	values, err := url.ParseQuery(paramStr)
+	if nil != err {
+		return paramMap
+	}
 	paramPair := strings.Split(paramStr, "&")
 	for _, pair := range paramPair {
 		valuePair := strings.Split(pair, "=")
 		if len(valuePair) != 1 {
-			paramMap[valuePair[0]] = valuePair[1]
+			paramMap[valuePair[0]] = values.Get(valuePair[0])
 		} else {
 			return map[string]string{}
 		}

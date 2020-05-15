@@ -1,3 +1,4 @@
+[![Release](https://img.shields.io/github/release/aberic/gnomon.svg?style=flat-square)](https://github.com/aberic/gnomon/releases/latest)
 [![GoDoc](https://godoc.org/github.com/aberic/gnomon?status.svg)](https://godoc.org/github.com/aberic/gnomon)
 [![Go Report Card](https://goreportcard.com/badge/github.com/aberic/gnomon)](https://goreportcard.com/report/github.com/aberic/gnomon)
 [![GolangCI](https://golangci.com/badges/github.com/aberic/gnomon.svg)](https://golangci.com/r/github.com/aberic/gnomon)
