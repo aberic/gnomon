@@ -39,10 +39,10 @@ import (
 //
 // ECDH在ECC和DH的基础上实现的密钥交换算法
 
-const (
-	privateECCKeyPemType = "PRIVATE KEY"
-	publicECCKeyPemType  = "PUBLIC KEY"
-)
+//const (
+//	privateECCKeyPemType = "PRIVATE KEY"
+//	publicECCKeyPemType  = "PUBLIC KEY"
+//)
 
 // ECCGenerate 生成公私钥对
 //
@@ -102,8 +102,8 @@ func ECCGenerateKey(path, priFileName, pubFileName string, curve elliptic.Curve)
 // pubFileName 指定生成的密钥名称
 //
 // curve 曲线生成类型，如 crypto.S256()/elliptic.P256()/elliptic.P384()/elliptic.P512()
-func ECCGeneratePemKey(path, priFileName, pubFileName string, curve elliptic.Curve) error {
-	return ECCGeneratePemKeyWithPass(path, priFileName, pubFileName, "", curve)
+func ECCGeneratePemKey(path, priFileName, pubFileName, priPemType, pubPemType string, curve elliptic.Curve) error {
+	return ECCGeneratePemKeyWithPass(path, priFileName, pubFileName, "", priPemType, pubPemType, curve)
 }
 
 // ECCGeneratePemKeyWithPass 生成公私钥对
@@ -117,7 +117,7 @@ func ECCGeneratePemKey(path, priFileName, pubFileName string, curve elliptic.Cur
 // passwd 生成密码
 //
 // curve 曲线生成类型，如 crypto.S256()/elliptic.P256()/elliptic.P384()/elliptic.P512()
-func ECCGeneratePemKeyWithPass(path, priFileName, pubFileName, passwd string, curve elliptic.Curve) error {
+func ECCGeneratePemKeyWithPass(path, priFileName, pubFileName, passwd, priPemType, pubPemType string, curve elliptic.Curve) error {
 	var (
 		privateKey *ecdsa.PrivateKey
 		err        error
@@ -133,10 +133,10 @@ func ECCGeneratePemKeyWithPass(path, priFileName, pubFileName, passwd string, cu
 		return err
 	}
 
-	if err = ECCSavePriPemWithPass(privateKey, passwd, path, priFileName); nil != err {
+	if err = ECCSavePriPemWithPass(privateKey, passwd, path, priFileName, priPemType); nil != err {
 		return err
 	}
-	if err = ECCSavePubPem(filepath.Join(path, pubFileName), &privateKey.PublicKey); nil != err {
+	if err = ECCSavePubPem(filepath.Join(path, pubFileName), pubPemType, &privateKey.PublicKey); nil != err {
 		return err
 	}
 	return nil
@@ -177,8 +177,8 @@ func ECCGeneratePriKey(path, priFileName string, curve elliptic.Curve) error {
 // priFileName 指定生成的密钥名称
 //
 // curve 曲线生成类型，如 crypto.S256()/elliptic.P256()/elliptic.P384()/elliptic.P512()
-func ECCGeneratePemPriKey(path, priFileName string, curve elliptic.Curve) error {
-	return ECCGeneratePemPriKeyWithPass(path, priFileName, "", curve)
+func ECCGeneratePemPriKey(path, priFileName, pemType string, curve elliptic.Curve) error {
+	return ECCGeneratePemPriKeyWithPass(path, priFileName, "", pemType, curve)
 }
 
 // ECCGeneratePemPriKeyWithPass 生成私钥
@@ -190,7 +190,7 @@ func ECCGeneratePemPriKey(path, priFileName string, curve elliptic.Curve) error 
 // passwd 生成时输入的密码
 //
 // curve 曲线生成类型，如 crypto.S256()/elliptic.P256()/elliptic.P384()/elliptic.P512()
-func ECCGeneratePemPriKeyWithPass(path, priFileName, passwd string, curve elliptic.Curve) error {
+func ECCGeneratePemPriKeyWithPass(path, priFileName, passwd, pemType string, curve elliptic.Curve) error {
 	var (
 		privateKey *ecdsa.PrivateKey
 		err        error
@@ -205,7 +205,7 @@ func ECCGeneratePemPriKeyWithPass(path, priFileName, passwd string, curve ellipt
 	if err != nil {
 		return err
 	}
-	if err = ECCSavePriPemWithPass(privateKey, passwd, path, priFileName); nil != err {
+	if err = ECCSavePriPemWithPass(privateKey, passwd, path, priFileName, pemType); nil != err {
 		return err
 	}
 	return nil
@@ -224,8 +224,8 @@ func ECCGeneratePubKey(privateKey *ecdsa.PrivateKey, path, pubFileName string, c
 // ECCGeneratePemPubKey 生成公钥
 //
 // path 指定公钥所在生成目录
-func ECCGeneratePemPubKey(privateKey *ecdsa.PrivateKey, path, pubFileName string) error {
-	if err := ECCSavePubPem(filepath.Join(path, pubFileName), &privateKey.PublicKey); nil != err {
+func ECCGeneratePemPubKey(privateKey *ecdsa.PrivateKey, path, pubFileName, pemType string) error {
+	if err := ECCSavePubPem(filepath.Join(path, pubFileName), pemType, &privateKey.PublicKey); nil != err {
 		return err
 	}
 	return nil
@@ -255,12 +255,12 @@ func ECCLoadPri(file string, curve elliptic.Curve) (*ecdsa.PrivateKey, error) {
 }
 
 // ECCSavePriPem 将私钥保存到给定文件
-func ECCSavePriPem(privateKey *ecdsa.PrivateKey, path, fileName string) error {
-	return ECCSavePriPemWithPass(privateKey, "", path, fileName)
+func ECCSavePriPem(privateKey *ecdsa.PrivateKey, path, fileName, pemType string) error {
+	return ECCSavePriPemWithPass(privateKey, "", path, fileName, pemType)
 }
 
 // ECCSavePriPemWithPass 将私钥保存到给定文件
-func ECCSavePriPemWithPass(privateKey *ecdsa.PrivateKey, passwd, path, fileName string) error {
+func ECCSavePriPemWithPass(privateKey *ecdsa.PrivateKey, passwd, path, fileName, pemType string) error {
 	var (
 		fileIO *os.File
 		block  *pem.Block
@@ -272,9 +272,9 @@ func ECCSavePriPemWithPass(privateKey *ecdsa.PrivateKey, passwd, path, fileName 
 	}
 	// block表示PEM编码的结构
 	if StringIsEmpty(passwd) {
-		block = &pem.Block{Type: privateECCKeyPemType, Bytes: derStream}
+		block = &pem.Block{Type: pemType, Bytes: derStream}
 	} else {
-		block, err = x509.EncryptPEMBlock(rand.Reader, privateECCKeyPemType, derStream, []byte(passwd), x509.PEMCipher3DES)
+		block, err = x509.EncryptPEMBlock(rand.Reader, pemType, derStream, []byte(passwd), x509.PEMCipher3DES)
 		if nil != err {
 			return err
 		}
@@ -298,8 +298,8 @@ func ECCSavePriPemWithPass(privateKey *ecdsa.PrivateKey, passwd, path, fileName 
 // ECCLoadPriPem 解析私钥
 //
 // privateKey 私钥内容，如取出字符串'priData'，则传入'string(priData)'即可
-func ECCLoadPriPem(privateKey []byte) (*ecdsa.PrivateKey, error) {
-	return ECCLoadPriPemWithPass(privateKey, "")
+func ECCLoadPriPem(privateKey []byte, pemType string) (*ecdsa.PrivateKey, error) {
+	return ECCLoadPriPemWithPass(privateKey, "", pemType)
 }
 
 // ECCLoadPriPemWithPass 解析私钥
@@ -307,13 +307,13 @@ func ECCLoadPriPem(privateKey []byte) (*ecdsa.PrivateKey, error) {
 // privateKey 私钥内容，如取出字符串'priData'，则传入'string(priData)'即可
 //
 // passwd 生成privateKey时输入密码
-func ECCLoadPriPemWithPass(privateKey []byte, passwd string) (*ecdsa.PrivateKey, error) {
+func ECCLoadPriPemWithPass(privateKey []byte, passwd, pemType string) (*ecdsa.PrivateKey, error) {
 	var (
 		pemData []byte
 		err     error
 	)
 	if StringIsEmpty(passwd) {
-		pemData, err = eccPemParse(privateKey, privateECCKeyPemType)
+		pemData, err = eccPemParse(privateKey, pemType)
 		if err != nil {
 			return nil, err
 		}
@@ -334,8 +334,8 @@ func ECCLoadPriPemWithPass(privateKey []byte, passwd string) (*ecdsa.PrivateKey,
 // ECCLoadPriPemFP 从文件中加载私钥
 //
 // file 文件路径
-func ECCLoadPriPemFP(file string) (*ecdsa.PrivateKey, error) {
-	return ECCLoadPriPemFPWithPass(file, "")
+func ECCLoadPriPemFP(file, pemType string) (*ecdsa.PrivateKey, error) {
+	return ECCLoadPriPemFPWithPass(file, "", pemType)
 }
 
 // ECCLoadPriPemFPWithPass 从文件中加载私钥
@@ -343,7 +343,7 @@ func ECCLoadPriPemFP(file string) (*ecdsa.PrivateKey, error) {
 // file 文件路径
 //
 // passwd 生成privateKey时输入密码
-func ECCLoadPriPemFPWithPass(file, passwd string) (*ecdsa.PrivateKey, error) {
+func ECCLoadPriPemFPWithPass(file, passwd, pemType string) (*ecdsa.PrivateKey, error) {
 	var (
 		pemData []byte
 		err     error
@@ -353,7 +353,7 @@ func ECCLoadPriPemFPWithPass(file, passwd string) (*ecdsa.PrivateKey, error) {
 		return nil, err
 	}
 	if StringIsEmpty(passwd) {
-		pemData, err = eccPemParse(keyData, privateECCKeyPemType)
+		pemData, err = eccPemParse(keyData, pemType)
 		if err != nil {
 			return nil, err
 		}
@@ -374,7 +374,7 @@ func ECCLoadPriPemFPWithPass(file, passwd string) (*ecdsa.PrivateKey, error) {
 // ECCSavePubPem 将公钥保存到给定文件
 //
 // file 文件路径
-func ECCSavePubPem(file string, publicKey *ecdsa.PublicKey) error {
+func ECCSavePubPem(file, pemType string, publicKey *ecdsa.PublicKey) error {
 	var fileIO *os.File
 	// 将公钥序列化为der编码的PKIX格式
 	derPkiX, err := x509.MarshalPKIXPublicKey(publicKey)
@@ -382,7 +382,7 @@ func ECCSavePubPem(file string, publicKey *ecdsa.PublicKey) error {
 		return err
 	}
 	block := &pem.Block{
-		Type:  publicECCKeyPemType,
+		Type:  pemType,
 		Bytes: derPkiX,
 	}
 	defer func() { _ = fileIO.Close() }()
@@ -399,8 +399,8 @@ func ECCSavePubPem(file string, publicKey *ecdsa.PublicKey) error {
 // ECCLoadPubPem 从文件中加载公钥
 //
 // file 文件路径
-func ECCLoadPubPem(publicKey []byte) (*ecdsa.PublicKey, error) {
-	pemData, err := eccPemParse(publicKey, publicECCKeyPemType)
+func ECCLoadPubPem(publicKey []byte, pemType string) (*ecdsa.PublicKey, error) {
+	pemData, err := eccPemParse(publicKey, pemType)
 	if err != nil {
 		return nil, err
 	}
@@ -418,12 +418,12 @@ func ECCLoadPubPem(publicKey []byte) (*ecdsa.PublicKey, error) {
 // ECCLoadPubPemFP 从文件中加载公钥
 //
 // file 文件路径
-func ECCLoadPubPemFP(file string) (*ecdsa.PublicKey, error) {
+func ECCLoadPubPemFP(file, pemType string) (*ecdsa.PublicKey, error) {
 	pubData, err := ioutil.ReadFile(file)
 	if nil != err {
 		return nil, err
 	}
-	pemData, err := eccPemParse(pubData, publicECCKeyPemType)
+	pemData, err := eccPemParse(pubData, pemType)
 	if err != nil {
 		return nil, err
 	}

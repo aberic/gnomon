@@ -42,8 +42,8 @@ const (
 // cert 证书生成请求对象
 //
 // pks 私钥格式，默认提供PKCS1和PKCS8，通过调用‘RSAPKSC1()’和‘RSAPKSC8()’方法赋值
-func CAGenerateRSACertificateRequest(cert *CertRequest, pks PKSCType) (csr []byte, err error) {
-	priRSAKey, err := RSALoadPri(cert.PrivateKeyData, pks)
+func CAGenerateRSACertificateRequest(cert *CertRequest, pemType string, pks PKSCType) (csr []byte, err error) {
+	priRSAKey, err := RSALoadPri(cert.PrivateKeyData, pemType, pks)
 	if err != nil {
 		return nil, err
 	}
@@ -59,8 +59,8 @@ func CAGenerateRSACertificateRequest(cert *CertRequest, pks PKSCType) (csr []byt
 // password 生成时输入的密码
 //
 // pks 私钥格式，默认提供PKCS1和PKCS8，通过调用‘RSAPKSC1()’和‘RSAPKSC8()’方法赋值
-func CAGenerateRSACertificateRequestWithPass(cert *CertRequest, password string, pks PKSCType) (csr []byte, err error) {
-	priRSAKey, err := RSALoadPriWithPass(cert.PrivateKeyData, password, pks)
+func CAGenerateRSACertificateRequestWithPass(cert *CertRequest, password, pemType string, pks PKSCType) (csr []byte, err error) {
+	priRSAKey, err := RSALoadPriWithPass(cert.PrivateKeyData, password, pemType, pks)
 	if err != nil {
 		return nil, err
 	}
@@ -74,8 +74,8 @@ func CAGenerateRSACertificateRequestWithPass(cert *CertRequest, password string,
 // cert 证书生成请求对象
 //
 // pks 私钥格式，默认提供PKCS1和PKCS8，通过调用‘RSAPKSC1()’和‘RSAPKSC8()’方法赋值
-func CAGenerateRSACertificateRequestFP(cert *CertRequestFP, pks PKSCType) (csr []byte, err error) {
-	priRSAKey, err := RSALoadPriFP(cert.PrivateKeyFilePath, pks)
+func CAGenerateRSACertificateRequestFP(cert *CertRequestFP, pemType string, pks PKSCType) (csr []byte, err error) {
+	priRSAKey, err := RSALoadPriFP(cert.PrivateKeyFilePath, pemType, pks)
 	if err != nil {
 		return nil, err
 	}
@@ -91,8 +91,8 @@ func CAGenerateRSACertificateRequestFP(cert *CertRequestFP, pks PKSCType) (csr [
 // password 生成时输入的密码
 //
 // pks 私钥格式，默认提供PKCS1和PKCS8，通过调用‘RSAPKSC1()’和‘RSAPKSC8()’方法赋值
-func CAGenerateRSACertificateRequestFPWithPass(cert *CertRequestFP, password string, pks PKSCType) (csr []byte, err error) {
-	priRSAKey, err := RSALoadPriFPWithPass(cert.PrivateKeyFilePath, password, pks)
+func CAGenerateRSACertificateRequestFPWithPass(cert *CertRequestFP, password, pemType string, pks PKSCType) (csr []byte, err error) {
+	priRSAKey, err := RSALoadPriFPWithPass(cert.PrivateKeyFilePath, password, pemType, pks)
 	if err != nil {
 		return nil, err
 	}
@@ -104,8 +104,8 @@ func CAGenerateRSACertificateRequestFPWithPass(cert *CertRequestFP, password str
 // CAGenerateECCCertificateRequest 生成证书签名请求文件
 //
 // cert 证书生成请求对象
-func CAGenerateECCCertificateRequest(cert *CertRequest) (csr []byte, err error) {
-	return CAGenerateECCCertificateRequestWithPass(cert, "")
+func CAGenerateECCCertificateRequest(cert *CertRequest, pemType string) (csr []byte, err error) {
+	return CAGenerateECCCertificateRequestWithPass(cert, "", pemType)
 }
 
 // CAGenerateECCCertificateRequestWithPass 生成证书签名请求文件
@@ -113,8 +113,8 @@ func CAGenerateECCCertificateRequest(cert *CertRequest) (csr []byte, err error) 
 // cert 证书生成请求对象
 //
 // password 生成时输入的密码
-func CAGenerateECCCertificateRequestWithPass(cert *CertRequest, password string) (csr []byte, err error) {
-	priECCKey, err := ECCLoadPriPemWithPass(cert.PrivateKeyData, password)
+func CAGenerateECCCertificateRequestWithPass(cert *CertRequest, password, pemType string) (csr []byte, err error) {
+	priECCKey, err := ECCLoadPriPemWithPass(cert.PrivateKeyData, password, pemType)
 	if err != nil {
 		return nil, err
 	}
@@ -126,8 +126,8 @@ func CAGenerateECCCertificateRequestWithPass(cert *CertRequest, password string)
 // CAGenerateECCCertificateRequestFP 生成证书签名请求文件
 //
 // cert 证书生成请求对象
-func CAGenerateECCCertificateRequestFP(cert *CertRequestFP) (csr []byte, err error) {
-	return CAGenerateECCCertificateRequestFPWithPass(cert, "")
+func CAGenerateECCCertificateRequestFP(cert *CertRequestFP, pemType string) (csr []byte, err error) {
+	return CAGenerateECCCertificateRequestFPWithPass(cert, "", pemType)
 }
 
 // CAGenerateECCCertificateRequestFPWithPass 生成证书签名请求文件
@@ -135,8 +135,8 @@ func CAGenerateECCCertificateRequestFP(cert *CertRequestFP) (csr []byte, err err
 // cert 证书生成请求对象
 //
 // password 生成时输入的密码
-func CAGenerateECCCertificateRequestFPWithPass(cert *CertRequestFP, password string) (csr []byte, err error) {
-	priECCKey, err := ECCLoadPriPemFPWithPass(cert.PrivateKeyFilePath, password)
+func CAGenerateECCCertificateRequestFPWithPass(cert *CertRequestFP, password, pemType string) (csr []byte, err error) {
+	priECCKey, err := ECCLoadPriPemFPWithPass(cert.PrivateKeyFilePath, password, pemType)
 	if err != nil {
 		return nil, err
 	}

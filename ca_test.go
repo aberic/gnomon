@@ -68,7 +68,7 @@ var CAMockSubject = pkix.Name{
 }
 
 func TestCACommon_GenerateRSAPKCS1PrivateKey(t *testing.T) {
-	if _, errCA = RSAGeneratePriKey(512, pathcarsapksc1512, caPriKeyFileName, RSAPKSC1()); nil != errCA {
+	if _, errCA = RSAGeneratePriKey(512, pathcarsapksc1512, caPriKeyFileName, "PRIVATE KEY", RSAPKSC1()); nil != errCA {
 		t.Error(errCA)
 	}
 	priData, errCA = ioutil.ReadFile(filepath.Join(pathcarsapksc1512, caPriKeyFileName))
@@ -80,11 +80,11 @@ func TestCACommon_GenerateRSAPKCS1PrivateKey(t *testing.T) {
 		CertificateRequestFilePath: filepath.Join(pathcarsapksc1512, caCertificateRequestFileName),
 		SignatureAlgorithm:         x509.SHA256WithRSAPSS,
 		Subject:                    CAMockSubject,
-	}, RSAPKSC1()); nil != errCA {
+	}, "PRIVATE KEY", RSAPKSC1()); nil != errCA {
 		t.Error(errCA)
 	}
 
-	if _, errCA = RSAGeneratePriKeyWithPass(1024, pathcarsapksc11024, caPriKeyFileName, "123456", x509.PEMCipher3DES, RSAPKSC1()); nil != errCA {
+	if _, errCA = RSAGeneratePriKeyWithPass(1024, pathcarsapksc11024, caPriKeyFileName, "123456", "PRIVATE KEY", x509.PEMCipher3DES, RSAPKSC1()); nil != errCA {
 		t.Error(errCA)
 	}
 	priData, errCA = ioutil.ReadFile(filepath.Join(pathcarsapksc11024, caPriKeyFileName))
@@ -96,13 +96,13 @@ func TestCACommon_GenerateRSAPKCS1PrivateKey(t *testing.T) {
 		CertificateRequestFilePath: filepath.Join(pathcarsapksc11024, caCertificateRequestFileName),
 		SignatureAlgorithm:         x509.SHA384WithRSAPSS,
 		Subject:                    CAMockSubject,
-	}, "123456", RSAPKSC1()); nil != errCA {
+	}, "123456", "PRIVATE KEY", RSAPKSC1()); nil != errCA {
 		t.Error(errCA)
 	}
 }
 
 func TestCACommon_GenerateRSAPKCS1PrivateKeyFP(t *testing.T) {
-	if _, errCA = RSAGeneratePriKey(512, pathcarsapksc1512, caPriKeyFileName, RSAPKSC1()); nil != errCA {
+	if _, errCA = RSAGeneratePriKey(512, pathcarsapksc1512, caPriKeyFileName, "PRIVATE KEY", RSAPKSC1()); nil != errCA {
 		t.Error(errCA)
 	}
 	if _, errCA = CAGenerateRSACertificateRequestFP(&CertRequestFP{
@@ -110,11 +110,11 @@ func TestCACommon_GenerateRSAPKCS1PrivateKeyFP(t *testing.T) {
 		CertificateRequestFilePath: filepath.Join(pathcarsapksc1512, caCertificateRequestFileName),
 		SignatureAlgorithm:         x509.SHA256WithRSAPSS,
 		Subject:                    CAMockSubject,
-	}, RSAPKSC1()); nil != errCA {
+	}, "PRIVATE KEY", RSAPKSC1()); nil != errCA {
 		t.Error(errCA)
 	}
 
-	if _, errCA = RSAGeneratePriKeyWithPass(1024, pathcarsapksc11024, caPriKeyFileName, "123456", x509.PEMCipher3DES, RSAPKSC1()); nil != errCA {
+	if _, errCA = RSAGeneratePriKeyWithPass(1024, pathcarsapksc11024, caPriKeyFileName, "123456", "PRIVATE KEY", x509.PEMCipher3DES, RSAPKSC1()); nil != errCA {
 		t.Error(errCA)
 	}
 	if _, errCA = CAGenerateRSACertificateRequestFPWithPass(&CertRequestFP{
@@ -122,7 +122,7 @@ func TestCACommon_GenerateRSAPKCS1PrivateKeyFP(t *testing.T) {
 		CertificateRequestFilePath: filepath.Join(pathcarsapksc11024, caCertificateRequestFileName),
 		SignatureAlgorithm:         x509.SHA384WithRSAPSS,
 		Subject:                    CAMockSubject,
-	}, "123456", RSAPKSC1()); nil != errCA {
+	}, "123456", "PRIVATE KEY", RSAPKSC1()); nil != errCA {
 		t.Error(errCA)
 	}
 }
@@ -183,7 +183,7 @@ func TestCACommon_GenerateRSAPKCS1PrivateKeyFP(t *testing.T) {
 //}
 
 func TestCACommon_GenerateRSAPKCS1PrivateKeyFPFabricCA(t *testing.T) {
-	if priRSAKey, errCA = RSAGeneratePriKey(2048, pathcarsapksc1fabric2048, caPriKeyFileName, RSAPKSC1()); nil != errCA {
+	if priRSAKey, errCA = RSAGeneratePriKey(2048, pathcarsapksc1fabric2048, caPriKeyFileName, "PRIVATE KEY", RSAPKSC1()); nil != errCA {
 		t.Error(errCA)
 	}
 	if _, errCA = CAGenerateRSACertificateRequestFP(&CertRequestFP{
@@ -193,7 +193,7 @@ func TestCACommon_GenerateRSAPKCS1PrivateKeyFPFabricCA(t *testing.T) {
 		Subject:                    CAMockSubject,
 		EmailAddresses:             []string{"test@test.com"},
 		IPAddresses:                []net.IP{net.ParseIP("localhost"), net.ParseIP("127.0.0.1")},
-	}, RSAPKSC1()); nil != errCA {
+	}, "PRIVATE KEY", RSAPKSC1()); nil != errCA {
 		t.Error(errCA)
 	}
 	if _, errCA = CAGenerateCertificateSelf(&CertSelf{
@@ -212,7 +212,7 @@ func TestCACommon_GenerateRSAPKCS1PrivateKeyFPFabricCA(t *testing.T) {
 		t.Error(errCA)
 	}
 
-	if errCA = ECCGeneratePemPriKey(pathcaeccpempfabric384, caPriKeyFileName, elliptic.P384()); nil != errCA {
+	if errCA = ECCGeneratePemPriKey(pathcaeccpempfabric384, caPriKeyFileName, "PRIVATE KEY", elliptic.P384()); nil != errCA {
 		t.Error(errCA)
 	}
 	priData, errECC = ioutil.ReadFile(filepath.Join(pathcaeccpempfabric384, caPriKeyFileName))
@@ -224,10 +224,10 @@ func TestCACommon_GenerateRSAPKCS1PrivateKeyFPFabricCA(t *testing.T) {
 		CertificateRequestFilePath: filepath.Join(pathcaeccpempfabric384, caCertificateRequestFileName),
 		SignatureAlgorithm:         x509.ECDSAWithSHA256,
 		Subject:                    CAMockSubject,
-	}); nil != errCA {
+	}, "PRIVATE KEY"); nil != errCA {
 		t.Error(errCA)
 	}
-	if priKeyP384, errCA = ECCLoadPriPemFP(filepath.Join(pathcaeccpempfabric384, caPriKeyFileName)); nil != errCA {
+	if priKeyP384, errCA = ECCLoadPriPemFP(filepath.Join(pathcaeccpempfabric384, caPriKeyFileName), "PRIVATE KEY"); nil != errCA {
 		t.Error(errCA)
 	}
 	if certData, errCA = CAGenerateCertificateSelf(&CertSelf{
@@ -249,7 +249,7 @@ func TestCACommon_GenerateRSAPKCS1PrivateKeyFPFabricCA(t *testing.T) {
 }
 
 func TestCACommon_GenerateRSAPKCS8PrivateKeyFP(t *testing.T) {
-	if priRSAKey, errCA = RSAGeneratePriKey(1024, pathcarsapksc81024, caPriKeyFileName, RSAPKSC8()); nil != errCA {
+	if priRSAKey, errCA = RSAGeneratePriKey(1024, pathcarsapksc81024, caPriKeyFileName, "PRIVATE KEY", RSAPKSC8()); nil != errCA {
 		t.Error(errCA)
 	}
 	if _, errCA = CAGenerateRSACertificateRequestFP(&CertRequestFP{
@@ -259,7 +259,7 @@ func TestCACommon_GenerateRSAPKCS8PrivateKeyFP(t *testing.T) {
 		Subject:                    CAMockSubject,
 		EmailAddresses:             []string{"test@test.com"},
 		IPAddresses:                []net.IP{net.ParseIP("192.168.1.59")},
-	}, RSAPKSC8()); nil != errCA {
+	}, "PRIVATE KEY", RSAPKSC8()); nil != errCA {
 		t.Error(errCA)
 	}
 	if _, errCA = CAGenerateCertificateSelf(&CertSelf{
@@ -278,7 +278,7 @@ func TestCACommon_GenerateRSAPKCS8PrivateKeyFP(t *testing.T) {
 		t.Error(errCA)
 	}
 
-	if _, errCA = RSAGeneratePriKeyWithPass(2048, pathcarsapksc82048, caPriKeyFileName, "123456", x509.PEMCipher3DES, RSAPKSC8()); nil != errCA {
+	if _, errCA = RSAGeneratePriKeyWithPass(2048, pathcarsapksc82048, caPriKeyFileName, "123456", "PRIVATE KEY", x509.PEMCipher3DES, RSAPKSC8()); nil != errCA {
 		t.Error(errCA)
 	}
 	if _, errCA = CAGenerateRSACertificateRequestFPWithPass(&CertRequestFP{
@@ -286,13 +286,13 @@ func TestCACommon_GenerateRSAPKCS8PrivateKeyFP(t *testing.T) {
 		CertificateRequestFilePath: filepath.Join(pathcarsapksc82048, caCertificateRequestFileName),
 		SignatureAlgorithm:         x509.SHA512WithRSAPSS,
 		Subject:                    CAMockSubject,
-	}, "123456", RSAPKSC8()); nil != errCA {
+	}, "123456", "PRIVATE KEY", RSAPKSC8()); nil != errCA {
 		t.Error(errCA)
 	}
 }
 
 func TestCACommon_GenerateECCPrivateKey(t *testing.T) {
-	if errCA = ECCGeneratePemPriKey(pathcaeccpemp224, caPriKeyFileName, elliptic.P224()); nil != errCA {
+	if errCA = ECCGeneratePemPriKey(pathcaeccpemp224, caPriKeyFileName, "PRIVATE KEY", elliptic.P224()); nil != errCA {
 		t.Error(errCA)
 	}
 	priData, errECC = ioutil.ReadFile(filepath.Join(pathcaeccpemp224, caPriKeyFileName))
@@ -306,10 +306,10 @@ func TestCACommon_GenerateECCPrivateKey(t *testing.T) {
 		Subject:                    CAMockSubject,
 		EmailAddresses:             []string{"test@test.com"},
 		IPAddresses:                []net.IP{net.ParseIP("192.168.1.59")},
-	}); nil != errCA {
+	}, "PRIVATE KEY"); nil != errCA {
 		t.Error(errCA)
 	}
-	if priKeyP224, errCA = ECCLoadPriPem(priData); nil != errCA {
+	if priKeyP224, errCA = ECCLoadPriPem(priData, "PRIVATE KEY"); nil != errCA {
 		t.Error(errCA)
 	}
 	if _, errCA = CAGenerateCertificateSelf(&CertSelf{
@@ -328,7 +328,7 @@ func TestCACommon_GenerateECCPrivateKey(t *testing.T) {
 		t.Error(errCA)
 	}
 
-	if errCA = ECCGeneratePemPriKey(pathcaeccpemp256, caPriKeyFileName, elliptic.P256()); nil != errCA {
+	if errCA = ECCGeneratePemPriKey(pathcaeccpemp256, caPriKeyFileName, "PRIVATE KEY", elliptic.P256()); nil != errCA {
 		t.Error(errCA)
 	}
 	if _, errCA = CAGenerateECCCertificateRequestFP(&CertRequestFP{
@@ -338,10 +338,10 @@ func TestCACommon_GenerateECCPrivateKey(t *testing.T) {
 		Subject:                    CAMockSubject,
 		EmailAddresses:             []string{"test@test.com"},
 		IPAddresses:                []net.IP{net.ParseIP("192.168.1.59")},
-	}); nil != errCA {
+	}, "PRIVATE KEY"); nil != errCA {
 		t.Error(errCA)
 	}
-	if priKeyP256, errCA = ECCLoadPriPemFP(filepath.Join(pathcaeccpemp256, caPriKeyFileName)); nil != errCA {
+	if priKeyP256, errCA = ECCLoadPriPemFP(filepath.Join(pathcaeccpemp256, caPriKeyFileName), "PRIVATE KEY"); nil != errCA {
 		t.Error(errCA)
 	}
 	if _, errCA = CAGenerateCertificateSelf(&CertSelf{
@@ -360,7 +360,7 @@ func TestCACommon_GenerateECCPrivateKey(t *testing.T) {
 		t.Error(errCA)
 	}
 
-	if errCA = ECCGeneratePemPriKeyWithPass(pathcaeccpemp384, caPriKeyFileName, "123456", elliptic.P384()); nil != errCA {
+	if errCA = ECCGeneratePemPriKeyWithPass(pathcaeccpemp384, caPriKeyFileName, "123456", "PRIVATE KEY", elliptic.P384()); nil != errCA {
 		t.Error(errCA)
 	}
 	priData, errECC = ioutil.ReadFile(filepath.Join(pathcaeccpemp384, caPriKeyFileName))
@@ -372,10 +372,10 @@ func TestCACommon_GenerateECCPrivateKey(t *testing.T) {
 		CertificateRequestFilePath: filepath.Join(pathcaeccpemp384, caCertificateRequestFileName),
 		SignatureAlgorithm:         x509.ECDSAWithSHA384,
 		Subject:                    CAMockSubject,
-	}, "123456"); nil != errCA {
+	}, "123456", "PRIVATE KEY"); nil != errCA {
 		t.Error(errCA)
 	}
-	if priKeyP384, errCA = ECCLoadPriPemFPWithPass(filepath.Join(pathcaeccpemp384, caPriKeyFileName), "123456"); nil != errCA {
+	if priKeyP384, errCA = ECCLoadPriPemFPWithPass(filepath.Join(pathcaeccpemp384, caPriKeyFileName), "123456", "PRIVATE KEY"); nil != errCA {
 		t.Error(errCA)
 	}
 	if certData, errCA = CAGenerateCertificateSelf(&CertSelf{
@@ -394,7 +394,7 @@ func TestCACommon_GenerateECCPrivateKey(t *testing.T) {
 		t.Error(errCA)
 	}
 
-	if errCA = ECCGeneratePemPriKeyWithPass(pathcaeccpemp521, caPriKeyFileName, "123456", elliptic.P521()); nil != errCA {
+	if errCA = ECCGeneratePemPriKeyWithPass(pathcaeccpemp521, caPriKeyFileName, "123456", "PRIVATE KEY", elliptic.P521()); nil != errCA {
 		t.Error(errCA)
 	}
 	if _, errCA = CAGenerateECCCertificateRequestFPWithPass(&CertRequestFP{
@@ -402,10 +402,10 @@ func TestCACommon_GenerateECCPrivateKey(t *testing.T) {
 		CertificateRequestFilePath: filepath.Join(pathcaeccpemp521, caCertificateRequestFileName),
 		SignatureAlgorithm:         x509.ECDSAWithSHA512,
 		Subject:                    CAMockSubject,
-	}, "123456"); nil != errCA {
+	}, "123456", "PRIVATE KEY"); nil != errCA {
 		t.Error(errCA)
 	}
-	if priKeyP521, errCA = ECCLoadPriPemFPWithPass(filepath.Join(pathcaeccpemp521, caPriKeyFileName), "123456"); nil != errCA {
+	if priKeyP521, errCA = ECCLoadPriPemFPWithPass(filepath.Join(pathcaeccpemp521, caPriKeyFileName), "123456", "PRIVATE KEY"); nil != errCA {
 		t.Error(errCA)
 	}
 	if parentCert, errCA = x509.ParseCertificate(certData); nil != errCA {
@@ -459,7 +459,7 @@ func TestCACommon_GenerateRSACertificateRequest_Fail(t *testing.T) {
 		CertificateRequestFilePath: filepath.Join(pathcarsapksc1512, caCertificateRequestFileName),
 		SignatureAlgorithm:         x509.SHA256WithRSAPSS,
 		Subject:                    CAMockSubject,
-	}, RSAPKSC1())
+	}, "PRIVATE KEY", RSAPKSC1())
 	t.Log(errCA)
 }
 
@@ -469,7 +469,7 @@ func TestCACommon_GenerateRSACertificateRequestFP_Fail(t *testing.T) {
 		CertificateRequestFilePath: filepath.Join(pathcarsapksc1512, caCertificateRequestFileName),
 		SignatureAlgorithm:         x509.SHA256WithRSAPSS,
 		Subject:                    CAMockSubject,
-	}, RSAPKSC1())
+	}, "PRIVATE KEY", RSAPKSC1())
 	t.Log(errCA)
 }
 
@@ -483,7 +483,7 @@ func TestCACommon_GenerateRSACertificateRequestWithPass_Fail(t *testing.T) {
 		CertificateRequestFilePath: filepath.Join(pathcarsapksc1512, caCertificateRequestFileName),
 		SignatureAlgorithm:         x509.SHA256WithRSAPSS,
 		Subject:                    CAMockSubject,
-	}, "123", RSAPKSC1())
+	}, "PRIVATE KEY", "123", RSAPKSC1())
 	t.Log(errCA)
 }
 
@@ -493,7 +493,7 @@ func TestCACommon_GenerateRSACertificateRequestFPWithPass_Fail(t *testing.T) {
 		CertificateRequestFilePath: filepath.Join(pathcarsapksc1512, caCertificateRequestFileName),
 		SignatureAlgorithm:         x509.SHA256WithRSAPSS,
 		Subject:                    CAMockSubject,
-	}, "123", RSAPKSC1())
+	}, "PRIVATE KEY", "123", RSAPKSC1())
 	t.Log(errCA)
 }
 
@@ -503,7 +503,7 @@ func TestCACommon_GenerateECCCertificateRequest_Fail(t *testing.T) {
 		CertificateRequestFilePath: filepath.Join(pathcarsapksc1512, caCertificateRequestFileName),
 		SignatureAlgorithm:         x509.SHA256WithRSAPSS,
 		Subject:                    CAMockSubject,
-	})
+	}, "PRIVATE KEY")
 	t.Log(errCA)
 }
 
@@ -513,7 +513,7 @@ func TestCACommon_GenerateECCCertificateRequestFP_Fail(t *testing.T) {
 		CertificateRequestFilePath: filepath.Join(pathcarsapksc1512, caCertificateRequestFileName),
 		SignatureAlgorithm:         x509.SHA256WithRSAPSS,
 		Subject:                    CAMockSubject,
-	})
+	}, "PRIVATE KEY")
 	t.Log(errCA)
 }
 

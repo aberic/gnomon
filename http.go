@@ -278,8 +278,8 @@ func HTTPDoTLS(req *http.Request, tlsConfig *HTTPTLSConfig) (resp *http.Response
 // paramMap form普通参数
 //
 // fileMap form附件key及附件路径
-func HTTPPostForm(url string, paramMap map[string]string, fileMap map[string]string) (resp *http.Response, err error) {
-	return HTTPPostFormTLS(url, paramMap, fileMap, &HTTPTLSConfig{})
+func HTTPPostForm(url string, paramMap map[string]string) (resp *http.Response, err error) {
+	return HTTPPostFormTLS(url, paramMap, &HTTPTLSConfig{})
 }
 
 // HTTPPutForm put 请求
@@ -287,8 +287,8 @@ func HTTPPostForm(url string, paramMap map[string]string, fileMap map[string]str
 // paramMap form普通参数
 //
 // fileMap form附件key及附件路径
-func HTTPPutForm(url string, paramMap map[string]string, fileMap map[string]string) (resp *http.Response, err error) {
-	return HTTPPutFormTLS(url, paramMap, fileMap, &HTTPTLSConfig{})
+func HTTPPutForm(url string, paramMap map[string]string) (resp *http.Response, err error) {
+	return HTTPPutFormTLS(url, paramMap, &HTTPTLSConfig{})
 }
 
 // HTTPPatchForm patch 请求
@@ -296,8 +296,35 @@ func HTTPPutForm(url string, paramMap map[string]string, fileMap map[string]stri
 // paramMap form普通参数
 //
 // fileMap form附件key及附件路径
-func HTTPPatchForm(url string, paramMap map[string]string, fileMap map[string]string) (resp *http.Response, err error) {
-	return HTTPPatchFormTLS(url, paramMap, fileMap, &HTTPTLSConfig{})
+func HTTPPatchForm(url string, paramMap map[string]string) (resp *http.Response, err error) {
+	return HTTPPatchFormTLS(url, paramMap, &HTTPTLSConfig{})
+}
+
+// HTTPPostFormMultipart post 请求
+//
+// paramMap form普通参数
+//
+// fileMap form附件key及附件路径
+func HTTPPostFormMultipart(url string, paramMap map[string]string, fileMap map[string]string) (resp *http.Response, err error) {
+	return HTTPPostFormMultipartTLS(url, paramMap, fileMap, &HTTPTLSConfig{})
+}
+
+// HTTPPutFormMultipart put 请求
+//
+// paramMap form普通参数
+//
+// fileMap form附件key及附件路径
+func HTTPPutFormMultipart(url string, paramMap map[string]string, fileMap map[string]string) (resp *http.Response, err error) {
+	return HTTPPutFormMultipartTLS(url, paramMap, fileMap, &HTTPTLSConfig{})
+}
+
+// HTTPPatchFormMultipart patch 请求
+//
+// paramMap form普通参数
+//
+// fileMap form附件key及附件路径
+func HTTPPatchFormMultipart(url string, paramMap map[string]string, fileMap map[string]string) (resp *http.Response, err error) {
+	return HTTPPatchFormMultipartTLS(url, paramMap, fileMap, &HTTPTLSConfig{})
 }
 
 // HTTPPostFormTLS post tls 请求
@@ -305,8 +332,8 @@ func HTTPPatchForm(url string, paramMap map[string]string, fileMap map[string]st
 // paramMap form普通参数
 //
 // fileMap form附件key及附件路径
-func HTTPPostFormTLS(url string, paramMap map[string]string, fileMap map[string]string, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
-	return httpRequestForm(http.MethodPost, url, paramMap, fileMap, tlsConfig)
+func HTTPPostFormTLS(url string, paramMap map[string]string, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
+	return httpRequestForm(http.MethodPost, url, paramMap, tlsConfig)
 }
 
 // HTTPPutFormTLS put tls 请求
@@ -314,8 +341,8 @@ func HTTPPostFormTLS(url string, paramMap map[string]string, fileMap map[string]
 // paramMap form普通参数
 //
 // fileMap form附件key及附件路径
-func HTTPPutFormTLS(url string, paramMap map[string]string, fileMap map[string]string, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
-	return httpRequestForm(http.MethodPut, url, paramMap, fileMap, tlsConfig)
+func HTTPPutFormTLS(url string, paramMap map[string]string, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
+	return httpRequestForm(http.MethodPut, url, paramMap, tlsConfig)
 }
 
 // HTTPPatchFormTLS patch tls 请求
@@ -323,8 +350,35 @@ func HTTPPutFormTLS(url string, paramMap map[string]string, fileMap map[string]s
 // paramMap form普通参数
 //
 // fileMap form附件key及附件路径
-func HTTPPatchFormTLS(url string, paramMap map[string]string, fileMap map[string]string, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
-	return httpRequestForm(http.MethodPatch, url, paramMap, fileMap, tlsConfig)
+func HTTPPatchFormTLS(url string, paramMap map[string]string, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
+	return httpRequestForm(http.MethodPatch, url, paramMap, tlsConfig)
+}
+
+// HTTPPostFormMultipartTLS post tls 请求
+//
+// paramMap form普通参数
+//
+// fileMap form附件key及附件路径
+func HTTPPostFormMultipartTLS(url string, paramMap map[string]string, fileMap map[string]string, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
+	return httpRequestFormMultipart(http.MethodPost, url, paramMap, fileMap, tlsConfig)
+}
+
+// HTTPPutFormMultipartTLS put tls 请求
+//
+// paramMap form普通参数
+//
+// fileMap form附件key及附件路径
+func HTTPPutFormMultipartTLS(url string, paramMap map[string]string, fileMap map[string]string, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
+	return httpRequestFormMultipart(http.MethodPut, url, paramMap, fileMap, tlsConfig)
+}
+
+// HTTPPatchFormMultipartTLS patch tls 请求
+//
+// paramMap form普通参数
+//
+// fileMap form附件key及附件路径
+func HTTPPatchFormMultipartTLS(url string, paramMap map[string]string, fileMap map[string]string, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
+	return httpRequestFormMultipart(http.MethodPatch, url, paramMap, fileMap, tlsConfig)
 }
 
 // httpRequestJSON json 请求
@@ -422,7 +476,33 @@ func httpRequestProtoBuf(method, url string, pm proto.Message, tlsConfig *HTTPTL
 // paramMap form普通参数
 //
 // fileMap form附件key及附件路径
-func httpRequestForm(method, url string, paramMap map[string]string, fileMap map[string]string, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
+func httpRequestForm(method, url string, paramMap map[string]string, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
+	var (
+		req        *http.Request
+		bodyBuffer = &bytes.Buffer{}
+		bodyWriter = multipart.NewWriter(bodyBuffer)
+	)
+	for key, value := range paramMap {
+		if err = bodyWriter.WriteField(key, value); nil != err {
+			return nil, err
+		}
+	}
+	if err = bodyWriter.Close(); nil != err {
+		return nil, err
+	}
+	if req, err = http.NewRequest(method, url, bodyBuffer); nil != err {
+		return
+	}
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	return httpRequestTLSDo(req, tlsConfig)
+}
+
+// httpRequestFormMultipart
+//
+// paramMap form普通参数
+//
+// fileMap form附件key及附件路径
+func httpRequestFormMultipart(method, url string, paramMap map[string]string, fileMap map[string]string, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
 	var (
 		req        *http.Request
 		bodyBuffer = &bytes.Buffer{}
@@ -451,14 +531,13 @@ func httpRequestForm(method, url string, paramMap map[string]string, fileMap map
 		}
 		func() { _ = file.Close() }()
 	}
-	contentType := bodyWriter.FormDataContentType()
 	if err = bodyWriter.Close(); nil != err {
 		return nil, err
 	}
 	if req, err = http.NewRequest(method, url, bodyBuffer); nil != err {
 		return
 	}
-	req.Header.Set("Content-Type", contentType)
+	req.Header.Set("Content-Type", "multipart/form-data")
 	return httpRequestTLSDo(req, tlsConfig)
 }
 

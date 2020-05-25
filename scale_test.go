@@ -307,12 +307,14 @@ func TestScaleFloat64(t *testing.T) {
 	)
 	i64 = 87372
 	f64 = 92837.87263876498
+	t.Log(ScaleInt64toFloat64(i64, 0))
 	t.Log(ScaleInt64toFloat64(i64, 1))
 	t.Log(ScaleInt64toFloat64(i64, 2))
 	t.Log(ScaleInt64toFloat64(i64, 3))
 	t.Log(ScaleInt64toFloat64(i64, 4))
 	t.Log(ScaleInt64toFloat64(i64, 5))
 	t.Log()
+	t.Log(ScaleFloat64toInt64(f64, 0))
 	t.Log(ScaleFloat64toInt64(f64, 1))
 	t.Log(ScaleFloat64toInt64(f64, 2))
 	t.Log(ScaleFloat64toInt64(f64, 3))
