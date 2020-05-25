@@ -10,6 +10,7 @@ require (
 	github.com/jinzhu/gorm v1.9.12
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/robfig/cron v1.2.0
+	github.com/tjfoc/gmsm v1.3.1
 	github.com/vmihailenco/msgpack v4.0.4+incompatible
 	golang.org/x/sys v0.0.0-20190922100055-0a153f010e69 // indirect
 	google.golang.org/grpc v1.28.0

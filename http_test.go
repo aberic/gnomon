@@ -99,7 +99,7 @@ func TestHttpClientCommon_PostForm(t *testing.T) {
 	paramMap := map[string]string{}
 	paramMap["xxx"] = "111"
 	paramMap["yyy"] = "222"
-	if resp, err := HTTPPostForm("http://localhost:8888/one/test3/x/y", paramMap, nil); nil != err {
+	if resp, err := HTTPPostForm("http://localhost:8888/one/test3/x/y", paramMap); nil != err {
 		t.Skip(err)
 	} else {
 		defer func() { _ = resp.Body.Close() }()
@@ -118,7 +118,7 @@ func TestHttpClientCommon_PostForm1(t *testing.T) {
 	fileMap := map[string]string{}
 	fileMap["wk"] = "/Users/aberic/Downloads/plantuml4idea.zip"
 	fileMap["kw"] = "/Users/aberic/Documents/1400115281_report_pb.dump"
-	if resp, err := HTTPPostForm("http://localhost:8888/one/test5/a/b", paramMap, fileMap); nil != err {
+	if resp, err := HTTPPostFormMultipart("http://localhost:8888/one/test5/a/b", paramMap, fileMap); nil != err {
 		t.Skip(err)
 	} else {
 		defer func() { _ = resp.Body.Close() }()

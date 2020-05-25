@@ -190,7 +190,7 @@ func RSAGeneratePubKeyBytes(privateKey []byte, path, fileName, priPemType, pubPe
 // fileName 指定公钥的文件名称，如'public.pem'
 //
 // pks 私钥格式，默认提供PKCS1和PKCS8，通过调用‘CryptoRSA().PKSC1()’和‘CryptoRSA().PKSC8()’方法赋值
-func RSAGeneratePubKeyBytesWithPass(privateKey []byte, passwd, priPemType, pubPemType, path, fileName string, pks PKSCType) error {
+func RSAGeneratePubKeyBytesWithPass(privateKey []byte, passwd, path, fileName, priPemType, pubPemType string, pks PKSCType) error {
 	pri, err := RSALoadPriWithPass(privateKey, passwd, priPemType, pks)
 	if err != nil {
 		return err
