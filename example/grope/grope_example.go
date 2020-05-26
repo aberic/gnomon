@@ -38,13 +38,13 @@ func main() {
 	httpServe := grope.NewHTTPServe()
 	router1(httpServe)
 	router2(httpServe)
-	grope.ListenAndServe(":8888", httpServe)
-	//gnomon.Grope().ListenAndServeTLS(
-	//	httpServe,
-	//	":8888",
-	//	"./example/ca/server/rootCA.crt",
-	//	"./example/ca/server/rootCA.key",
-	//	"./example/ca/client/rootCA.crt")
+	//grope.ListenAndServe(":8888", httpServe)
+	grope.ListenAndServeTLS(
+		httpServe,
+		":8888",
+		"./example/ca/server/rootCA.crt",
+		"./example/ca/server/rootCA.key",
+		"./example/ca/client/rootCA.crt")
 }
 
 func doFilter1(ctx *grope.Context) {

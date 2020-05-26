@@ -15,6 +15,7 @@
 package gnomon
 
 import (
+	"gotest.tools/assert"
 	"io/ioutil"
 	"testing"
 )
@@ -40,7 +41,7 @@ func TestHttpClientCommon_Get(t *testing.T) {
 
 func TestHttpClientCommon_GetTLS(t *testing.T) {
 	if resp, err := HTTPGetTLS("https://localhost:8888/two/test2/0/hello/word", &HTTPTLSConfig{
-		CACrtFilePath:      "./example/ca/server/rootCA.crt",
+		RootCrtFilePath:    "./example/ca/server/rootCA.crt",
 		CertFilePath:       "./example/ca/client/rootCA.crt",
 		KeyFilePath:        "./example/ca/client/rootCA.key",
 		InsecureSkipVerify: false,
@@ -57,7 +58,7 @@ func TestHttpClientCommon_GetTLS(t *testing.T) {
 }
 
 func TestHttpClientCommon_Post(t *testing.T) {
-	if resp, err := HTTPPostJSON("http://localhost:8888/one/test1", &TestOne{
+	if resp, err := HTTPPostJSON("http://localhost:8888/one/test/test1?test=he&go=to", &TestOne{
 		One:   "1",
 		Ones:  true,
 		OneGo: 1,
@@ -74,14 +75,46 @@ func TestHttpClientCommon_Post(t *testing.T) {
 }
 
 func TestHttpClientCommon_PostTLS(t *testing.T) {
-	if resp, err := HTTPPostJSONTLS("https://localhost:8888/one/test1", &TestOne{
+	if resp, err := HTTPPostJSONTLS("https://localhost:8888/one/test/test1?test=he&go=to", &TestOne{
 		One:   "1",
 		Ones:  true,
 		OneGo: 1,
 	}, &HTTPTLSConfig{
-		CACrtFilePath:      "./example/ca/server/rootCA.crt",
+		RootCrtFilePath:    "./example/ca/server/rootCA.crt",
 		CertFilePath:       "./example/ca/client/rootCA.crt",
 		KeyFilePath:        "./example/ca/client/rootCA.key",
+		InsecureSkipVerify: false,
+	}); nil != err {
+		t.Skip(err)
+	} else {
+		defer func() { _ = resp.Body.Close() }()
+		if bytes, err := ioutil.ReadAll(resp.Body); err != nil {
+			t.Skip("unable to read response body:", err.Error())
+		} else {
+			t.Log(string(bytes))
+		}
+	}
+}
+
+func TestHttpClientCommon_PostTLSBytes(t *testing.T) {
+	var (
+		rootCrtBytes, keyBytes, certBytes []byte
+		err                               error
+	)
+	rootCrtBytes, err = ioutil.ReadFile("./example/ca/server/rootCA.crt")
+	assert.NilError(t, err)
+	keyBytes, err = ioutil.ReadFile("./example/ca/client/rootCA.key")
+	assert.NilError(t, err)
+	certBytes, err = ioutil.ReadFile("./example/ca/client/rootCA.crt")
+	assert.NilError(t, err)
+	if resp, err := HTTPPostJSONTLSBytes("https://localhost:8888/one/test/test1?test=he&go=to", &TestOne{
+		One:   "1",
+		Ones:  true,
+		OneGo: 1,
+	}, &HTTPTLSBytesConfig{
+		RootCrtBytes:       rootCrtBytes,
+		KeyBytes:           keyBytes,
+		CertBytes:          certBytes,
 		InsecureSkipVerify: false,
 	}); nil != err {
 		t.Skip(err)

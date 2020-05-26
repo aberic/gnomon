@@ -153,7 +153,7 @@ func (n *node) fetch(pattern, method string) *node {
 	}
 	patternSplitArr := strings.Split(pattern, "/")[1:] // [a, b, :c, d, :e, :f, g]
 	nodal := n.fetchSplitArr(pattern, method, patternSplitArr, 0)
-	if nil != nodal.extend && nil != nodal.extend.Limit {
+	if nil != nodal && nil != nodal.extend && nil != nodal.extend.Limit {
 		if len(nodal.extend.Limit.limitChan) >= nodal.extend.Limit.LimitCount {
 			nodal.error = &struct {
 				Message string `json:"message"`
