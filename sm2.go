@@ -17,110 +17,77 @@ package gnomon
 import (
 	"encoding/pem"
 	"github.com/tjfoc/gmsm/sm2"
-	"os"
-	"path/filepath"
 )
 
 // SM2Generate SM2公钥私钥产生
 //
 // path 指定公私钥所在生成目录
-func SM2Generate(path, priFileName, pubFileName string) error {
-	priv, err := sm2.GenerateKey() // 生成密钥对
-	if err != nil {
-		return err
+func SM2Generate() (pri *sm2.PrivateKey, pub *sm2.PublicKey, err error) {
+	// 生成密钥对
+	if pri, err = sm2.GenerateKey(); err == nil {
+		pub = &pri.PublicKey
 	}
-	pub := &priv.PublicKey
-
-	priFilePath := filepath.Join(path, priFileName)
-	pubFilePath := filepath.Join(path, pubFileName)
-	if err = writePrivateKeytoPem(path, priFilePath, "", priv, nil); nil != err { // 生成密钥文件
-		return err
-	}
-	return writePublicKeytoPem(path, pubFilePath, "", pub, nil) // 生成公钥文件
+	return
 }
 
-// SM2GenerateCustom SM2公钥私钥产生
-//
-// path 指定公私钥所在生成目录
-func SM2GenerateCustom(path, priFileName, pubFileName, priPemType, pubPemType string) error {
-	priv, err := sm2.GenerateKey() // 生成密钥对
-	if err != nil {
-		return err
+// SM2GenerateBytes SM2公钥私钥产生
+func SM2GenerateBytes(priPemType, pubPemType string) (priBytes, pubBytes []byte, err error) {
+	var (
+		pri *sm2.PrivateKey
+		pub *sm2.PublicKey
+	)
+	// 生成密钥对
+	if pri, pub, err = SM2Generate(); nil == err {
+		if priBytes, err = pri2Bytes(priPemType, pri); nil != err {
+			return
+		}
+		if pubBytes, err = pub2Bytes(pubPemType, pub); nil != err {
+			return
+		}
 	}
-	pub := &priv.PublicKey
-
-	priFilePath := filepath.Join(path, priFileName)
-	pubFilePath := filepath.Join(path, pubFileName)
-	if err = writePrivateKeytoPem(path, priFilePath, priPemType, priv, nil); nil != err { // 生成密钥文件
-		return err
-	}
-	return writePublicKeytoPem(path, pubFilePath, pubPemType, pub, nil) // 生成公钥文件
+	return
 }
 
-func writePrivateKeytoPem(path, filePath, priPemType string, key *sm2.PrivateKey, pwd []byte) error {
-	var block *pem.Block
-
-	der, err := sm2.MarshalSm2PrivateKey(key, pwd)
-	if err != nil {
-		return err
-	}
-	if StringIsEmpty(priPemType) {
-		if pwd != nil {
-			block = &pem.Block{
-				Type:  "ENCRYPTED PRIVATE KEY",
-				Bytes: der,
-			}
-		} else {
+func pri2Bytes(priPemType string, pri *sm2.PrivateKey) (data []byte, err error) {
+	var (
+		der   []byte
+		block *pem.Block
+	)
+	if der, err = sm2.MarshalSm2PrivateKey(pri, nil); err == nil {
+		if StringIsEmpty(priPemType) {
 			block = &pem.Block{
 				Type:  "PRIVATE KEY",
 				Bytes: der,
 			}
+		} else {
+			block = &pem.Block{
+				Type:  priPemType,
+				Bytes: der,
+			}
 		}
-	} else {
-		block = &pem.Block{
-			Type:  priPemType,
-			Bytes: der,
-		}
+		data = pem.EncodeToMemory(block)
 	}
-	if !FilePathExists(path) {
-		if err = os.MkdirAll(path, 0755); nil != err {
-			return err
-		}
-	}
-	var fileIO *os.File
-	if fileIO, err = os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600); nil != err {
-		return err
-	}
-	defer func() { _ = fileIO.Close() }()
-	return pem.Encode(fileIO, block)
+	return
 }
 
-func writePublicKeytoPem(path, filePath, pubPemType string, key *sm2.PublicKey, _ []byte) error {
-	der, err := sm2.MarshalSm2PublicKey(key)
-	if err != nil {
-		return err
-	}
-	var block *pem.Block
-	if StringIsEmpty(pubPemType) {
-		block = &pem.Block{
-			Type:  "PUBLIC KEY",
-			Bytes: der,
+func pub2Bytes(pubPemType string, pub *sm2.PublicKey) (data []byte, err error) {
+	var (
+		der   []byte
+		block *pem.Block
+	)
+	if der, err = sm2.MarshalSm2PublicKey(pub); err == nil {
+		if StringIsEmpty(pubPemType) {
+			block = &pem.Block{
+				Type:  "PUBLIC KEY",
+				Bytes: der,
+			}
+		} else {
+			block = &pem.Block{
+				Type:  pubPemType,
+				Bytes: der,
+			}
 		}
-	} else {
-		block = &pem.Block{
-			Type:  pubPemType,
-			Bytes: der,
-		}
+		data = pem.EncodeToMemory(block)
 	}
-	if !FilePathExists(path) {
-		if err = os.MkdirAll(path, 0755); nil != err {
-			return err
-		}
-	}
-	var fileIO *os.File
-	if fileIO, err = os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600); nil != err {
-		return err
-	}
-	defer func() { _ = fileIO.Close() }()
-	return pem.Encode(fileIO, block)
+	return
 }
