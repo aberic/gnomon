@@ -69,10 +69,10 @@ func ECCGeneratePemBytes(priPemType, pubPemType, passwd string, curve elliptic.C
 	)
 	if privateKey, err = ecdsa.GenerateKey(curve, rand.Reader); nil == err {
 		publicKey = &privateKey.PublicKey
-		if priBytes, err = ECCPri2Bytes(priPemType, passwd, privateKey); nil != err {
+		if priBytes, err = ECCPri2PemBytes(priPemType, passwd, privateKey); nil != err {
 			return
 		}
-		if pubBytes, err = ECCPub2Bytes(pubPemType, publicKey); nil != err {
+		if pubBytes, err = ECCPub2PemBytes(pubPemType, publicKey); nil != err {
 			return
 		}
 	}
@@ -416,7 +416,8 @@ func ECCSavePubPem(file, pemType string, publicKey *ecdsa.PublicKey) error {
 	return nil
 }
 
-func ECCPri2Bytes(priPemType, passwd string, privateKey *ecdsa.PrivateKey) (data []byte, err error) {
+// ECCPri2PemBytes ECCPri2PemBytes
+func ECCPri2PemBytes(priPemType, passwd string, privateKey *ecdsa.PrivateKey) (data []byte, err error) {
 	var (
 		derStream []byte
 		block     *pem.Block
@@ -436,7 +437,8 @@ func ECCPri2Bytes(priPemType, passwd string, privateKey *ecdsa.PrivateKey) (data
 	return
 }
 
-func ECCPub2Bytes(pubPemType string, publicKey *ecdsa.PublicKey) (data []byte, err error) {
+// ECCPub2PemBytes ECCPub2PemBytes
+func ECCPub2PemBytes(pubPemType string, publicKey *ecdsa.PublicKey) (data []byte, err error) {
 	var (
 		derPkiX []byte
 		block   *pem.Block

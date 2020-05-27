@@ -38,17 +38,18 @@ func SM2GeneratePemBytes(priPemType, pubPemType, passwd string) (priBytes, pubBy
 	)
 	// 生成密钥对
 	if pri, pub, err = SM2Generate(); nil == err {
-		if priBytes, err = SM2Pri2Bytes(priPemType, passwd, pri); nil != err {
+		if priBytes, err = SM2Pri2PemBytes(priPemType, passwd, pri); nil != err {
 			return
 		}
-		if pubBytes, err = SM2Pub2Bytes(pubPemType, pub); nil != err {
+		if pubBytes, err = SM2Pub2PemBytes(pubPemType, pub); nil != err {
 			return
 		}
 	}
 	return
 }
 
-func SM2Pri2Bytes(priPemType, passwd string, pri *sm2.PrivateKey) (data []byte, err error) {
+// SM2Pri2PemBytes SM2Pri2Bytes
+func SM2Pri2PemBytes(priPemType, passwd string, pri *sm2.PrivateKey) (data []byte, err error) {
 	var (
 		der, pw []byte
 		block   *pem.Block
@@ -75,7 +76,8 @@ func SM2Pri2Bytes(priPemType, passwd string, pri *sm2.PrivateKey) (data []byte, 
 	return
 }
 
-func SM2Pub2Bytes(pubPemType string, pub *sm2.PublicKey) (data []byte, err error) {
+// SM2Pub2PemBytes SM2Pub2PemBytes
+func SM2Pub2PemBytes(pubPemType string, pub *sm2.PublicKey) (data []byte, err error) {
 	var (
 		der   []byte
 		block *pem.Block
