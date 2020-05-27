@@ -27,7 +27,7 @@ func TestSM2Generate(t *testing.T) {
 }
 
 func TestSM2GenerateBytes(t *testing.T) {
-	priBytes, pubBytes, err := SM2GenerateBytes("SM2 PRIVATE KEY", "SM2 PUBLIC KEY")
+	priBytes, pubBytes, err := SM2GeneratePemBytes("SM2 PRIVATE KEY", "SM2 PUBLIC KEY", "")
 	assert.NilError(t, err)
 	t.Log(string(priBytes))
 	t.Log(string(pubBytes))

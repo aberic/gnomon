@@ -59,6 +59,26 @@ func ECCGenerate(curve elliptic.Curve) (*ecdsa.PrivateKey, *ecdsa.PublicKey, err
 	return privateKey, &privateKey.PublicKey, nil
 }
 
+// ECCGeneratePemBytes 生成公私钥对
+//
+// curve 曲线生成类型，如 crypto.S256()/elliptic.P256()/elliptic.P384()/elliptic.P512()
+func ECCGeneratePemBytes(priPemType, pubPemType, passwd string, curve elliptic.Curve) (priBytes, pubBytes []byte, err error) {
+	var (
+		privateKey *ecdsa.PrivateKey
+		publicKey  *ecdsa.PublicKey
+	)
+	if privateKey, err = ecdsa.GenerateKey(curve, rand.Reader); nil == err {
+		publicKey = &privateKey.PublicKey
+		if priBytes, err = ECCPri2Bytes(priPemType, passwd, privateKey); nil != err {
+			return
+		}
+		if pubBytes, err = ECCPub2Bytes(pubPemType, publicKey); nil != err {
+			return
+		}
+	}
+	return
+}
+
 // ECCGenerateKey 生成公私钥对
 //
 // path 指定公私钥所在生成目录
@@ -394,6 +414,43 @@ func ECCSavePubPem(file, pemType string, publicKey *ecdsa.PublicKey) error {
 		return err
 	}
 	return nil
+}
+
+func ECCPri2Bytes(priPemType, passwd string, privateKey *ecdsa.PrivateKey) (data []byte, err error) {
+	var (
+		derStream []byte
+		block     *pem.Block
+	)
+	// 将私钥转换为ASN.1 DER编码的形式
+	if derStream, err = x509.MarshalECPrivateKey(privateKey); nil == err {
+		// block表示PEM编码的结构
+		if StringIsEmpty(passwd) {
+			block = &pem.Block{Type: priPemType, Bytes: derStream}
+		} else {
+			if block, err = x509.EncryptPEMBlock(rand.Reader, priPemType, derStream, []byte(passwd), x509.PEMCipher3DES); nil != err {
+				return
+			}
+		}
+		data = pem.EncodeToMemory(block)
+	}
+	return
+}
+
+func ECCPub2Bytes(pubPemType string, publicKey *ecdsa.PublicKey) (data []byte, err error) {
+	var (
+		derPkiX []byte
+		block   *pem.Block
+	)
+	// 将公钥序列化为der编码的PKIX格式
+	if derPkiX, err = x509.MarshalPKIXPublicKey(publicKey); nil == err {
+		// block表示PEM编码的结构
+		block = &pem.Block{
+			Type:  pubPemType,
+			Bytes: derPkiX,
+		}
+		data = pem.EncodeToMemory(block)
+	}
+	return
 }
 
 // ECCLoadPubPem 从文件中加载公钥

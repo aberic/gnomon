@@ -20,6 +20,7 @@ import (
 	"encoding/hex"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/crypto/ecies"
+	"gotest.tools/assert"
 	"io/ioutil"
 	"path/filepath"
 	"testing"
@@ -69,6 +70,13 @@ func TestECCCommon_Generate(t *testing.T) {
 	if _, _, errECC = ECCGenerate(crypto.S256()); nil != errECC {
 		t.Skip(errECC)
 	}
+}
+
+func TestECCGeneratePemBytes(t *testing.T) {
+	priBytes, pubBytes, err := ECCGeneratePemBytes("SM2 PRIVATE KEY", "SM2 PUBLIC KEY", "", elliptic.P256())
+	assert.NilError(t, err)
+	t.Log(string(priBytes))
+	t.Log(string(pubBytes))
 }
 
 // curve 曲线生成类型，如 crypto.S256()/elliptic.P256()/elliptic.P384()/elliptic.P512()
