@@ -58,6 +58,72 @@ func RSAGenerateKey(bits int, path, priFileName, pubFileName, priPemType, pubPem
 	return RSAGenerateKeyWithPass(bits, path, priFileName, pubFileName, "", priPemType, pubPemType, -1, pks)
 }
 
+// RSAGenerateKeyPemBytes RSA公钥私钥产生
+//
+// bits 指定生成位大小
+//
+// path 指定公私钥所在生成目录
+//
+// pks 私钥格式，默认提供PKCS1和PKCS8，通过调用‘CryptoRSA().PKSC1()’和‘CryptoRSA().PKSC8()’方法赋值
+func RSAGenerateKeyPemBytes(bits int, priPemType, pubPemType, passwd string, pks PKSCType) (priBytes, pubBytes []byte, err error) {
+	var privateKey *rsa.PrivateKey
+	// 生成私钥文件
+	if privateKey, err = rsa.GenerateKey(rand.Reader, bits); nil == err {
+		publicKey := &privateKey.PublicKey
+		if priBytes, err = RSAPri2PemBytes(priPemType, passwd, privateKey, pks); nil != err {
+			return
+		}
+		if pubBytes, err = RSAPub2PemBytes(pubPemType, publicKey); nil != err {
+			return
+		}
+	}
+	return
+}
+
+// RSAPri2PemBytes RSAPri2PemBytes
+func RSAPri2PemBytes(priPemType, passwd string, privateKey *rsa.PrivateKey, pks PKSCType) (data []byte, err error) {
+	var (
+		derStream []byte
+		block     *pem.Block
+	)
+	switch pks {
+	default:
+		derStream = x509.MarshalPKCS1PrivateKey(privateKey)
+	case pksC8:
+		if derStream, err = x509.MarshalPKCS8PrivateKey(privateKey); nil != err {
+			return
+		}
+	}
+	// block表示PEM编码的结构
+	if StringIsEmpty(passwd) {
+		block = &pem.Block{Type: priPemType, Bytes: derStream}
+	} else {
+		if block, err = x509.EncryptPEMBlock(rand.Reader, priPemType, derStream, []byte(passwd), x509.PEMCipher3DES); nil != err {
+			return
+		}
+	}
+	data = pem.EncodeToMemory(block)
+	return
+}
+
+// RSAPub2PemBytes RSAPub2PemBytes
+func RSAPub2PemBytes(pubPemType string, publicKey *rsa.PublicKey) (data []byte, err error) {
+	var (
+		derPkiX []byte
+		block   *pem.Block
+	)
+	// 将公钥序列化为der编码的PKIX格式
+	if derPkiX, err = x509.MarshalPKIXPublicKey(publicKey); nil == err {
+		// block表示PEM编码的结构
+		block = &pem.Block{
+			Type:  pubPemType,
+			Bytes: derPkiX,
+		}
+		data = pem.EncodeToMemory(block)
+	}
+	return
+}
+
 // RSAGenerateKeyWithPass RSA公钥私钥产生
 //
 // bits 指定生成位大小

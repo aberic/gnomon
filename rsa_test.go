@@ -19,6 +19,7 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/hex"
+	"gotest.tools/assert"
 	"io/ioutil"
 	"path/filepath"
 	"testing"
@@ -58,6 +59,13 @@ func TestRSACommon_GenerateRsaKey(t *testing.T) {
 	t.Log(RSAGenerateKey(512, pathrsapksc8512, privateRSAName, publicRSAName, "PRIVATE KEY", "PUBLIC KEY", RSAPKSC8()))
 	t.Log(RSAGenerateKeyWithPass(1024, pathrsapksc81024, privateRSAName, publicRSAName, "123456", "PRIVATE KEY", "PUBLIC KEY", x509.PEMCipher3DES, RSAPKSC8()))
 	t.Log(RSAGenerateKey(2048, pathrsapksc82048, privateRSAName, publicRSAName, "PRIVATE KEY", "PUBLIC KEY", RSAPKSC8()))
+}
+
+func TestRSAGenerateKeyPemBytes(t *testing.T) {
+	priBytes, pubBytes, err := RSAGenerateKeyPemBytes(2048, "PRIVATE KEY", "PUBLIC KEY", "", RSAPKSC1())
+	assert.NilError(t, err)
+	t.Log(string(priBytes))
+	t.Log(string(pubBytes))
 }
 
 func TestRSACommon_GenerateRsaCustomPriKey(t *testing.T) {

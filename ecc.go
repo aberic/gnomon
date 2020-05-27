@@ -63,12 +63,9 @@ func ECCGenerate(curve elliptic.Curve) (*ecdsa.PrivateKey, *ecdsa.PublicKey, err
 //
 // curve 曲线生成类型，如 crypto.S256()/elliptic.P256()/elliptic.P384()/elliptic.P512()
 func ECCGeneratePemBytes(priPemType, pubPemType, passwd string, curve elliptic.Curve) (priBytes, pubBytes []byte, err error) {
-	var (
-		privateKey *ecdsa.PrivateKey
-		publicKey  *ecdsa.PublicKey
-	)
+	var privateKey *ecdsa.PrivateKey
 	if privateKey, err = ecdsa.GenerateKey(curve, rand.Reader); nil == err {
-		publicKey = &privateKey.PublicKey
+		publicKey := &privateKey.PublicKey
 		if priBytes, err = ECCPri2PemBytes(priPemType, passwd, privateKey); nil != err {
 			return
 		}
