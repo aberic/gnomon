@@ -273,122 +273,122 @@ func HTTPDoTLS(req *http.Request, tlsConfig *HTTPTLSConfig) (resp *http.Response
 	return HTTPDoTLSBytes(req, tlsConfig.trans())
 }
 
-// HTTPGetTLS get tls 请求
+// HTTPGetTLSBytes get tls 请求
 func HTTPGetTLSBytes(url string, tlsConfig *HTTPTLSBytesConfig) (resp *http.Response, err error) {
 	return httpRequestTLSBytes(http.MethodGet, url, nil, tlsConfig)
 }
 
-// HTTPPostJSONTLS post tls 请求
+// HTTPPostJSONTLSBytes post tls 请求
 //
 // content-type=application/json
 func HTTPPostJSONTLSBytes(url string, model interface{}, tlsConfig *HTTPTLSBytesConfig) (resp *http.Response, err error) {
 	return httpRequestJSON(http.MethodPost, url, model, tlsConfig)
 }
 
-// HTTPPutJSONTLS put tls 请求
+// HTTPPutJSONTLSBytes put tls 请求
 //
 // content-type=application/json
 func HTTPPutJSONTLSBytes(url string, model interface{}, tlsConfig *HTTPTLSBytesConfig) (resp *http.Response, err error) {
 	return httpRequestJSON(http.MethodPut, url, model, tlsConfig)
 }
 
-// HTTPPatchJSONTLS patch tls 请求
+// HTTPPatchJSONTLSBytes patch tls 请求
 //
 // content-type=application/json
 func HTTPPatchJSONTLSBytes(url string, model interface{}, tlsConfig *HTTPTLSBytesConfig) (resp *http.Response, err error) {
 	return httpRequestJSON(http.MethodPatch, url, model, tlsConfig)
 }
 
-// HTTPPostXMLTLS post tls 请求
+// HTTPPostXMLTLSBytes post tls 请求
 //
 // content-type=application/xml
 func HTTPPostXMLTLSBytes(url string, model interface{}, tlsConfig *HTTPTLSBytesConfig) (resp *http.Response, err error) {
 	return httpRequestXML(http.MethodPost, url, model, tlsConfig)
 }
 
-// HTTPPutXMLTLS put tls 请求
+// HTTPPutXMLTLSBytes put tls 请求
 //
 // content-type=application/xml
 func HTTPPutXMLTLSBytes(url string, model interface{}, tlsConfig *HTTPTLSBytesConfig) (resp *http.Response, err error) {
 	return httpRequestXML(http.MethodPut, url, model, tlsConfig)
 }
 
-// HTTPPatchXMLTLS patch tls 请求
+// HTTPPatchXMLTLSBytes patch tls 请求
 //
 // content-type=application/xml
 func HTTPPatchXMLTLSBytes(url string, model interface{}, tlsConfig *HTTPTLSBytesConfig) (resp *http.Response, err error) {
 	return httpRequestXML(http.MethodPatch, url, model, tlsConfig)
 }
 
-// HTTPPostYamlTLS post tls 请求
+// HTTPPostYamlTLSBytes post tls 请求
 //
 // content-type=application/x-yaml
 func HTTPPostYamlTLSBytes(url string, model interface{}, tlsConfig *HTTPTLSBytesConfig) (resp *http.Response, err error) {
 	return httpRequestYaml(http.MethodPost, url, model, tlsConfig)
 }
 
-// HTTPPutYamlTLS put tls 请求
+// HTTPPutYamlTLSBytes put tls 请求
 //
 // content-type=application/x-yaml
 func HTTPPutYamlTLSBytes(url string, model interface{}, tlsConfig *HTTPTLSBytesConfig) (resp *http.Response, err error) {
 	return httpRequestYaml(http.MethodPut, url, model, tlsConfig)
 }
 
-// HTTPPatchYamlTLS patch tls 请求
+// HTTPPatchYamlTLSBytes patch tls 请求
 //
 // content-type=application/x-yaml
 func HTTPPatchYamlTLSBytes(url string, model interface{}, tlsConfig *HTTPTLSBytesConfig) (resp *http.Response, err error) {
 	return httpRequestYaml(http.MethodPatch, url, model, tlsConfig)
 }
 
-// HTTPPostMsgPackTLS post tls 请求
+// HTTPPostMsgPackTLSBytes post tls 请求
 //
 // content-type=application/x-msgpack
 func HTTPPostMsgPackTLSBytes(url string, model interface{}, tlsConfig *HTTPTLSBytesConfig) (resp *http.Response, err error) {
 	return httpRequestMsgPack(http.MethodPost, url, model, tlsConfig)
 }
 
-// HTTPPutMsgPackTLS put tls 请求
+// HTTPPutMsgPackTLSBytes put tls 请求
 //
 // content-type=application/x-msgpack
 func HTTPPutMsgPackTLSBytes(url string, model interface{}, tlsConfig *HTTPTLSBytesConfig) (resp *http.Response, err error) {
 	return httpRequestMsgPack(http.MethodPut, url, model, tlsConfig)
 }
 
-// HTTPPatchMsgPackTLS patch tls 请求
+// HTTPPatchMsgPackTLSBytes patch tls 请求
 //
 // content-type=application/x-msgpack
 func HTTPPatchMsgPackTLSBytes(url string, model interface{}, tlsConfig *HTTPTLSBytesConfig) (resp *http.Response, err error) {
 	return httpRequestMsgPack(http.MethodPatch, url, model, tlsConfig)
 }
 
-// HTTPPostProtoBufTLS post tls 请求
+// HTTPPostProtoBufTLSBytes post tls 请求
 //
 // content-type=application/x-protobuf
 func HTTPPostProtoBufTLSBytes(url string, pm proto.Message, tlsConfig *HTTPTLSBytesConfig) (resp *http.Response, err error) {
 	return httpRequestProtoBuf(http.MethodPost, url, pm, tlsConfig)
 }
 
-// HTTPPutProtoBufTLS put tls 请求
+// HTTPPutProtoBufTLSBytes put tls 请求
 //
 // content-type=application/x-protobuf
 func HTTPPutProtoBufTLSBytes(url string, pm proto.Message, tlsConfig *HTTPTLSBytesConfig) (resp *http.Response, err error) {
 	return httpRequestProtoBuf(http.MethodPut, url, pm, tlsConfig)
 }
 
-// HTTPPatchProtoBufTLS patch tls 请求
+// HTTPPatchProtoBufTLSBytes patch tls 请求
 //
 // content-type=application/x-protobuf
 func HTTPPatchProtoBufTLSBytes(url string, pm proto.Message, tlsConfig *HTTPTLSBytesConfig) (resp *http.Response, err error) {
 	return httpRequestProtoBuf(http.MethodPatch, url, pm, tlsConfig)
 }
 
-// HTTPDeleteTLS delete tls 请求
+// HTTPDeleteTLSBytes delete tls 请求
 func HTTPDeleteTLSBytes(url string, tlsConfig *HTTPTLSBytesConfig) (resp *http.Response, err error) {
 	return httpRequestTLSBytes(http.MethodDelete, url, nil, tlsConfig)
 }
 
-// HTTPDoTLS 处理 tls 请求
+// HTTPDoTLSBytes 处理 tls 请求
 func HTTPDoTLSBytes(req *http.Request, tlsConfig *HTTPTLSBytesConfig) (resp *http.Response, err error) {
 	return httpRequestTLSBytesDo(req, tlsConfig)
 }
@@ -501,7 +501,7 @@ func HTTPPatchFormMultipartTLS(url string, paramMap map[string]string, fileMap m
 	return HTTPPatchFormMultipartTLSBytes(url, paramMap, fileMap, tlsConfig.trans())
 }
 
-// HTTPPostFormTLS post tls 请求
+// HTTPPostFormTLSBytes post tls 请求
 //
 // paramMap form普通参数
 //
@@ -510,7 +510,7 @@ func HTTPPostFormTLSBytes(url string, paramMap map[string]string, tlsConfig *HTT
 	return httpRequestForm(http.MethodPost, url, paramMap, tlsConfig)
 }
 
-// HTTPPutFormTLS put tls 请求
+// HTTPPutFormTLSBytes put tls 请求
 //
 // paramMap form普通参数
 //
@@ -519,7 +519,7 @@ func HTTPPutFormTLSBytes(url string, paramMap map[string]string, tlsConfig *HTTP
 	return httpRequestForm(http.MethodPut, url, paramMap, tlsConfig)
 }
 
-// HTTPPatchFormTLS patch tls 请求
+// HTTPPatchFormTLSBytes patch tls 请求
 //
 // paramMap form普通参数
 //
@@ -528,7 +528,7 @@ func HTTPPatchFormTLSBytes(url string, paramMap map[string]string, tlsConfig *HT
 	return httpRequestForm(http.MethodPatch, url, paramMap, tlsConfig)
 }
 
-// HTTPPostFormMultipartTLS post tls 请求
+// HTTPPostFormMultipartTLSBytes post tls 请求
 //
 // paramMap form普通参数
 //
@@ -537,7 +537,7 @@ func HTTPPostFormMultipartTLSBytes(url string, paramMap map[string]string, fileM
 	return httpRequestFormMultipart(http.MethodPost, url, paramMap, fileMap, tlsConfig)
 }
 
-// HTTPPutFormMultipartTLS put tls 请求
+// HTTPPutFormMultipartTLSBytes put tls 请求
 //
 // paramMap form普通参数
 //
@@ -546,7 +546,7 @@ func HTTPPutFormMultipartTLSBytes(url string, paramMap map[string]string, fileMa
 	return httpRequestFormMultipart(http.MethodPut, url, paramMap, fileMap, tlsConfig)
 }
 
-// HTTPPatchFormMultipartTLS patch tls 请求
+// HTTPPatchFormMultipartTLSBytes patch tls 请求
 //
 // paramMap form普通参数
 //
