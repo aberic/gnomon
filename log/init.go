@@ -192,7 +192,7 @@ func Field(key string, value interface{}) FieldInter {
 
 // Server 当前服务
 func Server(value string) FieldInter {
-	return &field{key: "service", value: value}
+	return &field{key: "server", value: value}
 }
 
 // Err 自定义输出错误
