@@ -190,6 +190,11 @@ func Field(key string, value interface{}) FieldInter {
 	return &field{key: key, value: value}
 }
 
+// Server 当前服务
+func Server(value string) FieldInter {
+	return &field{key: "service", value: value}
+}
+
 // Err 自定义输出错误
 func Err(err error) FieldInter {
 	if nil != err {
