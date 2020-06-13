@@ -26,7 +26,7 @@ func connect() {
 	dbURL := gnomon.EnvGetD(GDBUrl, "127.0.0.1:3306")
 	dbUser := gnomon.EnvGetD(GDBUser, "root")
 	dbPass := gnomon.EnvGetD(GDBPass, "root")
-	dbName := gnomon.EnvGetD(GDBName, "baas")
+	dbName := gnomon.EnvGetD(GDBName, "test")
 	if err := sql.Connect(dbURL, dbUser, dbPass, dbName, false, 5, 20); err != nil {
 		connect()
 	}

@@ -203,7 +203,7 @@ func two3(ctx *grope.Context) {
 	twos := &TestTwo{}
 	_ = ctx.ReceiveJSON(twos)
 	log.Info("two", log.Field("two", &twos), log.Field("url", ctx.Request().URL.String()))
-	log.Info("one1", log.Field("resp", ctx.ResponseFile(http.StatusOK, "tmp/httpFileTest/baas.sql")))
+	log.Info("one1", log.Field("resp", ctx.ResponseFile(http.StatusOK, "tmp/httpFileTest/1.sql")))
 }
 
 func two4(ctx *grope.Context) {
