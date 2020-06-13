@@ -17,7 +17,6 @@ package grope
 import (
 	"encoding/json"
 	"github.com/aberic/gnomon/grope/tune"
-	"github.com/aberic/gnomon/log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -40,7 +39,7 @@ type GHttpServe struct {
 //
 // filters 待实现拦截器/过滤器方法数组
 func (ghs *GHttpServe) Group(pattern string, filters ...Filter) *GHttpRouter {
-	ghs.nodal.add(pattern, "", nil, nil, filters...)
+	ghs.nodal.add(pattern, "", nil, nil, nil, filters...)
 	ghr := &GHttpRouter{pattern: pattern, nodal: ghs.nodal}
 	return ghr
 }
@@ -83,7 +82,7 @@ func (ghs *GHttpServe) execRoute(ctx *Context, nodal *node) {
 			return
 		}
 	}
-	ghs.parseHandler(ctx, nodal)
+	nodal.parseHandler(ctx)
 }
 
 func (ghs *GHttpServe) parseURLParams(r *http.Request) (pattern string, paramMap map[string]string) {
@@ -121,17 +120,6 @@ func (ghs *GHttpServe) execURLParams(paramStr string) map[string]string {
 		}
 	}
 	return paramMap
-}
-
-// parseHandler 解析请求处理方法
-func (ghs *GHttpServe) parseHandler(ctx *Context, nodal *node) {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Error("parseHandler", log.Field("error", err))
-			ctx.Status(http.StatusInternalServerError)
-		}
-	}()
-	nodal.handler(ctx)
 }
 
 // singleSeparator 将字符串内所有连续/替换为单个/

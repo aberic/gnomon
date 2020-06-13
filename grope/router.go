@@ -16,6 +16,7 @@ package grope
 
 import (
 	"github.com/aberic/gnomon"
+	"github.com/aberic/gnomon/balance"
 	"net/http"
 )
 
@@ -34,14 +35,28 @@ type Extend struct {
 	Limit *Limit
 }
 
+// Proxy 请求代理结构，目前仅支持HTTP
+type Proxy struct {
+	Balance balance.Class // 负载模型
+	Target  []*Target     // 代理目标结构
+}
+
+// Target 代理目标结构
+type Target struct {
+	Host    string // eg:localhost
+	Port    string // eg:8080
+	Pattern string // eg:“/demo/id/name”
+	Weight  int    // 负载权重，如果负载模型选择权重模型则有效
+}
+
 // GHttpRouter Http服务路由结构
 type GHttpRouter struct {
 	pattern string // group pattern
 	nodal   *node
 }
 
-func (ghr *GHttpRouter) repo(method, pattern string, extend *Extend, handler Handler, filters ...Filter) {
-	ghr.nodal.add(gnomon.StringBuild(ghr.pattern, pattern), method, extend, handler, filters...)
+func (ghr *GHttpRouter) repo(method, pattern string, extend *Extend, handler Handler, proxy *Proxy, filters ...Filter) {
+	ghr.nodal.add(gnomon.StringBuild(ghr.pattern, pattern), method, extend, handler, proxy, filters...)
 }
 
 // execURL 特殊处理Url
@@ -86,7 +101,7 @@ func (ghr *GHttpRouter) repo(method, pattern string, extend *Extend, handler Han
 //
 // filters 待实现拦截器/过滤器方法数组
 func (ghr *GHttpRouter) Get(pattern string, handler Handler, filters ...Filter) {
-	go ghr.repo(http.MethodGet, pattern, nil, handler, filters...)
+	go ghr.repo(http.MethodGet, pattern, nil, handler, nil, filters...)
 }
 
 // Head 发起一个 Head 请求接收项目
@@ -103,7 +118,7 @@ func (ghr *GHttpRouter) Get(pattern string, handler Handler, filters ...Filter) 
 //
 // filters 待实现拦截器/过滤器方法数组
 func (ghr *GHttpRouter) Head(pattern string, handler Handler, filters ...Filter) {
-	go ghr.repo(http.MethodHead, pattern, nil, handler, filters...)
+	go ghr.repo(http.MethodHead, pattern, nil, handler, nil, filters...)
 }
 
 // Post 发起一个 Post 请求接收项目
@@ -119,7 +134,7 @@ func (ghr *GHttpRouter) Head(pattern string, handler Handler, filters ...Filter)
 //
 // filters 待实现拦截器/过滤器方法数组
 func (ghr *GHttpRouter) Post(pattern string, handler Handler, filters ...Filter) {
-	go ghr.repo(http.MethodPost, pattern, nil, handler, filters...)
+	go ghr.repo(http.MethodPost, pattern, nil, handler, nil, filters...)
 }
 
 // Put 发起一个 Put 请求接收项目
@@ -134,7 +149,7 @@ func (ghr *GHttpRouter) Post(pattern string, handler Handler, filters ...Filter)
 //
 // filters 待实现拦截器/过滤器方法数组
 func (ghr *GHttpRouter) Put(pattern string, handler Handler, filters ...Filter) {
-	go ghr.repo(http.MethodPut, pattern, nil, handler, filters...)
+	go ghr.repo(http.MethodPut, pattern, nil, handler, nil, filters...)
 }
 
 // Patch 发起一个 Patch 请求接收项目
@@ -151,7 +166,7 @@ func (ghr *GHttpRouter) Put(pattern string, handler Handler, filters ...Filter) 
 //
 // filters 待实现拦截器/过滤器方法数组
 func (ghr *GHttpRouter) Patch(pattern string, handler Handler, filters ...Filter) {
-	go ghr.repo(http.MethodPatch, pattern, nil, handler, filters...)
+	go ghr.repo(http.MethodPatch, pattern, nil, handler, nil, filters...)
 }
 
 // Delete 发起一个 Delete 请求接收项目
@@ -167,7 +182,7 @@ func (ghr *GHttpRouter) Patch(pattern string, handler Handler, filters ...Filter
 //
 // filters 待实现拦截器/过滤器方法数组
 func (ghr *GHttpRouter) Delete(pattern string, handler Handler, filters ...Filter) {
-	go ghr.repo(http.MethodDelete, pattern, nil, handler, filters...)
+	go ghr.repo(http.MethodDelete, pattern, nil, handler, nil, filters...)
 }
 
 // Connect 发起一个 Connect 请求接收项目
@@ -182,7 +197,7 @@ func (ghr *GHttpRouter) Delete(pattern string, handler Handler, filters ...Filte
 //
 // filters 待实现拦截器/过滤器方法数组
 func (ghr *GHttpRouter) Connect(pattern string, handler Handler, filters ...Filter) {
-	go ghr.repo(http.MethodConnect, pattern, nil, handler, filters...)
+	go ghr.repo(http.MethodConnect, pattern, nil, handler, nil, filters...)
 }
 
 // Option 发起一个 Options 请求接收项目
@@ -199,7 +214,7 @@ func (ghr *GHttpRouter) Connect(pattern string, handler Handler, filters ...Filt
 //
 // filters 待实现拦截器/过滤器方法数组
 func (ghr *GHttpRouter) Option(pattern string, handler Handler, filters ...Filter) {
-	go ghr.repo(http.MethodOptions, pattern, nil, handler, filters...)
+	go ghr.repo(http.MethodOptions, pattern, nil, handler, nil, filters...)
 }
 
 // Trace 发起一个 Trace 请求接收项目
@@ -214,7 +229,7 @@ func (ghr *GHttpRouter) Option(pattern string, handler Handler, filters ...Filte
 //
 // filters 待实现拦截器/过滤器方法数组
 func (ghr *GHttpRouter) Trace(pattern string, handler Handler, filters ...Filter) {
-	go ghr.repo(http.MethodTrace, pattern, nil, handler, filters...)
+	go ghr.repo(http.MethodTrace, pattern, nil, handler, nil, filters...)
 }
 
 // Gets 发起一个 Get 请求接收项目
@@ -230,7 +245,7 @@ func (ghr *GHttpRouter) Trace(pattern string, handler Handler, filters ...Filter
 //
 // filters 待实现拦截器/过滤器方法数组
 func (ghr *GHttpRouter) Gets(pattern string, extend *Extend, handler Handler, filters ...Filter) {
-	go ghr.repo(http.MethodGet, pattern, extend, handler, filters...)
+	go ghr.repo(http.MethodGet, pattern, extend, handler, nil, filters...)
 }
 
 // Heads 发起一个 Head 请求接收项目
@@ -247,7 +262,7 @@ func (ghr *GHttpRouter) Gets(pattern string, extend *Extend, handler Handler, fi
 //
 // filters 待实现拦截器/过滤器方法数组
 func (ghr *GHttpRouter) Heads(pattern string, extend *Extend, handler Handler, filters ...Filter) {
-	go ghr.repo(http.MethodHead, pattern, extend, handler, filters...)
+	go ghr.repo(http.MethodHead, pattern, extend, handler, nil, filters...)
 }
 
 // Posts 发起一个 Post 请求接收项目
@@ -263,7 +278,7 @@ func (ghr *GHttpRouter) Heads(pattern string, extend *Extend, handler Handler, f
 //
 // filters 待实现拦截器/过滤器方法数组
 func (ghr *GHttpRouter) Posts(pattern string, extend *Extend, handler Handler, filters ...Filter) {
-	go ghr.repo(http.MethodPost, pattern, extend, handler, filters...)
+	go ghr.repo(http.MethodPost, pattern, extend, handler, nil, filters...)
 }
 
 // Puts 发起一个 Put 请求接收项目
@@ -278,7 +293,7 @@ func (ghr *GHttpRouter) Posts(pattern string, extend *Extend, handler Handler, f
 //
 // filters 待实现拦截器/过滤器方法数组
 func (ghr *GHttpRouter) Puts(pattern string, extend *Extend, handler Handler, filters ...Filter) {
-	go ghr.repo(http.MethodPut, pattern, extend, handler, filters...)
+	go ghr.repo(http.MethodPut, pattern, extend, handler, nil, filters...)
 }
 
 // Patches 发起一个 Patch 请求接收项目
@@ -295,7 +310,7 @@ func (ghr *GHttpRouter) Puts(pattern string, extend *Extend, handler Handler, fi
 //
 // filters 待实现拦截器/过滤器方法数组
 func (ghr *GHttpRouter) Patches(pattern string, extend *Extend, handler Handler, filters ...Filter) {
-	go ghr.repo(http.MethodPatch, pattern, extend, handler, filters...)
+	go ghr.repo(http.MethodPatch, pattern, extend, handler, nil, filters...)
 }
 
 // Deletes 发起一个 Delete 请求接收项目
@@ -311,7 +326,7 @@ func (ghr *GHttpRouter) Patches(pattern string, extend *Extend, handler Handler,
 //
 // filters 待实现拦截器/过滤器方法数组
 func (ghr *GHttpRouter) Deletes(pattern string, extend *Extend, handler Handler, filters ...Filter) {
-	go ghr.repo(http.MethodDelete, pattern, extend, handler, filters...)
+	go ghr.repo(http.MethodDelete, pattern, extend, handler, nil, filters...)
 }
 
 // Connects 发起一个 Connect 请求接收项目
@@ -326,7 +341,7 @@ func (ghr *GHttpRouter) Deletes(pattern string, extend *Extend, handler Handler,
 //
 // filters 待实现拦截器/过滤器方法数组
 func (ghr *GHttpRouter) Connects(pattern string, extend *Extend, handler Handler, filters ...Filter) {
-	go ghr.repo(http.MethodConnect, pattern, extend, handler, filters...)
+	go ghr.repo(http.MethodConnect, pattern, extend, handler, nil, filters...)
 }
 
 // Options 发起一个 Options 请求接收项目
@@ -343,7 +358,7 @@ func (ghr *GHttpRouter) Connects(pattern string, extend *Extend, handler Handler
 //
 // filters 待实现拦截器/过滤器方法数组
 func (ghr *GHttpRouter) Options(pattern string, extend *Extend, handler Handler, filters ...Filter) {
-	go ghr.repo(http.MethodOptions, pattern, extend, handler, filters...)
+	go ghr.repo(http.MethodOptions, pattern, extend, handler, nil, filters...)
 }
 
 // Traces 发起一个 Trace 请求接收项目
@@ -358,5 +373,20 @@ func (ghr *GHttpRouter) Options(pattern string, extend *Extend, handler Handler,
 //
 // filters 待实现拦截器/过滤器方法数组
 func (ghr *GHttpRouter) Traces(pattern string, extend *Extend, handler Handler, filters ...Filter) {
-	go ghr.repo(http.MethodTrace, pattern, extend, handler, filters...)
+	go ghr.repo(http.MethodTrace, pattern, extend, handler, nil, filters...)
+}
+
+// Proxies 发起一个 Proxy 请求接收项目
+//
+// PROXY 代理http请求相关
+//
+// pattern 项目路径，如“/demo/:id/:name”，与路由根路径相结合，最终会通过类似“http://127.0.0.1:8080/test/demo/1/g”方式进行访问
+//
+// model 期望接收的结构，如“&Test{}”，最终在Handler方法中得以调用
+//
+// handler 待实现接收请求方法
+//
+// filters 待实现拦截器/过滤器方法数组
+func (ghr *GHttpRouter) Proxies(pattern string, proxy *Proxy, extend *Extend, filters ...Filter) {
+	go ghr.repo(http.MethodTrace, pattern, extend, nil, proxy, filters...)
 }
