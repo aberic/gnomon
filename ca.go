@@ -188,6 +188,10 @@ func CAGenerateCertificateSelf(cert *CertSelf) (certData []byte, err error) {
 		SignatureAlgorithm:    cert.SignatureAlgorithm,
 		ExtKeyUsage:           cert.ExtKeyUsage,
 		KeyUsage:              cert.KeyUsage,
+		DNSNames:              cert.DNSNames,
+		EmailAddresses:        cert.EmailAddresses,
+		IPAddresses:           cert.IPAddresses,
+		URIs:                  cert.URIs,
 		SubjectKeyId:          []byte{1, 2, 3},
 	}
 	certData, err = x509.CreateCertificate(rand.Reader, template, template, cert.PublicKey, cert.ParentPrivateKey)
@@ -226,6 +230,10 @@ func CAGenerateCertificate(cert *Cert) (certData []byte, err error) {
 		SignatureAlgorithm:    cert.SignatureAlgorithm,
 		ExtKeyUsage:           cert.ExtKeyUsage,
 		KeyUsage:              cert.KeyUsage,
+		DNSNames:              cert.DNSNames,
+		EmailAddresses:        cert.EmailAddresses,
+		IPAddresses:           cert.IPAddresses,
+		URIs:                  cert.URIs,
 		SubjectKeyId:          []byte{1, 2, 3},
 	}
 	certData, err = x509.CreateCertificate(rand.Reader, template, cert.ParentCert, cert.PublicKey, cert.ParentPrivateKey)
@@ -271,6 +279,10 @@ type CertSelf struct {
 	ExtKeyUsage                 []x509.ExtKeyUsage      // ExtKeyUsage表示对给定键有效的扩展操作集。每个ExtKeyUsage*常量定义一个惟一的操作。
 	KeyUsage                    x509.KeyUsage           // KeyUsage表示对给定密钥有效的操作集。它是KeyUsage*常量的位图。
 	SignatureAlgorithm          x509.SignatureAlgorithm // signatureAlgorithm 生成证书时候采用的签名算法
+	DNSNames                    []string                // DNSNames DNS限制
+	EmailAddresses              []string                // EmailAddresses 邮箱地址限制
+	IPAddresses                 []net.IP                // IPAddresses IP地址限制
+	URIs                        []*url.URL              // URIs URL地址限制
 }
 
 // Cert 签名数字证书对象
