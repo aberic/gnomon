@@ -17,6 +17,8 @@ package grope
 import (
 	"fmt"
 	"github.com/aberic/gnomon"
+	"github.com/aberic/gnomon/log"
+	"net/http"
 	"strings"
 	"sync"
 )
@@ -52,7 +54,10 @@ type node struct {
 	}
 	preNode   *node
 	nextNodes []*node
-	lockNode  sync.Mutex
+
+	proxy *Proxy // 请求代理结构
+
+	lockNode sync.Mutex
 }
 
 // add
@@ -60,15 +65,17 @@ type node struct {
 // pattern /a/b/:c/d/:e/:f/g
 //
 // method eg:http.MethodGet
-func (n *node) add(pattern, method string, extend *Extend, handler Handler, filters ...Filter) {
+//
+// proxyHost 代理转发地址
+func (n *node) add(pattern, method string, extend *Extend, handler Handler, proxy *Proxy, filters ...Filter) {
 	if !n.root {
 		panic("only root can add node")
 	}
 	if pattern[0] != '/' {
 		panic("path must begin with '/'")
 	}
-	patternSplitArr := strings.Split(pattern, "/")[1:]                          // [a, b, :c, d, :e, :f, g]
-	n.addFunc(pattern, method, patternSplitArr, 0, extend, handler, filters...) // 默认splitArr从0开始解析
+	patternSplitArr := strings.Split(pattern, "/")[1:]                                 // [a, b, :c, d, :e, :f, g]
+	n.addFunc(pattern, method, patternSplitArr, 0, extend, handler, proxy, filters...) // 默认splitArr从0开始解析
 }
 
 // addSplitArr
@@ -80,12 +87,12 @@ func (n *node) add(pattern, method string, extend *Extend, handler Handler, filt
 // patternSplitArr [a, b, ?, d, ?, ?, g]
 //
 // index 1
-func (n *node) addSplitArr(pattern, method string, patternSplitArr []string, index int, extend *Extend, handler Handler, filters ...Filter) {
+func (n *node) addSplitArr(pattern, method string, patternSplitArr []string, index int, extend *Extend, handler Handler, proxy *Proxy, filters ...Filter) {
 	if len(patternSplitArr) == index { // splitArr长度与index相同则表明当前结点是叶子结点
-		n.fill(pattern, method, extend, handler, filters...)
+		n.fill(pattern, method, extend, handler, proxy, filters...)
 		return
 	}
-	n.addFunc(pattern, method, patternSplitArr, index, extend, handler, filters...)
+	n.addFunc(pattern, method, patternSplitArr, index, extend, handler, proxy, filters...)
 }
 
 // addFunc
@@ -97,7 +104,7 @@ func (n *node) addSplitArr(pattern, method string, patternSplitArr []string, ind
 // patternSplitArr [a, b, ?, d, ?, ?, g]
 //
 // index 1
-func (n *node) addFunc(pattern, method string, patternSplitArr []string, index int, extend *Extend, handler Handler, filters ...Filter) {
+func (n *node) addFunc(pattern, method string, patternSplitArr []string, index int, extend *Extend, handler Handler, proxy *Proxy, filters ...Filter) {
 	var patternPiece string
 	if patternPiece = patternSplitArr[index]; patternPiece[0] == ':' {
 		patternPiece = "?"
@@ -108,7 +115,7 @@ func (n *node) addFunc(pattern, method string, patternSplitArr []string, index i
 			if gnomon.StringIsNotEmpty(nd.method) && nd.method != method {
 				break
 			} else {
-				nd.addSplitArr(pattern, method, patternSplitArr, index, extend, handler, filters...)
+				nd.addSplitArr(pattern, method, patternSplitArr, index, extend, handler, proxy, filters...)
 			}
 			return
 		}
@@ -117,11 +124,11 @@ func (n *node) addFunc(pattern, method string, patternSplitArr []string, index i
 	n.lockNode.Lock()
 	n.nextNodes = append(n.nextNodes, nextNode)
 	n.lockNode.Unlock()
-	nextNode.addSplitArr(pattern, method, patternSplitArr, index, extend, handler, filters...)
+	nextNode.addSplitArr(pattern, method, patternSplitArr, index, extend, handler, proxy, filters...)
 }
 
 // fill
-func (n *node) fill(pattern, method string, extend *Extend, handler Handler, filters ...Filter) {
+func (n *node) fill(pattern, method string, extend *Extend, handler Handler, proxy *Proxy, filters ...Filter) {
 	if gnomon.StringIsNotEmpty(n.method) {
 		return
 	}
@@ -130,6 +137,9 @@ func (n *node) fill(pattern, method string, extend *Extend, handler Handler, fil
 	n.method = method
 	n.extend = extend
 	n.handler = handler
+	if nil != proxy && nil != proxy.Target {
+		n.proxy = proxy
+	}
 	if gnomon.StringIsNotEmpty(method) {
 		fmt.Printf("grope url %s %s \n", method, pattern)
 	}
@@ -223,4 +233,19 @@ func (n *node) fetchFuncAsync(pattern, patternPiece string, method string, patte
 		}
 	}
 	return nil
+}
+
+// parseHandler 解析请求处理方法
+func (n *node) parseHandler(ctx *Context) {
+	defer func() {
+		if err := recover(); err != nil {
+			log.Error("parseHandler", log.Field("error", err))
+			ctx.Status(http.StatusInternalServerError)
+		}
+	}()
+	if nil != n.proxy {
+		// todo 反向代理
+	} else {
+		n.handler(ctx)
+	}
 }
