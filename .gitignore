@@ -30,3 +30,7 @@ gen### Go template
 /example/log/tmp/
 /example/log/profile.coverprofile
 /log/profile.coverprofile
+/example/sql_de/
+/example/ca_grope_sql_de/
+/example/cas.zip
+/example/cas.tar

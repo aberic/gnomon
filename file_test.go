@@ -15,6 +15,8 @@
 package gnomon
 
 import (
+	"gotest.tools/assert"
+	"os"
 	"testing"
 )
 
@@ -195,4 +197,27 @@ func TestFileCommon_Copy(t *testing.T) {
 	if _, err := FileCopy("./tmp/copy/1.txt", "./tmp/copy/2.txt"); nil != err {
 		t.Skip(err)
 	}
+}
+
+func TestFileCompress(t *testing.T) {
+	f, err := os.Open("./example/ca")
+	assert.NilError(t, err)
+	err = FileCompressZip([]*os.File{f}, "./example/cas.zip")
+	assert.NilError(t, err)
+}
+
+func TestFileCompressTar(t *testing.T) {
+	f, err := os.Open("./example/ca")
+	assert.NilError(t, err)
+	err = FileCompressTar([]*os.File{f}, "./example/cas.tar")
+	assert.NilError(t, err)
+	//err = FileDeCompressTar("./example/cas.tar", "./example/castar")
+	//assert.NilError(t, err)
+}
+
+func TestFileDeCompressZip(t *testing.T) {
+	err := FileDeCompressZip("./example/ca_grope_sql.zip", "./example/ca_grope_sql_de")
+	assert.NilError(t, err)
+	err = FileDeCompressZip("./example/sql.zip", "./example/sql_de")
+	assert.NilError(t, err)
 }

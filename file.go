@@ -16,6 +16,7 @@
 package gnomon
 
 import (
+	"archive/tar"
 	"archive/zip"
 	"bufio"
 	"errors"
@@ -279,16 +280,33 @@ func FileLoopFileNames(pathname string) ([]string, error) {
 	return s, nil
 }
 
-// FileCompress 压缩文件
+// FileCompressZip 压缩文件
 // files 文件数组，可以是不同dir下的文件或者文件夹
 // dest 压缩文件存放地址
-func FileCompress(files []*os.File, dest string) error {
+func FileCompressZip(files []*os.File, dest string) error {
 	d, _ := os.Create(dest)
 	defer func() { _ = d.Close() }()
 	w := zip.NewWriter(d)
 	defer func() { _ = w.Close() }()
 	for _, file := range files {
 		err := compress(file, "", w)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// FileCompressTar 压缩文件
+// files 文件数组，可以是不同dir下的文件或者文件夹
+// dest 压缩文件存放地址
+func FileCompressTar(files []*os.File, dest string) error {
+	d, _ := os.Create(dest)
+	defer func() { _ = d.Close() }()
+	w := tar.NewWriter(d)
+	defer func() { _ = w.Close() }()
+	for _, file := range files {
+		err := compressTar(file, "", w)
 		if err != nil {
 			return err
 		}
@@ -340,21 +358,61 @@ func compress(file *os.File, prefix string, zw *zip.Writer) error {
 	return nil
 }
 
-// FileDeCompressTar 压缩文件
-// 压缩文件路径
-// 解压文件夹
-func FileDeCompressTar(tarFile, dest string) error {
-	srcFile, err := os.Open(tarFile)
+func compressTar(file *os.File, prefix string, tw *tar.Writer) error {
+	var (
+		info   os.FileInfo
+		header *tar.Header
+		err    error
+	)
+	defer func() { _ = file.Close() }()
+	info, err = file.Stat()
 	if err != nil {
 		return err
 	}
-	defer func() { _ = srcFile.Close() }()
-	reader, err := zip.OpenReader(srcFile.Name())
-	if nil != err {
-		return err
+	if info.IsDir() {
+		prefix = prefix + "/" + info.Name()
+		fileInfos, err := file.Readdir(-1)
+		if err != nil {
+			return err
+		}
+		for _, fi := range fileInfos {
+			fil, err := os.Open(file.Name() + "/" + fi.Name())
+			if err != nil {
+				return err
+			}
+			err = compressTar(fil, prefix, tw)
+			if err != nil {
+				return err
+			}
+		}
+	} else {
+		if header, err = tar.FileInfoHeader(info, ""); nil != err {
+			return err
+		}
+		header.Name = prefix + "/" + header.Name
+		if err = tw.WriteHeader(header); nil != err {
+			return err
+		}
+		_, err = io.Copy(tw, file)
+		if err != nil {
+			return err
+		}
 	}
-	return deCompress(reader, dest)
+	return nil
 }
+
+// FileDeCompressTar 压缩文件
+// 压缩文件路径
+// 解压文件夹
+//func FileDeCompressTar(tarFile, dest string) error {
+//	srcFile, err := os.Open(tarFile)
+//	if err != nil {
+//		return err
+//	}
+//	defer func() { _ = srcFile.Close() }()
+//	reader := tar.NewReader(srcFile)
+//	return deCompressTar(reader, dest)
+//}
 
 // FileDeCompressZip 解压
 func FileDeCompressZip(zipFile, dest string) error {
@@ -365,11 +423,11 @@ func FileDeCompressZip(zipFile, dest string) error {
 	if reader, err = zip.OpenReader(zipFile); nil != err {
 		return err
 	}
-	return deCompress(reader, dest)
+	return deCompressZip(reader, dest)
 }
 
-// deCompress 压缩文件
-func deCompress(reader *zip.ReadCloser, dest string) error {
+// deCompress 解压
+func deCompressZip(reader *zip.ReadCloser, dest string) error {
 	defer func() { _ = reader.Close() }()
 	for _, innerFile := range reader.File {
 		info := innerFile.FileInfo()
@@ -411,6 +469,62 @@ func deCompress(reader *zip.ReadCloser, dest string) error {
 	}
 	return nil
 }
+
+// deCompressTar 解压
+//func deCompressTar(reader *tar.Reader, dest string) error {
+//	for {
+//		if header,err := reader.Next(); nil==err {
+//			info := header.FileInfo()
+//			if info.IsDir() {
+//				err := os.MkdirAll(header.Name, os.ModePerm)
+//				if err != nil {
+//					return err
+//				}
+//				continue
+//			}
+//		}
+//	}
+//	defer func() { _ = reader.Close() }()
+//	for _, innerFile := range reader.File {
+//		info := innerFile.FileInfo()
+//		if info.IsDir() {
+//			err := os.MkdirAll(innerFile.Name, os.ModePerm)
+//			if err != nil {
+//				return err
+//			}
+//			continue
+//		}
+//		srcFile, err := innerFile.Open()
+//		if err != nil {
+//			continue
+//		}
+//		err = os.MkdirAll(dest, 0755)
+//		if err != nil {
+//			return err
+//		}
+//		filePath := filepath.Join(dest, innerFile.Name)
+//		if exist := FilePathExists(filePath); !exist {
+//			lastIndex := strings.LastIndex(filePath, "/")
+//			parentPath := filePath[0:lastIndex]
+//			if err := os.MkdirAll(parentPath, os.ModePerm); nil != err {
+//				return err
+//			}
+//		}
+//		newFile, err := os.Create(filePath)
+//		if err != nil {
+//			_ = srcFile.Close()
+//			continue
+//		}
+//		if _, err = io.Copy(newFile, srcFile); nil != err {
+//			_ = newFile.Close()
+//			_ = srcFile.Close()
+//			return err
+//		}
+//		_ = newFile.Close()
+//		_ = srcFile.Close()
+//	}
+//	return nil
+//}
 
 // FileCopy 拷贝文件
 //
