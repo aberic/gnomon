@@ -59,6 +59,11 @@ func HTTPPatchJSON(url string, model interface{}) (resp *http.Response, err erro
 	return HTTPPatchJSONTLS(url, model, &HTTPTLSConfig{})
 }
 
+// HTTPDeleteJSON delete 请求
+func HTTPDeleteJSON(url string, model interface{}) (resp *http.Response, err error) {
+	return HTTPDeleteJSONTLS(url, model, &HTTPTLSConfig{})
+}
+
 // HTTPPostXML post 请求
 //
 // content-type=application/xml
@@ -78,6 +83,11 @@ func HTTPPutXML(url string, model interface{}) (resp *http.Response, err error) 
 // content-type=application/xml
 func HTTPPatchXML(url string, model interface{}) (resp *http.Response, err error) {
 	return HTTPPatchXMLTLS(url, model, &HTTPTLSConfig{})
+}
+
+// HTTPDeleteXML delete 请求
+func HTTPDeleteXML(url string, model interface{}) (resp *http.Response, err error) {
+	return HTTPDeleteXMLTLS(url, model, &HTTPTLSConfig{})
 }
 
 // HTTPPostYaml post 请求
@@ -101,6 +111,11 @@ func HTTPPatchYaml(url string, model interface{}) (resp *http.Response, err erro
 	return HTTPPatchYamlTLS(url, model, &HTTPTLSConfig{})
 }
 
+// HTTPDeleteYaml delete 请求
+func HTTPDeleteYaml(url string, model interface{}) (resp *http.Response, err error) {
+	return HTTPDeleteYamlTLS(url, model, &HTTPTLSConfig{})
+}
+
 // HTTPPostMsgPack post 请求
 //
 // content-type=application/x-msgpack
@@ -122,6 +137,11 @@ func HTTPPatchMsgPack(url string, model interface{}) (resp *http.Response, err e
 	return HTTPPatchMsgPackTLS(url, model, &HTTPTLSConfig{})
 }
 
+// HTTPDeleteMsgPack delete 请求
+func HTTPDeleteMsgPack(url string, model interface{}) (resp *http.Response, err error) {
+	return HTTPDeleteMsgPackTLS(url, model, &HTTPTLSConfig{})
+}
+
 // HTTPPostProtoBuf post 请求
 //
 // content-type=application/x-protobuf
@@ -141,6 +161,11 @@ func HTTPPutProtoBuf(url string, pm proto.Message) (resp *http.Response, err err
 // content-type=application/x-protobuf
 func HTTPPatchProtoBuf(url string, pm proto.Message) (resp *http.Response, err error) {
 	return HTTPPatchProtoBufTLS(url, pm, &HTTPTLSConfig{})
+}
+
+// HTTPDeleteProtoBuf delete 请求
+func HTTPDeleteProtoBuf(url string, pm proto.Message) (resp *http.Response, err error) {
+	return HTTPDeleteProtoBufTLS(url, pm, &HTTPTLSConfig{})
 }
 
 // HTTPDelete delete 请求
@@ -179,6 +204,11 @@ func HTTPPatchJSONTLS(url string, model interface{}, tlsConfig *HTTPTLSConfig) (
 	return HTTPPatchJSONTLSBytes(url, model, tlsConfig.trans())
 }
 
+// HTTPDeleteJSONTLS delete tls 请求
+func HTTPDeleteJSONTLS(url string, model interface{}, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
+	return HTTPDeleteJSONTLSBytes(url, model, tlsConfig.trans())
+}
+
 // HTTPPostXMLTLS post tls 请求
 //
 // content-type=application/xml
@@ -198,6 +228,11 @@ func HTTPPutXMLTLS(url string, model interface{}, tlsConfig *HTTPTLSConfig) (res
 // content-type=application/xml
 func HTTPPatchXMLTLS(url string, model interface{}, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
 	return HTTPPatchXMLTLSBytes(url, model, tlsConfig.trans())
+}
+
+// HTTPDeleteXMLTLS delete tls 请求
+func HTTPDeleteXMLTLS(url string, model interface{}, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
+	return HTTPDeleteXMLTLSBytes(url, model, tlsConfig.trans())
 }
 
 // HTTPPostYamlTLS post tls 请求
@@ -221,6 +256,11 @@ func HTTPPatchYamlTLS(url string, model interface{}, tlsConfig *HTTPTLSConfig) (
 	return HTTPPatchYamlTLSBytes(url, model, tlsConfig.trans())
 }
 
+// HTTPDeleteYamlTLS delete tls 请求
+func HTTPDeleteYamlTLS(url string, model interface{}, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
+	return HTTPDeleteYamlTLSBytes(url, model, tlsConfig.trans())
+}
+
 // HTTPPostMsgPackTLS post tls 请求
 //
 // content-type=application/x-msgpack
@@ -242,6 +282,11 @@ func HTTPPatchMsgPackTLS(url string, model interface{}, tlsConfig *HTTPTLSConfig
 	return HTTPPatchMsgPackTLSBytes(url, model, tlsConfig.trans())
 }
 
+// HTTPDeleteMsgPackTLS delete tls 请求
+func HTTPDeleteMsgPackTLS(url string, model interface{}, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
+	return HTTPDeleteMsgPackTLSBytes(url, model, tlsConfig.trans())
+}
+
 // HTTPPostProtoBufTLS post tls 请求
 //
 // content-type=application/x-protobuf
@@ -261,6 +306,11 @@ func HTTPPutProtoBufTLS(url string, pm proto.Message, tlsConfig *HTTPTLSConfig) 
 // content-type=application/x-protobuf
 func HTTPPatchProtoBufTLS(url string, pm proto.Message, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
 	return HTTPPatchProtoBufTLSBytes(url, pm, tlsConfig.trans())
+}
+
+// HTTPDeleteProtoBufTLS delete tls 请求
+func HTTPDeleteProtoBufTLS(url string, pm proto.Message, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
+	return HTTPDeleteProtoBufTLSBytes(url, pm, tlsConfig.trans())
 }
 
 // HTTPDeleteTLS delete tls 请求
@@ -299,6 +349,11 @@ func HTTPPatchJSONTLSBytes(url string, model interface{}, tlsConfig *HTTPTLSByte
 	return httpRequestJSON(http.MethodPatch, url, model, tlsConfig)
 }
 
+// HTTPDeleteJSONTLSBytes delete tls 请求
+func HTTPDeleteJSONTLSBytes(url string, model interface{}, tlsConfig *HTTPTLSBytesConfig) (resp *http.Response, err error) {
+	return httpRequestJSON(http.MethodDelete, url, model, tlsConfig)
+}
+
 // HTTPPostXMLTLSBytes post tls 请求
 //
 // content-type=application/xml
@@ -318,6 +373,11 @@ func HTTPPutXMLTLSBytes(url string, model interface{}, tlsConfig *HTTPTLSBytesCo
 // content-type=application/xml
 func HTTPPatchXMLTLSBytes(url string, model interface{}, tlsConfig *HTTPTLSBytesConfig) (resp *http.Response, err error) {
 	return httpRequestXML(http.MethodPatch, url, model, tlsConfig)
+}
+
+// HTTPDeleteXMLTLSBytes delete tls 请求
+func HTTPDeleteXMLTLSBytes(url string, model interface{}, tlsConfig *HTTPTLSBytesConfig) (resp *http.Response, err error) {
+	return httpRequestXML(http.MethodDelete, url, model, tlsConfig)
 }
 
 // HTTPPostYamlTLSBytes post tls 请求
@@ -341,6 +401,11 @@ func HTTPPatchYamlTLSBytes(url string, model interface{}, tlsConfig *HTTPTLSByte
 	return httpRequestYaml(http.MethodPatch, url, model, tlsConfig)
 }
 
+// HTTPDeleteYamlTLSBytes delete tls 请求
+func HTTPDeleteYamlTLSBytes(url string, model interface{}, tlsConfig *HTTPTLSBytesConfig) (resp *http.Response, err error) {
+	return httpRequestYaml(http.MethodDelete, url, model, tlsConfig)
+}
+
 // HTTPPostMsgPackTLSBytes post tls 请求
 //
 // content-type=application/x-msgpack
@@ -362,6 +427,11 @@ func HTTPPatchMsgPackTLSBytes(url string, model interface{}, tlsConfig *HTTPTLSB
 	return httpRequestMsgPack(http.MethodPatch, url, model, tlsConfig)
 }
 
+// HTTPDeleteMsgPackTLSBytes delete tls 请求
+func HTTPDeleteMsgPackTLSBytes(url string, model interface{}, tlsConfig *HTTPTLSBytesConfig) (resp *http.Response, err error) {
+	return httpRequestMsgPack(http.MethodDelete, url, model, tlsConfig)
+}
+
 // HTTPPostProtoBufTLSBytes post tls 请求
 //
 // content-type=application/x-protobuf
@@ -381,6 +451,13 @@ func HTTPPutProtoBufTLSBytes(url string, pm proto.Message, tlsConfig *HTTPTLSByt
 // content-type=application/x-protobuf
 func HTTPPatchProtoBufTLSBytes(url string, pm proto.Message, tlsConfig *HTTPTLSBytesConfig) (resp *http.Response, err error) {
 	return httpRequestProtoBuf(http.MethodPatch, url, pm, tlsConfig)
+}
+
+// HTTPDeleteProtoBufTLSBytes delete tls 请求
+//
+// content-type=application/x-protobuf
+func HTTPDeleteProtoBufTLSBytes(url string, pm proto.Message, tlsConfig *HTTPTLSBytesConfig) (resp *http.Response, err error) {
+	return httpRequestProtoBuf(http.MethodDelete, url, pm, tlsConfig)
 }
 
 // HTTPDeleteTLSBytes delete tls 请求
