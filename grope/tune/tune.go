@@ -132,12 +132,12 @@ func ParseForm(r *http.Request) (map[string]interface{}, error) {
 }
 
 // ParseMultipartForm 解析请求参数
-func ParseMultipartForm(r *http.Request) (map[string]interface{}, error) {
+func ParseMultipartForm(r *http.Request) (*MultipartForm, error) {
 	contentType := r.Header.Get("Content-Type")
 	if strings.Contains(contentType, ContentTypeMultipartPostForm) {
 		reader, err := r.MultipartReader()
 		if nil == err {
-			filedMap := make(map[string]interface{})
+			form := &MultipartForm{Params: map[string]interface{}{}, Files: map[string][]*FormFile{}}
 			for {
 				part, err := reader.NextPart()
 				if err == io.EOF {
@@ -148,27 +148,32 @@ func ParseMultipartForm(r *http.Request) (map[string]interface{}, error) {
 				}
 				if part.FileName() == "" { // this is FormData
 					if data, err := ioutil.ReadAll(part); nil == err {
-						filedMap[part.FormName()] = string(data)
+						form.Params[part.FormName()] = string(data)
 					} else {
 						return nil, err
 					}
 				} else { // This is FileData
 					if bytes, err := ioutil.ReadAll(part); nil == err {
-						filedMap[part.FormName()] = &FormFile{
+						form.Files[part.FormName()] = append(form.Files[part.FormName()], &FormFile{
 							FileName: part.FileName(),
 							Data:     bytes,
-						}
+						})
 					} else {
 						return nil, err
 					}
 				}
 				func() { _ = part.Close() }()
 			}
-			return filedMap, nil
+			return form, nil
 		}
 		return nil, err
 	}
 	return nil, ErrContentType
+}
+
+type MultipartForm struct {
+	Params map[string]interface{}
+	Files  map[string][]*FormFile
 }
 
 // FormFile 表单附件信息

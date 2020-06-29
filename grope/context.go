@@ -207,7 +207,7 @@ func (c *Context) ReceiveForm() (map[string]interface{}, error) {
 }
 
 // ReceiveMultipartForm 接收一个"multipart/form-data"请求
-func (c *Context) ReceiveMultipartForm() (map[string]interface{}, error) {
+func (c *Context) ReceiveMultipartForm() (*tune.MultipartForm, error) {
 	return tune.ParseMultipartForm(c.request)
 }
 
