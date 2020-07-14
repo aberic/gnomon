@@ -58,8 +58,11 @@ func CommandExec(commandName string, params ...string) (line int, cmd *exec.Cmd,
 		if bytesErr, err = ioutil.ReadAll(stderr); err != nil {
 			goto ERR
 		} else if len(bytesErr) != 0 {
-			err = errors.New("stderr is not nil: " + string(bytesErr))
-			goto ERR
+			strResult := string(bytesErr)
+			if strings.Contains(strResult, "fail") || strings.Contains(strResult, "error") || strings.Contains(strResult, "mistake") {
+				err = errors.New("stderr is not nil: " + string(bytesErr))
+				goto ERR
+			}
 		}
 
 		reader := bufio.NewReader(stdout)
@@ -123,8 +126,11 @@ func CommandExecSilent(commandName string, params ...string) (line int, cmd *exe
 		if bytesErr, err = ioutil.ReadAll(stderr); err != nil {
 			goto ERR
 		} else if len(bytesErr) != 0 {
-			err = errors.New("stderr is not nil: " + string(bytesErr))
-			goto ERR
+			strResult := string(bytesErr)
+			if strings.Contains(strResult, "fail") || strings.Contains(strResult, "error") || strings.Contains(strResult, "mistake") {
+				err = errors.New("stderr is not nil: " + string(bytesErr))
+				goto ERR
+			}
 		}
 
 		reader := bufio.NewReader(stdout)
@@ -181,8 +187,11 @@ func CommandExecTail(commandName string, params ...string) (line int, cmd *exec.
 		if bytesErr, err = ioutil.ReadAll(stderr); err != nil {
 			goto ERR
 		} else if len(bytesErr) != 0 {
-			err = errors.New(string(bytesErr))
-			goto ERR
+			strResult := string(bytesErr)
+			if strings.Contains(strResult, "fail") || strings.Contains(strResult, "error") || strings.Contains(strResult, "mistake") {
+				err = errors.New("stderr is not nil: " + string(bytesErr))
+				goto ERR
+			}
 		}
 
 		reader := bufio.NewReader(stdout)
@@ -248,8 +257,11 @@ func CommandExecAsync(commandAsync chan *CommandAsync, commandName string, param
 		if bytesErr, err = ioutil.ReadAll(stderr); err != nil {
 			goto ERR
 		} else if len(bytesErr) != 0 {
-			err = errors.New(string(bytesErr))
-			goto ERR
+			strResult := string(bytesErr)
+			if strings.Contains(strResult, "fail") || strings.Contains(strResult, "error") || strings.Contains(strResult, "mistake") {
+				err = errors.New("stderr is not nil: " + string(bytesErr))
+				goto ERR
+			}
 		}
 
 		reader := bufio.NewReader(stdout)
