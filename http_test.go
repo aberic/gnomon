@@ -80,9 +80,12 @@ func TestHttpClientCommon_PostTLS(t *testing.T) {
 		Ones:  true,
 		OneGo: 1,
 	}, &HTTPTLSConfig{
-		RootCrtFilePath:    "./example/ca/server/rootCA.crt",
-		CertFilePath:       "./example/ca/client/rootCA.crt",
-		KeyFilePath:        "./example/ca/client/rootCA.key",
+		RootCrtFilePath: "./example/ca/server/rootCA.crt",
+		CertFilePath:    "./example/ca/client/rootCA.crt",
+		KeyFilePath:     "./example/ca/client/rootCA.key",
+		//RootCrtFilePath:    "tmp/example/ca/fabric/pksc1/2048/rootCA.crt",
+		//CertFilePath:       "tmp/example/ca/fabric/pksc1/2048/rootCA.crt",
+		//KeyFilePath:        "tmp/example/ca/fabric/pksc1/2048/rootCA.key",
 		InsecureSkipVerify: false,
 	}); nil != err {
 		t.Skip(err)

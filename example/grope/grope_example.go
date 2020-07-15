@@ -17,7 +17,6 @@ package main
 import (
 	"github.com/aberic/gnomon"
 	"github.com/aberic/gnomon/grope"
-	"github.com/aberic/gnomon/grope/tune"
 	"github.com/aberic/gnomon/log"
 	"net/http"
 )
@@ -42,9 +41,9 @@ func main() {
 	grope.ListenAndServeTLS(
 		httpServe,
 		":8888",
-		"./example/ca/server/rootCA.crt",
-		"./example/ca/server/rootCA.key",
-		"./example/ca/client/rootCA.crt")
+		"example/ca/server/rootCA.crt",
+		"example/ca/server/rootCA.key",
+		"example/ca/client/rootCA.crt")
 }
 
 func doFilter1(ctx *grope.Context) {
@@ -125,10 +124,10 @@ func one3(ctx *grope.Context) {
 
 func one4(ctx *grope.Context) {
 	ones, _ := ctx.ReceiveMultipartForm()
-	log.Info("one", log.Field("u", ones["u"]), log.Field("v", ones["v"]),
+	log.Info("one", log.Field("u", ones.Params["u"]), log.Field("v", ones.Params["v"]),
 		log.Field("url", ctx.Request().URL.String()),
 		log.Field("a", ctx.Values()["a"]), log.Field("b", ctx.Values()["b"]))
-	file := ones["file1"].(*tune.FormFile)
+	file := ones.Files["file1"][0]
 	_, _ = gnomon.FileAppend("tmp/httpFileTest/"+file.FileName, file.Data, true)
 	log.Info("one1", log.Field("resp", ctx.ResponseJSON(http.StatusOK, &TestTwo{
 		Two:   "2",
@@ -139,12 +138,12 @@ func one4(ctx *grope.Context) {
 
 func one5(ctx *grope.Context) {
 	ones, _ := ctx.ReceiveMultipartForm()
-	log.Info("one", log.Field("u", ones["u"]), log.Field("v", ones["v"]),
+	log.Info("one", log.Field("u", ones.Params["u"]), log.Field("v", ones.Params["v"]),
 		log.Field("url", ctx.Request().URL.String()),
 		log.Field("a", ctx.Values()["a"]), log.Field("b", ctx.Values()["b"]))
 
-	file1 := ones["wk"].(*tune.FormFile)
-	file2 := ones["kw"].(*tune.FormFile)
+	file1 := ones.Files["wk"][0]
+	file2 := ones.Files["kw"][0]
 	_, _ = gnomon.FileAppend("tmp/httpFileTest/"+file1.FileName, file1.Data, true)
 	_, _ = gnomon.FileAppend("tmp/httpFileTest/"+file2.FileName, file2.Data, true)
 	log.Info("one1", log.Field("resp", ctx.ResponseJSON(http.StatusOK, &TestTwo{

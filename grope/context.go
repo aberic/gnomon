@@ -318,7 +318,7 @@ func (c *Context) ResponseText(statusCode int, text string) error {
 // ResponseFile 返回一个"application/octet-stream"
 //
 // statusCode eg:http.StatusOK
-func (c *Context) ResponseFile(statusCode int, filepath string) error {
+func (c *Context) ResponseFile(statusCode int, filename, filepath string) error {
 	var (
 		file     *os.File
 		fileInfo os.FileInfo
@@ -336,7 +336,7 @@ func (c *Context) ResponseFile(statusCode int, filepath string) error {
 	if fileInfo, err = file.Stat(); nil != err {
 		return err
 	}
-	c.HeaderSet("Content-Disposition", "attachment; filename="+file.Name())
+	c.HeaderSet("Content-Disposition", "attachment; filename="+filename)
 	c.HeaderSet("Content-Type", http.DetectContentType(fileHeader))
 	c.HeaderSet("Content-Length", strconv.FormatInt(fileInfo.Size(), 10))
 	c.Status(statusCode)
