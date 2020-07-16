@@ -171,6 +171,7 @@ func ParseMultipartForm(r *http.Request) (*MultipartForm, error) {
 	return nil, ErrContentType
 }
 
+// MultipartForm MultipartForm
 type MultipartForm struct {
 	Params map[string]interface{}
 	Files  map[string][]*FormFile
