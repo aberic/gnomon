@@ -15,8 +15,11 @@
 package gnomon
 
 import (
+	"context"
+	"fmt"
 	"gotest.tools/assert"
 	"io/ioutil"
+	"net"
 	"testing"
 )
 
@@ -27,7 +30,7 @@ type TestOne struct {
 }
 
 func TestHttpClientCommon_Get(t *testing.T) {
-	if resp, err := HTTPGet("http://localhost:8888/two/test2/0/hello/word"); nil != err {
+	if resp, err := HTTPGet("http://localhost:8888/two/test2/0/hello/word/test"); nil != err {
 		t.Skip(err)
 	} else {
 		defer func() { _ = resp.Body.Close() }()
@@ -55,6 +58,58 @@ func TestHttpClientCommon_GetTLS(t *testing.T) {
 			t.Log(string(bytes))
 		}
 	}
+}
+
+func TestHttpClientCommon_GetTLS1(t *testing.T) {
+	if resp, err := HTTPGetTLS("https://localhost:8888/two/test2/0/hello/pass/test", &HTTPTLSConfig{
+		RootCrtFilePath:    "/Users/aberic/Downloads/test1/org.root.cert.pem",
+		CertFilePath:       "/Users/aberic/Downloads/test1/client.org.cert.pem",
+		KeyFilePath:        "/Users/aberic/Downloads/test1/client.key.pem",
+		InsecureSkipVerify: false,
+	}); nil != err {
+		t.Skip(err)
+	} else {
+		defer func() { _ = resp.Body.Close() }()
+		if bytes, err := ioutil.ReadAll(resp.Body); err != nil {
+			t.Skip("unable to read response body:", err.Error())
+		} else {
+			t.Log(string(bytes))
+		}
+	}
+}
+
+func TestHttpClientCommon_GetTLSProxy(t *testing.T) {
+	if resp, err := HttpGetTLSProxy("https://localhost:8888", "https://localhost:8888/two/test2/0/hello/pass/test", &HTTPTLSConfig{
+		RootCrtFilePath:    "/Users/aberic/Downloads/test1/org.root.cert.pem",
+		CertFilePath:       "/Users/aberic/Downloads/test1/client.org.cert.pem",
+		KeyFilePath:        "/Users/aberic/Downloads/test1/client.key.pem",
+		InsecureSkipVerify: false,
+	}); nil != err {
+		t.Skip(err)
+	} else {
+		defer func() { _ = resp.Body.Close() }()
+		if bytes, err := ioutil.ReadAll(resp.Body); err != nil {
+			t.Skip("unable to read response body:", err.Error())
+		} else {
+			t.Log(string(bytes))
+		}
+	}
+}
+
+func TestHttpClientCommon_GetTLSDial(t *testing.T) {
+	resolver := &net.Resolver{
+		PreferGo: true,
+		Dial: func(ctx context.Context, _, _ string) (net.Conn, error) {
+			d := net.Dialer{}
+			return d.DialContext(ctx, "tcp", "127.0.0.1:8888")
+		},
+	}
+	net.DefaultResolver = resolver
+	ctx, cancelfunc := context.WithTimeout(context.Background(), 30)
+	defer cancelfunc()
+	_, err := resolver.LookupHost(ctx, "www.baidu.com")
+
+	fmt.Printf("Error is: %s\n", err)
 }
 
 func TestHttpClientCommon_Post(t *testing.T) {

@@ -184,6 +184,15 @@ func HTTPGetTLS(url string, tlsConfig *HTTPTLSConfig) (resp *http.Response, err 
 	return HTTPGetTLSBytes(url, tlsConfig.trans())
 }
 
+// HTTPGetHostTLS get tls 请求
+func HTTPGetHostTLS(url, host string, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
+	return HTTPGetHostTLSBytes(url, host, tlsConfig.trans())
+}
+
+func HttpGetTLSProxy(expectURL, proxyURL string, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
+	return httpRequestTLSProxy(expectURL, proxyURL, tlsConfig.trans())
+}
+
 // HTTPPostJSONTLS post tls 请求
 //
 // content-type=application/json
@@ -326,7 +335,12 @@ func HTTPDoTLS(req *http.Request, tlsConfig *HTTPTLSConfig) (resp *http.Response
 
 // HTTPGetTLSBytes get tls 请求
 func HTTPGetTLSBytes(url string, tlsConfig *HTTPTLSBytesConfig) (resp *http.Response, err error) {
-	return httpRequestTLSBytes(http.MethodGet, url, nil, tlsConfig)
+	return httpRequestTLSBytes(http.MethodGet, url, "", nil, tlsConfig)
+}
+
+// HTTPGetHostTLSBytes get tls 请求
+func HTTPGetHostTLSBytes(url, host string, tlsConfig *HTTPTLSBytesConfig) (resp *http.Response, err error) {
+	return httpRequestTLSBytes(http.MethodGet, url, host, nil, tlsConfig)
 }
 
 func HttpGetTLSBytesProxy(expectURL, proxyURL string, tlsConfig *HTTPTLSBytesConfig) (resp *http.Response, err error) {
@@ -467,7 +481,7 @@ func HTTPDeleteProtoBufTLSBytes(url string, pm proto.Message, tlsConfig *HTTPTLS
 
 // HTTPDeleteTLSBytes delete tls 请求
 func HTTPDeleteTLSBytes(url string, tlsConfig *HTTPTLSBytesConfig) (resp *http.Response, err error) {
-	return httpRequestTLSBytes(http.MethodDelete, url, nil, tlsConfig)
+	return httpRequestTLSBytes(http.MethodDelete, url, "", nil, tlsConfig)
 }
 
 // HTTPDoTLSBytes 处理 tls 请求
@@ -797,10 +811,13 @@ func httpRequestFormMultipart(method, url string, paramMap map[string]string, fi
 	return httpRequestTLSBytesDo(req, tlsConfig)
 }
 
-func httpRequestTLSBytes(method, url string, body io.Reader, tlsConfig *HTTPTLSBytesConfig) (resp *http.Response, err error) {
+func httpRequestTLSBytes(method, url, host string, body io.Reader, tlsConfig *HTTPTLSBytesConfig) (resp *http.Response, err error) {
 	var req *http.Request
 	if req, err = http.NewRequest(method, url, body); nil != err {
 		return
+	}
+	if StringIsNotEmpty(host) {
+		req.Host = host
 	}
 	return httpRequestTLSBytesDo(req, tlsConfig)
 }
@@ -895,6 +912,13 @@ func httpRequestTLSProxy(expectURL, proxyURL string, tlsConfig *HTTPTLSBytesConf
 		return nil, err
 	}
 	transport.Proxy = http.ProxyURL(u)
+	// disabled HTTP/2
+	//transport.TLSNextProto = make(map[string]func(authority string, c *tls.Conn) http.RoundTripper)
+	//transport = &http.Transport{
+	//	Proxy: http.ProxyURL(u),
+	//	// disabled HTTP/2
+	//	TLSNextProto: make(map[string]func(authority string, c *tls.Conn) http.RoundTripper),
+	//}
 	client := &http.Client{Transport: transport}
 	return client.Get(proxyURL)
 }

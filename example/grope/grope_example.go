@@ -37,14 +37,14 @@ func main() {
 	httpServe := grope.NewHTTPServe()
 	router1(httpServe)
 	router2(httpServe)
-	//grope.ListenAndServe(":8888", httpServe)
-	grope.ListenAndServeTLS(
-		httpServe,
-		":8888",
-		"/Users/aberic/Downloads/test1/node.org.cert.pem",
-		"/Users/aberic/Downloads/test1/node.key.pem",
-		true,
-		"/Users/aberic/Downloads/test1/org.root.cert.pem")
+	grope.ListenAndServe(":8888", httpServe)
+	//grope.ListenAndServeTLS(
+	//	httpServe,
+	//	":8888",
+	//	"/Users/aberic/Downloads/test1/node.org.cert.pem",
+	//	"/Users/aberic/Downloads/test1/node.key.pem",
+	//	true,
+	//	"/Users/aberic/Downloads/test1/org.root.cert.pem")
 }
 
 func doFilter1(ctx *grope.Context) {
@@ -54,13 +54,15 @@ func doFilter1(ctx *grope.Context) {
 }
 
 func doFilter2(ctx *grope.Context) {
-	if ctx.HeaderGet("pass") != "pass" {
+	filterStr := ctx.HeaderGet("test")
+	if filterStr != "pass" {
 		log.Info("doFilter2", log.Field("resp", ctx.ResponseText(http.StatusForbidden, "filter pass")))
 	}
 }
 
 func doFilter3(ctx *grope.Context) {
-	if ctx.HeaderGet("test") != "test" {
+	filterStr := ctx.HeaderGet("test")
+	if filterStr != "test" {
 		log.Info("doFilter3", log.Field("resp", ctx.ResponseText(http.StatusForbidden, "filter test")))
 	}
 }
@@ -168,9 +170,9 @@ func one6(ctx *grope.Context) {
 
 func router2(hs *grope.GHttpServe) {
 	// 仓库相关路由设置
-	route := hs.Group("/two", doFilter3)
+	route := hs.Group("/two")
 	route.Post("/test1", two1)
-	route.Get("/test2/:id/:name/:pass", two2, doFilter2)
+	route.Get("/test2/:id/:name/:pass/:test", two2)
 	route.Get("/test2/test", two3)
 	route.Get("/test3", two3)
 	route.Get("/test4", two4)
@@ -193,7 +195,7 @@ func two2(ctx *grope.Context) {
 		log.Field("pass", ctx.Values()["pass"]),
 		log.Field("ok", ctx.HeaderGet("ok")), log.Field("no", ctx.HeaderGet("no")))
 	log.Info("one1", log.Field("resp", ctx.ResponseJSON(http.StatusOK, &TestOne{
-		One:   "1",
+		One:   "8888",
 		Ones:  true,
 		OneGo: 1,
 	})))
