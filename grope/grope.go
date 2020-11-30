@@ -44,14 +44,15 @@ func ListenAndServe(Addr string, gs *GHttpServe) {
 // Addr 期望监听的端口号，如“:8080”
 //
 // 必须提供包含证书和与服务器匹配的私钥的文件。如果证书是由证书颁发机构签署的，则certFile应该是服务器证书、任何中间体和CA证书的连接。
-func ListenAndServeTLS(gs *GHttpServe, Addr, certFilePath, keyFilePath string, caCertFilePaths ...string) {
+func ListenAndServeTLS(gs *GHttpServe, Addr, certFilePath, keyFilePath string, insecureSkipVerify bool, caCertFilePaths ...string) {
 	//加载服务端证书，用于对方验证我方合法性
 	if cert, err := tls.LoadX509KeyPair(certFilePath, keyFilePath); err != nil {
 		log.Panic("ListenAndServeTLS LoadX509KeyPair", log.Err(err))
 	} else {
 		tlsConfig := &tls.Config{
-			Certificates: []tls.Certificate{cert},
-			ClientAuth:   tls.RequireAndVerifyClientCert,
+			Certificates:       []tls.Certificate{cert},
+			ClientAuth:         tls.RequireAndVerifyClientCert,
+			InsecureSkipVerify: insecureSkipVerify,
 		}
 		if nil != caCertFilePaths && len(caCertFilePaths) > 0 {
 			clientCertPool := x509.NewCertPool()

@@ -41,9 +41,10 @@ func main() {
 	grope.ListenAndServeTLS(
 		httpServe,
 		":8888",
-		"example/ca/server/rootCA.crt",
-		"example/ca/server/rootCA.key",
-		"example/ca/client/rootCA.crt")
+		"/Users/aberic/Downloads/test1/node.org.cert.pem",
+		"/Users/aberic/Downloads/test1/node.key.pem",
+		true,
+		"/Users/aberic/Downloads/test1/org.root.cert.pem")
 }
 
 func doFilter1(ctx *grope.Context) {
@@ -202,7 +203,7 @@ func two3(ctx *grope.Context) {
 	twos := &TestTwo{}
 	_ = ctx.ReceiveJSON(twos)
 	log.Info("two", log.Field("two", &twos), log.Field("url", ctx.Request().URL.String()))
-	log.Info("one1", log.Field("resp", ctx.ResponseFile(http.StatusOK, "tmp/httpFileTest/1.sql")))
+	log.Info("one1", log.Field("resp", ctx.ResponseFile(http.StatusOK, "1.sql", "tmp/httpFileTest/1.sql")))
 }
 
 func two4(ctx *grope.Context) {

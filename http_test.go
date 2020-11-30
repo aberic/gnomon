@@ -41,9 +41,9 @@ func TestHttpClientCommon_Get(t *testing.T) {
 
 func TestHttpClientCommon_GetTLS(t *testing.T) {
 	if resp, err := HTTPGetTLS("https://localhost:8888/two/test2/0/hello/word", &HTTPTLSConfig{
-		RootCrtFilePath:    "./example/ca/server/rootCA.crt",
-		CertFilePath:       "./example/ca/client/rootCA.crt",
-		KeyFilePath:        "./example/ca/client/rootCA.key",
+		RootCrtFilePath:    "/Users/aberic/Downloads/test1/org.root.cert.pem",
+		CertFilePath:       "/Users/aberic/Downloads/test1/client.org.cert.pem",
+		KeyFilePath:        "/Users/aberic/Downloads/test1/client.key.pem",
 		InsecureSkipVerify: false,
 	}); nil != err {
 		t.Skip(err)

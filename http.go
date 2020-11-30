@@ -27,6 +27,7 @@ import (
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -326,6 +327,10 @@ func HTTPDoTLS(req *http.Request, tlsConfig *HTTPTLSConfig) (resp *http.Response
 // HTTPGetTLSBytes get tls 请求
 func HTTPGetTLSBytes(url string, tlsConfig *HTTPTLSBytesConfig) (resp *http.Response, err error) {
 	return httpRequestTLSBytes(http.MethodGet, url, nil, tlsConfig)
+}
+
+func HttpGetTLSBytesProxy(expectURL, proxyURL string, tlsConfig *HTTPTLSBytesConfig) (resp *http.Response, err error) {
+	return httpRequestTLSProxy(expectURL, proxyURL, tlsConfig)
 }
 
 // HTTPPostJSONTLSBytes post tls 请求
@@ -873,6 +878,25 @@ func getTLSTransport(tlsConfig *HTTPTLSBytesConfig) (transport *http.Transport, 
 		}
 	}
 	return
+}
+
+// expectURL https://localhost:8888
+//
+// proxyURL https://www.baidu.com:443
+func httpRequestTLSProxy(expectURL, proxyURL string, tlsConfig *HTTPTLSBytesConfig) (resp *http.Response, err error) {
+	var (
+		u         *url.URL
+		transport *http.Transport
+	)
+	if u, err = url.Parse(expectURL); err != nil {
+		panic(err)
+	}
+	if transport, err = getTLSTransport(tlsConfig); nil != err {
+		return nil, err
+	}
+	transport.Proxy = http.ProxyURL(u)
+	client := &http.Client{Transport: transport}
+	return client.Get(proxyURL)
 }
 
 // HTTPTLSConfig http tls 请求配置
