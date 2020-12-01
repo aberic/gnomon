@@ -27,7 +27,6 @@ import (
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
-	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -185,13 +184,13 @@ func HTTPGetTLS(url string, tlsConfig *HTTPTLSConfig) (resp *http.Response, err 
 }
 
 // HTTPGetHostTLS get tls 请求
-func HTTPGetHostTLS(url, host string, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
-	return HTTPGetHostTLSBytes(url, host, tlsConfig.trans())
-}
+//func HTTPGetHostTLS(url, host string, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
+//	return HTTPGetHostTLSBytes(url, host, tlsConfig.trans())
+//}
 
-func HttpGetTLSProxy(expectURL, proxyURL string, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
-	return httpRequestTLSProxy(expectURL, proxyURL, tlsConfig.trans())
-}
+//func HttpGetTLSProxy(expectURL, proxyURL string, tlsConfig *HTTPTLSConfig) (resp *http.Response, err error) {
+//	return httpRequestTLSProxy(expectURL, proxyURL, tlsConfig.trans())
+//}
 
 // HTTPPostJSONTLS post tls 请求
 //
@@ -343,9 +342,9 @@ func HTTPGetHostTLSBytes(url, host string, tlsConfig *HTTPTLSBytesConfig) (resp 
 	return httpRequestTLSBytes(http.MethodGet, url, host, nil, tlsConfig)
 }
 
-func HttpGetTLSBytesProxy(expectURL, proxyURL string, tlsConfig *HTTPTLSBytesConfig) (resp *http.Response, err error) {
-	return httpRequestTLSProxy(expectURL, proxyURL, tlsConfig)
-}
+//func HttpGetTLSBytesProxy(expectURL, proxyURL string, tlsConfig *HTTPTLSBytesConfig) (resp *http.Response, err error) {
+//	return httpRequestTLSProxy(expectURL, proxyURL, tlsConfig)
+//}
 
 // HTTPPostJSONTLSBytes post tls 请求
 //
@@ -871,8 +870,6 @@ func getTLSTransport(tlsConfig *HTTPTLSBytesConfig) (transport *http.Transport, 
 	)
 	if nil != tlsConfig.RootCrtBytes {
 		pool.AppendCertsFromPEM(tlsConfig.RootCrtBytes)
-	} else {
-		tlsConfig.InsecureSkipVerify = false
 	}
 	if nil != tlsConfig.KeyBytes && nil != tlsConfig.CertBytes {
 		// 用于对方验证我方证书合法性
@@ -900,28 +897,28 @@ func getTLSTransport(tlsConfig *HTTPTLSBytesConfig) (transport *http.Transport, 
 // expectURL https://localhost:8888
 //
 // proxyURL https://www.baidu.com:443
-func httpRequestTLSProxy(expectURL, proxyURL string, tlsConfig *HTTPTLSBytesConfig) (resp *http.Response, err error) {
-	var (
-		u         *url.URL
-		transport *http.Transport
-	)
-	if u, err = url.Parse(expectURL); err != nil {
-		panic(err)
-	}
-	if transport, err = getTLSTransport(tlsConfig); nil != err {
-		return nil, err
-	}
-	transport.Proxy = http.ProxyURL(u)
-	// disabled HTTP/2
-	//transport.TLSNextProto = make(map[string]func(authority string, c *tls.Conn) http.RoundTripper)
-	//transport = &http.Transport{
-	//	Proxy: http.ProxyURL(u),
-	//	// disabled HTTP/2
-	//	TLSNextProto: make(map[string]func(authority string, c *tls.Conn) http.RoundTripper),
-	//}
-	client := &http.Client{Transport: transport}
-	return client.Get(proxyURL)
-}
+//func httpRequestTLSProxy(expectURL, proxyURL string, tlsConfig *HTTPTLSBytesConfig) (resp *http.Response, err error) {
+//	var (
+//		u         *url.URL
+//		transport *http.Transport
+//	)
+//	if u, err = url.Parse(expectURL); err != nil {
+//		panic(err)
+//	}
+//	if transport, err = getTLSTransport(tlsConfig); nil != err {
+//		return nil, err
+//	}
+//	transport.Proxy = http.ProxyURL(u)
+//	// disabled HTTP/2
+//	//transport.TLSNextProto = make(map[string]func(authority string, c *tls.Conn) http.RoundTripper)
+//	//transport = &http.Transport{
+//	//	Proxy: http.ProxyURL(u),
+//	//	// disabled HTTP/2
+//	//	TLSNextProto: make(map[string]func(authority string, c *tls.Conn) http.RoundTripper),
+//	//}
+//	client := &http.Client{Transport: transport}
+//	return client.Get(proxyURL)
+//}
 
 // HTTPTLSConfig http tls 请求配置
 type HTTPTLSConfig struct {

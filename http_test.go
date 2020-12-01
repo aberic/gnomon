@@ -78,24 +78,6 @@ func TestHttpClientCommon_GetTLS1(t *testing.T) {
 	}
 }
 
-func TestHttpClientCommon_GetTLSProxy(t *testing.T) {
-	if resp, err := HttpGetTLSProxy("https://localhost:8888", "https://localhost:8888/two/test2/0/hello/pass/test", &HTTPTLSConfig{
-		RootCrtFilePath:    "/Users/aberic/Downloads/test1/org.root.cert.pem",
-		CertFilePath:       "/Users/aberic/Downloads/test1/client.org.cert.pem",
-		KeyFilePath:        "/Users/aberic/Downloads/test1/client.key.pem",
-		InsecureSkipVerify: false,
-	}); nil != err {
-		t.Skip(err)
-	} else {
-		defer func() { _ = resp.Body.Close() }()
-		if bytes, err := ioutil.ReadAll(resp.Body); err != nil {
-			t.Skip("unable to read response body:", err.Error())
-		} else {
-			t.Log(string(bytes))
-		}
-	}
-}
-
 func TestHttpClientCommon_GetTLSDial(t *testing.T) {
 	resolver := &net.Resolver{
 		PreferGo: true,
