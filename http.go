@@ -868,28 +868,20 @@ func getTLSTransport(tlsConfig *HTTPTLSBytesConfig) (transport *http.Transport, 
 		pool = x509.NewCertPool()
 		cert tls.Certificate
 	)
-	if nil != tlsConfig.RootCrtBytes {
-		pool.AppendCertsFromPEM(tlsConfig.RootCrtBytes)
+	transport = &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: tlsConfig.InsecureSkipVerify,
+		},
+	}
+	if nil != tlsConfig.RootCrtBytes && pool.AppendCertsFromPEM(tlsConfig.RootCrtBytes) {
+		transport.TLSClientConfig.RootCAs = pool
 	}
 	if nil != tlsConfig.KeyBytes && nil != tlsConfig.CertBytes {
 		// 用于对方验证我方证书合法性
 		if cert, err = tls.X509KeyPair(tlsConfig.CertBytes, tlsConfig.KeyBytes); nil != err {
 			return
 		}
-		transport = &http.Transport{
-			TLSClientConfig: &tls.Config{
-				RootCAs:            pool,
-				InsecureSkipVerify: tlsConfig.InsecureSkipVerify,
-				Certificates:       []tls.Certificate{cert},
-			},
-		}
-	} else {
-		transport = &http.Transport{
-			TLSClientConfig: &tls.Config{
-				RootCAs:            pool,
-				InsecureSkipVerify: tlsConfig.InsecureSkipVerify,
-			},
-		}
+		transport.TLSClientConfig.Certificates = []tls.Certificate{cert}
 	}
 	return
 }
