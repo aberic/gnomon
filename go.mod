@@ -13,7 +13,7 @@ require (
 	github.com/robfig/cron v1.2.0
 	github.com/tjfoc/gmsm v1.3.1
 	github.com/vmihailenco/msgpack v4.0.4+incompatible
-	golang.org/x/sys v0.0.0-20190922100055-0a153f010e69 // indirect
+	golang.org/x/sys v0.1.0 // indirect
 	google.golang.org/grpc v1.28.0
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
